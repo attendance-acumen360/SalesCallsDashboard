@@ -3,908 +3,1095 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sales Dashboard — Acumen GATE</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Acumen GATE — Sales Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+/* ── TOKENS ───────────────────────────────────────────── */
+:root {
+  --bg:       #080c14;
+  --surface:  #0e1420;
+  --border:   #1c2535;
+  --accent:   #e8ff47;
+  --accent2:  #3b82f6;
+  --accent3:  #f97316;
+  --hot:      #ef4444;
+  --warm:     #f59e0b;
+  --cold:     #64748b;
+  --green:    #22c55e;
+  --text:     #e2e8f0;
+  --muted:    #64748b;
+  --card-r:   14px;
+  --font-h:   'Syne', sans-serif;
+  --font-b:   'DM Sans', sans-serif;
+  --font-m:   'DM Mono', monospace;
+}
+
+/* ── RESET ────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --black:#0a0a0a;--red:#D0261A;--red-dk:#a81e14;
-  --white:#fff;--off:#f7f5f2;--gray:#999490;--border:#e8e4e0;
-  --green:#22c55e;--amber:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;
-  --sh:0 4px 24px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:14px;min-height:100vh;overflow-x:hidden}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input{font-family:inherit;outline:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── LOGIN ────────────────────────────────────────────── */
+#loginScreen {
+  position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;
+  background-image: radial-gradient(ellipse 60% 50% at 50% -20%, rgba(232,255,71,0.08), transparent);
 }
-html,body{height:100%}
-body{font-family:'Outfit',sans-serif;background:var(--off);color:var(--black);min-height:100vh}
+.login-box {
+  width:360px;text-align:center;
+  animation: fadeUp 0.5s ease both;
+}
+.login-logo {
+  font-family:var(--font-h);font-size:28px;font-weight:800;letter-spacing:-0.5px;
+  color:var(--accent);margin-bottom:6px;
+}
+.login-sub { color:var(--muted);font-size:13px;margin-bottom:36px; }
+.login-input {
+  width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:14px 18px;color:var(--text);font-size:15px;margin-bottom:12px;
+  transition:border-color 0.2s;
+}
+.login-input:focus{border-color:var(--accent)}
+.login-btn {
+  width:100%;background:var(--accent);color:#080c14;font-family:var(--font-h);
+  font-size:15px;font-weight:700;padding:14px;border-radius:10px;letter-spacing:0.5px;
+  transition:opacity 0.2s,transform 0.1s;
+}
+.login-btn:hover{opacity:0.9}
+.login-btn:active{transform:scale(0.98)}
+.login-error{color:var(--hot);font-size:13px;margin-top:8px;height:18px}
 
-/* ── TOPBAR ── */
-.topbar{background:var(--black);height:56px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
-.tb-brand{display:flex;align-items:center;gap:10px}
-.tb-logo{width:30px;height:30px;background:var(--red);border-radius:7px;display:flex;align-items:center;justify-content:center}
-.tb-logo svg{width:16px;height:16px}
-.tb-name{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.07em;color:#fff}
-.tb-sub{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-left:4px}
-.tb-right{display:flex;align-items:center;gap:10px}
-.tb-gentime{font-size:11px;color:rgba(255,255,255,.3)}
-.btn-xs{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 10px;cursor:pointer;color:rgba(255,255,255,.5);transition:all .2s}
-.btn-xs:hover{color:#fff;border-color:rgba(255,255,255,.4)}
-.btn-xs.danger{border-color:rgba(208,38,26,.4);color:rgba(208,38,26,.7)}
-.btn-xs.danger:hover{background:var(--red);border-color:var(--red);color:#fff}
+/* ── LAYOUT ────────────────────────────────────────────── */
+#app{display:none;min-height:100vh}
 
-/* ── LOGIN ── */
-.overlay{position:fixed;inset:0;background:var(--off);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px}
-.lcard{width:100%;max-width:380px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.1);animation:up .5s cubic-bezier(.22,1,.36,1)}
-@keyframes up{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
-.lhead{background:var(--black);padding:28px 24px 24px;position:relative}
-.lhead::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),transparent)}
-.ley{font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:5px}
-.ltitle{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:.03em;color:#fff;line-height:1}
-.ltitle span{color:rgba(255,255,255,.4);font-size:26px;display:block}
-.lbody{padding:24px}
-.iw{position:relative;margin-bottom:8px}
-.iw svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--gray);pointer-events:none;transition:color .2s}
-.iw:focus-within svg{color:var(--red)}
-.iw input{width:100%;padding:13px 13px 13px 42px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;color:var(--black);background:var(--off);transition:border-color .2s}
-.iw input:focus{outline:none;border-color:var(--red);background:#fff;box-shadow:0 0 0 4px rgba(208,38,26,.07)}
-.lerr{font-size:12px;color:var(--red-dk);background:rgba(208,38,26,.06);border:1px solid rgba(208,38,26,.2);border-left:3px solid var(--red);border-radius:7px;padding:10px 12px;margin-top:8px;display:none}
-.lerr.show{display:block}
-.lbtn{width:100%;padding:14px;background:var(--black);color:#fff;border:none;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.1em;cursor:pointer;margin-top:14px;position:relative;overflow:hidden;transition:transform .1s}
-.lbtn::before{content:'';position:absolute;inset:0;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.22,1,.36,1);z-index:0}
-.lbtn:hover::before{transform:scaleX(1)}
-.lbtn span{position:relative;z-index:1}
-.lbtn:disabled{opacity:.4;cursor:not-allowed}
+/* Top bar */
+.topbar {
+  position:sticky;top:0;z-index:100;
+  background:rgba(8,12,20,0.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 28px;height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;
+}
+.topbar-logo {
+  font-family:var(--font-h);font-size:20px;font-weight:800;
+  color:var(--accent);letter-spacing:-0.5px;white-space:nowrap;
+}
+.topbar-logo span{color:var(--text);font-weight:400}
 
-/* ── LOADING ── */
-.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 56px);gap:16px}
-.spin svg{width:48px;height:48px;animation:rot 1s linear infinite}
-@keyframes rot{to{transform:rotate(360deg)}}
-.spin-lbl{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);font-weight:500}
+.topbar-alerts {
+  display:flex;gap:8px;align-items:center;flex:1;justify-content:center;
+}
+.alert-pill {
+  display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;
+  font-size:12px;font-weight:500;font-family:var(--font-m);white-space:nowrap;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.alert-pill:hover{opacity:0.8}
+.alert-pill.urgent{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444}
+.alert-pill.retention{background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);color:#f97316}
+.alert-pill.review{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#3b82f6}
+.alert-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
 
-/* ── PAGE ── */
-.page{max-width:1200px;margin:0 auto;padding:20px 20px 60px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.refresh-btn {
+  display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--muted);font-size:12px;transition:all 0.2s;
+}
+.refresh-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ts{font-family:var(--font-m);font-size:11px;color:var(--muted)}
+.logout-btn{padding:7px 14px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:12px;transition:all 0.2s}
+.logout-btn:hover{border-color:var(--hot);color:var(--hot)}
 
-/* ── KPI STRIP ── */
-.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:14px;animation:fadeUp .5s .04s both}
-.kpi{background:#fff;border-radius:11px;padding:14px 12px;box-shadow:var(--sh);border:1px solid var(--border)}
-.kpi-lbl{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-bottom:5px}
-.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.02em;line-height:1;color:var(--black);margin-bottom:2px}
-.kpi-val.g{color:var(--green)}.kpi-val.w{color:var(--amber)}.kpi-val.b{color:var(--red)}
-.kpi-sub{font-size:10px;color:var(--gray)}
+/* Nav tabs */
+.nav-tabs {
+  display:flex;gap:2px;padding:12px 28px;border-bottom:1px solid var(--border);
+  background:var(--bg);overflow-x:auto;
+}
+.nav-tab {
+  padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;
+  background:transparent;color:var(--muted);transition:all 0.2s;white-space:nowrap;
+}
+.nav-tab:hover{background:var(--surface);color:var(--text)}
+.nav-tab.active{background:var(--surface);color:var(--accent);border:1px solid var(--border)}
 
-/* ── TABS ── */
-.tab-bar{display:flex;gap:3px;background:#fff;border-radius:11px;padding:4px;box-shadow:var(--sh);border:1px solid var(--border);margin-bottom:14px;animation:fadeUp .5s .08s both;overflow-x:auto}
-.tab{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);background:none;border:none;border-radius:7px;padding:7px 13px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.tab.on{background:var(--black);color:#fff}
-.tp{display:none;animation:fadeUp .25s both}
-.tp.on{display:block}
+/* Main content */
+.main{padding:24px 28px;max-width:1800px;margin:0 auto}
 
-/* ── CARD ── */
-.card{background:#fff;border-radius:13px;box-shadow:var(--sh);border:1px solid var(--border);padding:18px}
-.card-t{font-size:13px;font-weight:600;color:var(--black);margin-bottom:2px}
-.card-s{font-size:11px;color:var(--gray);margin-bottom:13px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px}
-.g21{display:grid;grid-template-columns:2fr 1fr;gap:11px;margin-bottom:11px}
-.g12{display:grid;grid-template-columns:1fr 2fr;gap:11px;margin-bottom:11px}
-.gfull{margin-bottom:11px}
+/* Sections */
+.section{display:none}
+.section.active{display:block;animation:fadeIn 0.25s ease}
 
-/* ── PILLS ── */
-.pill{display:inline-flex;align-items:center;font-size:10px;font-weight:600;letter-spacing:.04em;border-radius:20px;padding:2px 7px;white-space:nowrap;border:1px solid transparent}
-.p-hot{background:rgba(208,38,26,.1);color:var(--red-dk);border-color:rgba(208,38,26,.2)}
-.p-warm{background:rgba(245,158,11,.1);color:#92400e;border-color:rgba(245,158,11,.2)}
-.p-cold{background:rgba(59,130,246,.1);color:#1e40af;border-color:rgba(59,130,246,.2)}
-.p-pos{background:rgba(34,197,94,.1);color:#15803d;border-color:rgba(34,197,94,.2)}
-.p-neg{background:rgba(208,38,26,.08);color:var(--red-dk);border-color:rgba(208,38,26,.15)}
-.p-neu{background:rgba(153,148,144,.1);color:#555;border-color:rgba(153,148,144,.2)}
-.p-high{background:rgba(208,38,26,.1);color:var(--red-dk);border-color:rgba(208,38,26,.2)}
-.p-med{background:rgba(245,158,11,.1);color:#92400e;border-color:rgba(245,158,11,.2)}
-.p-low{background:rgba(34,197,94,.1);color:#15803d;border-color:rgba(34,197,94,.2)}
-.p-nl{background:rgba(208,38,26,.08);color:var(--red-dk);border-color:rgba(208,38,26,.15)}
-.p-fu{background:rgba(245,158,11,.08);color:#92400e;border-color:rgba(245,158,11,.2)}
-.p-fc{background:rgba(34,197,94,.08);color:#15803d;border-color:rgba(34,197,94,.2)}
-.p-bi{background:rgba(59,130,246,.08);color:#1e40af;border-color:rgba(59,130,246,.2)}
+/* ── KPI GRID ─────────────────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.kpi-card {
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--card-r);
+  padding:18px 20px;cursor:default;transition:border-color 0.2s;
+  position:relative;overflow:hidden;
+}
+.kpi-card::after {
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--kpi-color,var(--accent));
+}
+.kpi-card:hover{border-color:var(--kpi-color,var(--accent))}
+.kpi-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
+.kpi-value{font-family:var(--font-h);font-size:32px;font-weight:800;color:var(--kpi-color,var(--text));line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;font-family:var(--font-m)}
 
-.score{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:17px;min-width:24px;text-align:center}
-.sc-g{color:var(--green)}.sc-w{color:var(--amber)}.sc-b{color:var(--red)}
+/* ── CHARTS ROW ──────────────────────────────────────── */
+.charts-row{display:grid;gap:14px;margin-bottom:24px}
+.charts-row-2{grid-template-columns:1fr 1fr}
+.charts-row-3{grid-template-columns:2fr 1fr 1fr}
 
-/* ── BAR CHART ── */
-.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.bar-lbl{font-size:11px;color:var(--black);width:145px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar-bg{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.22,1,.36,1)}
-.bar-n{font-family:'Bebas Neue',sans-serif;font-size:15px;width:32px;text-align:right;flex-shrink:0}
+.chart-card {
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--card-r);
+  padding:20px 22px;
+}
+.chart-card-title {
+  font-family:var(--font-h);font-size:14px;font-weight:700;
+  color:var(--text);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;
+}
+.chart-card-title span{font-size:11px;color:var(--muted);font-family:var(--font-m);font-weight:400}
+.chart-wrap{position:relative;height:220px}
+.chart-wrap-sm{height:180px}
+.chart-wrap-lg{height:260px}
 
-/* ── DONUT ── */
-.donut-wrap{display:flex;align-items:center;gap:14px}
-.donut-leg{flex:1}
-.dl-item{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:12px}
-.dl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.dl-lbl{color:var(--gray);flex:1}
-.dl-val{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--black)}
+/* ── LEADERBOARD ─────────────────────────────────────── */
+.leaderboard-list{display:flex;flex-direction:column;gap:8px}
+.leaderboard-item {
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid transparent;
+  transition:border-color 0.15s;cursor:pointer;
+}
+.leaderboard-item:hover{border-color:var(--border)}
+.lb-rank {
+  font-family:var(--font-h);font-size:18px;font-weight:800;
+  color:var(--muted);width:26px;text-align:center;
+}
+.lb-rank.gold{color:var(--accent)}
+.lb-rank.silver{color:#94a3b8}
+.lb-rank.bronze{color:#b45309}
+.lb-name{flex:1;font-weight:600;font-size:14px}
+.lb-calls{font-family:var(--font-m);font-size:11px;color:var(--muted)}
+.lb-score{
+  font-family:var(--font-h);font-size:20px;font-weight:800;
+  color:var(--accent);
+}
+.lb-score-bar{width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.lb-score-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.6s ease}
+.lb-hot{font-family:var(--font-m);font-size:11px;color:var(--hot)}
 
-/* ── TABLE ── */
-.tbl-wrap{background:#fff;border-radius:13px;box-shadow:var(--sh);border:1px solid var(--border);overflow:hidden}
-.tbl-scroll{overflow-x:auto}
+/* ── CALLS TABLE ─────────────────────────────────────── */
+.table-controls {
+  display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;
+}
+.search-input {
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:8px 14px;color:var(--text);font-size:13px;flex:1;min-width:200px;
+  transition:border-color 0.2s;
+}
+.search-input:focus{border-color:var(--accent2)}
+.filter-select {
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;color:var(--text);font-size:12px;
+  -webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.filter-select:focus{border-color:var(--accent2)}
+
+.table-wrap{overflow-x:auto;border-radius:var(--card-r);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse}
-thead tr{background:var(--black)}
-thead th{padding:9px 11px;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);text-align:left;white-space:nowrap}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:var(--off)}
-tbody td{padding:8px 11px;font-size:12px;vertical-align:middle}
-tbody td.mu{color:var(--gray);font-size:11px}
-.tbl-empty{padding:32px;text-align:center;font-size:13px;color:var(--gray);font-style:italic}
-
-/* ── CALL FEED ── */
-.feed-item{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
-.feed-item:last-child{border-bottom:none}
-.feed-av{width:34px;height:34px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:#fff;flex-shrink:0}
-.feed-date{font-size:9px;color:var(--gray);text-align:center;margin-top:3px}
-.feed-body{flex:1;min-width:0}
-.feed-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px}
-.feed-sp{font-size:12px;font-weight:700;color:var(--black)}
-.feed-sum{font-size:11px;color:var(--gray);line-height:1.5;margin-bottom:4px}
-.feed-action{font-size:11px;background:rgba(208,38,26,.05);border:1px solid rgba(208,38,26,.12);border-radius:6px;padding:3px 8px;display:inline-block;color:var(--black)}
-
-/* ── FILTER BAR ── */
-.fbar{background:#fff;border-radius:11px;padding:9px 14px;box-shadow:var(--sh);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:11px}
-.fbar label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
-select.fsel{padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;color:var(--black);background:var(--off);cursor:pointer}
-select.fsel:focus{outline:none;border-color:var(--red)}
-.fsearch{flex:1;min-width:130px;padding:5px 11px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;color:var(--black);background:var(--off)}
-.fsearch:focus{outline:none;border-color:var(--red)}
-.fcnt{margin-left:auto;font-size:11px;font-weight:500;color:var(--gray);background:var(--off);border:1px solid var(--border);border-radius:20px;padding:3px 9px;white-space:nowrap}
-
-/* ── SP CARDS ── */
-.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:9px;margin-bottom:14px}
-.sp-card{background:#fff;border-radius:11px;border:1px solid var(--border);padding:14px;box-shadow:var(--sh);transition:transform .15s}
-.sp-card:hover{transform:translateY(-1px)}
-.sp-av{width:38px;height:38px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:17px;color:#fff;margin-bottom:7px}
-.sp-nm{font-size:13px;font-weight:700;margin-bottom:1px}
-.sp-sc{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;margin-bottom:3px}
-.sp-stats{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:7px}
-.sp-si{font-size:10px;color:var(--gray)}
-.sp-sv{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--black)}
-.sp-bar{margin-top:7px}
-.sp-bar-bg{height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:2px}
-.sp-bar-fill{height:100%;border-radius:4px}
-
-/* ── URGENT ── */
-.urg-item{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border)}
-.urg-item:last-child{border-bottom:none}
-.urg-dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:5px}
-.urg-sp{font-size:12px;font-weight:700}
-.urg-act{font-size:11px;color:var(--gray);margin-top:2px}
-.urg-meta{font-size:10px;color:var(--gray);margin-top:2px}
-
-/* ── SECTION TITLE ── */
-.sec{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.04em;color:var(--black);margin-bottom:12px;display:flex;align-items:center;gap:10px}
-.sec::after{content:'';flex:1;height:1px;background:var(--border)}
-
-@media(max-width:900px){
-  .kpi-strip{grid-template-columns:repeat(3,1fr)}
-  .g2,.g21,.g12{grid-template-columns:1fr}
-  .g3{grid-template-columns:1fr 1fr}
+thead{background:rgba(232,255,71,0.04)}
+th{
+  padding:11px 14px;text-align:left;font-size:11px;font-weight:600;
+  color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;
+  border-bottom:1px solid var(--border);white-space:nowrap;
 }
-@media(max-width:580px){
-  .kpi-strip{grid-template-columns:repeat(2,1fr)}
-  .g3{grid-template-columns:1fr}
-  .page{padding:14px 12px 48px}
-  .tb-gentime{display:none}
+td{
+  padding:12px 14px;border-bottom:1px solid rgba(28,37,53,0.6);
+  font-size:13px;vertical-align:top;
+}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.015)}
+.td-name{font-weight:600;color:var(--text)}
+.td-mono{font-family:var(--font-m);font-size:12px}
+
+.badge {
+  display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;
+  font-size:11px;font-weight:600;white-space:nowrap;font-family:var(--font-m);
+}
+.badge-hot     {background:rgba(239,68,68,0.15);color:#ef4444}
+.badge-warm    {background:rgba(245,158,11,0.15);color:#f59e0b}
+.badge-cold    {background:rgba(100,116,139,0.15);color:#94a3b8}
+.badge-new     {background:rgba(59,130,246,0.12);color:#60a5fa}
+.badge-follow  {background:rgba(168,85,247,0.12);color:#c084fc}
+.badge-fee     {background:rgba(34,197,94,0.12);color:#4ade80}
+.badge-batch   {background:rgba(6,182,212,0.12);color:#22d3ee}
+.badge-int     {background:rgba(34,197,94,0.12);color:#4ade80}
+.badge-nfu     {background:rgba(245,158,11,0.12);color:#fbbf24}
+.badge-nint    {background:rgba(239,68,68,0.12);color:#f87171}
+.badge-disc    {background:rgba(100,116,139,0.12);color:#94a3b8}
+.badge-urgent  {background:rgba(239,68,68,0.18);color:#ef4444;border:1px solid rgba(239,68,68,0.3)}
+.badge-ret     {background:rgba(249,115,22,0.18);color:#f97316;border:1px solid rgba(249,115,22,0.3)}
+.badge-strong  {background:rgba(34,197,94,0.12);color:#4ade80}
+.badge-weak    {background:rgba(239,68,68,0.08);color:#f87171}
+.badge-std     {background:rgba(100,116,139,0.08);color:#94a3b8}
+
+.score-pill {
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:24px;border-radius:6px;font-family:var(--font-h);font-size:13px;font-weight:800;
+}
+.score-hi  {background:rgba(34,197,94,0.15);color:#22c55e}
+.score-mid {background:rgba(245,158,11,0.15);color:#f59e0b}
+.score-lo  {background:rgba(239,68,68,0.15);color:#ef4444}
+
+/* Expandable row */
+.expand-row{display:none}
+.expand-row.open{display:table-row}
+.expand-cell{background:rgba(232,255,71,0.02);border-top:1px solid var(--border);padding:16px 18px}
+.expand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px 24px}
+.expand-item label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:3px}
+.expand-item p{font-size:13px;color:var(--text);line-height:1.5}
+.expand-item.full{grid-column:1/-1}
+
+.pagination{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.page-btn {
+  padding:6px 12px;border-radius:6px;background:var(--surface);border:1px solid var(--border);
+  color:var(--muted);font-size:12px;transition:all 0.15s;
+}
+.page-btn:hover{border-color:var(--accent);color:var(--accent)}
+.page-btn.active{background:var(--accent);color:#080c14;border-color:var(--accent);font-weight:700}
+.page-info{font-family:var(--font-m);font-size:12px;color:var(--muted)}
+
+/* ── ALERTS SECTION ─────────────────────────────────── */
+.alert-section{margin-bottom:24px}
+.alert-section-title{
+  font-family:var(--font-h);font-size:16px;font-weight:700;
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.alert-section-title .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.alert-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.alert-card {
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;border-left:3px solid transparent;
+}
+.alert-card.urgent-card{border-left-color:var(--hot)}
+.alert-card.retention-card{border-left-color:var(--accent3)}
+.alert-card.fee-card{border-left-color:var(--green)}
+.alert-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px}
+.alert-card-name{font-weight:600;font-size:13px}
+.alert-card-date{font-family:var(--font-m);font-size:11px;color:var(--muted);white-space:nowrap}
+.alert-card-action{font-size:12px;color:var(--accent2);line-height:1.5}
+.alert-card-summary{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── SALESPERSON PANEL ──────────────────────────────── */
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px}
+.sp-card {
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--card-r);
+  padding:20px;cursor:pointer;transition:border-color 0.2s;
+}
+.sp-card:hover{border-color:var(--accent)}
+.sp-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.sp-name{font-family:var(--font-h);font-size:18px;font-weight:800}
+.sp-last{font-family:var(--font-m);font-size:11px;color:var(--muted);margin-top:3px}
+.sp-score-big{font-family:var(--font-h);font-size:40px;font-weight:800;line-height:1}
+.sp-score-label{font-size:11px;color:var(--muted);font-family:var(--font-m)}
+.sp-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.sp-stat-item{background:rgba(255,255,255,0.03);border-radius:8px;padding:8px 10px}
+.sp-stat-val{font-family:var(--font-h);font-size:18px;font-weight:800}
+.sp-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.sp-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+
+/* ── EMPTY / LOADING ────────────────────────────────── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty h3{font-family:var(--font-h);font-size:18px;margin-bottom:8px;color:var(--text)}
+.loader{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:80px 20px;color:var(--muted);font-size:14px;
+}
+.spinner{
+  width:20px;height:20px;border:2px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+
+/* ── ANIMATIONS ─────────────────────────────────────── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:768px){
+  .topbar{padding:0 14px}
+  .main{padding:16px 14px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .charts-row-2,.charts-row-3{grid-template-columns:1fr}
+  .topbar-alerts{display:none}
+  .sp-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div class="overlay" id="loginOverlay">
-  <div class="lcard">
-    <div class="lhead">
-      <div class="ley">Sales Intelligence</div>
-      <div class="ltitle">Call Analytics<span>Dashboard</span></div>
-    </div>
-    <div class="lbody">
-      <div class="iw">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="1.5" y="6" width="13" height="9" rx="1.5"/>
-          <path d="M5 6V4.5a3 3 0 016 0V6"/>
-          <circle cx="8" cy="10.5" r="1.5" fill="currentColor" stroke="none"/>
-        </svg>
-        <input type="password" id="pwInput" placeholder="Dashboard password"
-          autocomplete="current-password"
-          oninput="document.getElementById('lerr').classList.remove('show')"
-          onkeydown="if(event.key==='Enter')doLogin()"/>
-      </div>
-      <div class="lerr" id="lerr"></div>
-      <button class="lbtn" id="lbtn" onclick="doLogin()"><span>Access Dashboard</span></button>
-    </div>
+<!-- LOGIN ─────────────────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">ACUMEN</div>
+    <div class="login-sub">GATE Academy · Sales Intelligence</div>
+    <input type="password" class="login-input" id="pwInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">SIGN IN</button>
+    <div class="login-error" id="loginErr"></div>
   </div>
 </div>
 
-<!-- TOPBAR -->
-<div class="topbar" id="topbar" style="display:none">
-  <div class="tb-brand">
-    <div class="tb-logo">
-      <svg viewBox="0 0 20 20" fill="none">
-        <path d="M10 2L17 6v8l-7 4-7-4V6z" stroke="#fff" stroke-width="1.5"/>
-        <circle cx="10" cy="10" r="2.5" fill="#fff"/>
-      </svg>
+<!-- APP ───────────────────────────────────────────────────── -->
+<div id="app">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-logo">ACUMEN<span> Gate</span></div>
+    <div class="topbar-alerts" id="topbarAlerts"></div>
+    <div class="topbar-right">
+      <div class="ts" id="genTs"></div>
+      <button class="refresh-btn" onclick="refreshData()">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 1.2-3.6M2 2v4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Refresh
+      </button>
+      <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
-    <span class="tb-name">ACUMEN GATE</span>
-    <span class="tb-sub">Sales Dashboard</span>
   </div>
-  <div class="tb-right">
-    <span class="tb-gentime" id="genTime"></span>
-    <button class="btn-xs" onclick="refreshData()">↻ Refresh</button>
-    <button class="btn-xs danger" onclick="doLogout()">Logout</button>
+
+  <!-- Nav -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('overview',this)">Overview</button>
+    <button class="nav-tab" onclick="showSection('calls',this)">All Calls</button>
+    <button class="nav-tab" onclick="showSection('team',this)">Team</button>
+    <button class="nav-tab" onclick="showSection('alerts',this)">Action Queue</button>
+    <button class="nav-tab" onclick="showSection('objections',this)">Objections</button>
+  </div>
+
+  <div class="main">
+
+    <!-- ── OVERVIEW ────────────────────────────────────────── -->
+    <div id="sec-overview" class="section active">
+      <div id="kpiGrid" class="kpi-grid"></div>
+      <div class="charts-row charts-row-3" id="chartsRow1">
+        <div class="chart-card">
+          <div class="chart-card-title">Daily Call Volume <span id="trendRange"></span></div>
+          <div class="chart-wrap chart-wrap-lg"><canvas id="trendChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Call Type Mix</div>
+          <div class="chart-wrap"><canvas id="typeChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Lead Intent Split</div>
+          <div class="chart-wrap"><canvas id="intentChart"></canvas></div>
+        </div>
+      </div>
+      <div class="charts-row charts-row-2">
+        <div class="chart-card">
+          <div class="chart-card-title">Weekly Volume & Avg Score</div>
+          <div class="chart-wrap"><canvas id="weeklyChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">This Week — Leaderboard</div>
+          <div id="leaderboardList" class="leaderboard-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALL CALLS ───────────────────────────────────────── -->
+    <div id="sec-calls" class="section">
+      <div class="table-controls">
+        <input type="text" class="search-input" id="callSearch" placeholder="Search by name, outcome, objection, summary…" oninput="filterCalls()">
+        <select class="filter-select" id="f-calltype" onchange="filterCalls()">
+          <option value="">All Types</option>
+          <option>New Lead</option><option>Follow-up</option>
+          <option>Fee Collection</option><option>Batch Info</option>
+        </select>
+        <select class="filter-select" id="f-intent" onchange="filterCalls()">
+          <option value="">All Intent</option>
+          <option>Hot</option><option>Warm</option><option>Cold</option>
+        </select>
+        <select class="filter-select" id="f-outcome" onchange="filterCalls()">
+          <option value="">All Outcomes</option>
+          <option>Interested</option><option>Needs Follow-up</option>
+          <option>Not Interested</option><option>Call Disconnected</option><option>Information Only</option>
+        </select>
+        <select class="filter-select" id="f-sp" onchange="filterCalls()">
+          <option value="">All Salespeople</option>
+        </select>
+        <select class="filter-select" id="f-priority" onchange="filterCalls()">
+          <option value="">All Priority</option>
+          <option>High</option><option>Medium</option><option>Low</option>
+        </select>
+        <select class="filter-select" id="f-flag" onchange="filterCalls()">
+          <option value="">All Flags</option>
+          <option value="URGENT_FOLLOWUP">Urgent</option>
+          <option value="RETENTION_RISK">Retention Risk</option>
+          <option value="STRONG_CALL">Strong Call</option>
+          <option value="WEAK_CALL">Weak Call</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Salesperson</th><th>Type</th><th>Intent</th>
+              <th>Outcome</th><th>Priority</th><th>Score</th><th>Conv%</th>
+              <th>Flag</th><th>Fee</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="callsTable"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="callsPagination"></div>
+    </div>
+
+    <!-- ── TEAM ────────────────────────────────────────────── -->
+    <div id="sec-team" class="section">
+      <div id="spGrid" class="sp-grid"></div>
+      <div id="spChartRow" style="display:none">
+        <div class="chart-card" style="max-width:700px">
+          <div class="chart-card-title" id="spChartTitle">Salesperson — Call Breakdown</div>
+          <div class="chart-wrap"><canvas id="spChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ACTION QUEUE ────────────────────────────────────── -->
+    <div id="sec-alerts" class="section">
+      <div class="alert-section" id="urgentSection">
+        <div class="alert-section-title" style="color:var(--hot)"><span class="dot"></span>Urgent Follow-ups</div>
+        <div class="alert-cards" id="urgentCards"></div>
+      </div>
+      <div class="alert-section" id="retentionSection">
+        <div class="alert-section-title" style="color:var(--accent3)"><span class="dot"></span>Retention Risks</div>
+        <div class="alert-cards" id="retentionCards"></div>
+      </div>
+      <div class="alert-section" id="feeSection">
+        <div class="alert-section-title" style="color:var(--green)"><span class="dot"></span>Fee Collection Follow-ups</div>
+        <div class="alert-cards" id="feeCards"></div>
+      </div>
+    </div>
+
+    <!-- ── OBJECTIONS ─────────────────────────────────────── -->
+    <div id="sec-objections" class="section">
+      <div class="charts-row charts-row-2">
+        <div class="chart-card">
+          <div class="chart-card-title">Top Objections (All Time)</div>
+          <div class="chart-wrap chart-wrap-lg"><canvas id="objChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Outcome Distribution</div>
+          <div class="chart-wrap"><canvas id="outcomeChart"></canvas></div>
+        </div>
+      </div>
+      <div class="charts-row charts-row-2" style="margin-top:0">
+        <div class="chart-card">
+          <div class="chart-card-title">Sentiment Breakdown</div>
+          <div class="chart-wrap chart-wrap-sm"><canvas id="sentimentChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Conversion Probability Distribution</div>
+          <div class="chart-wrap chart-wrap-sm"><canvas id="convChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- LOADING -->
-<div class="loading" id="loading" style="display:none">
-  <div class="spin">
-    <svg viewBox="0 0 48 48" fill="none">
-      <circle cx="24" cy="24" r="20" stroke="#e8e4e0" stroke-width="3"/>
-      <path d="M24 4A20 20 0 0144 24" stroke="#D0261A" stroke-width="3" stroke-linecap="round"/>
-    </svg>
-  </div>
-  <span class="spin-lbl" id="spinLbl">Loading…</span>
-</div>
-
-<!-- DASHBOARD -->
-<div class="page" id="dashPage" style="display:none">
-
-  <div class="kpi-strip" id="kpiStrip"></div>
-
-  <div class="tab-bar">
-    <button class="tab on"  onclick="switchTab('overview')">📊 Overview</button>
-    <button class="tab"     onclick="switchTab('salespersons')">👤 Team</button>
-    <button class="tab"     onclick="switchTab('calls')">📞 All Calls</button>
-    <button class="tab"     onclick="switchTab('followups')">🔔 Follow-ups</button>
-    <button class="tab"     onclick="switchTab('objections')">🛡 Objections</button>
-  </div>
-
-  <!-- ══ OVERVIEW ══ -->
-  <div class="tp on" id="tp-overview">
-    <div class="g21">
-      <div class="card">
-        <div class="card-t">Daily Call Volume — Last 30 Days</div>
-        <div class="card-s" id="trendSub">All time</div>
-        <div style="position:relative;height:200px"><canvas id="cTrend"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-t">Call Type Mix</div>
-        <div class="card-s">All time</div>
-        <div style="position:relative;height:175px"><canvas id="cTypeDnt"></canvas></div>
-        <div id="typeLeg" style="margin-top:9px"></div>
-      </div>
-    </div>
-    <div class="g2">
-      <div class="card">
-        <div class="card-t">Lead Intent Split</div>
-        <div class="card-s">Hot / Warm / Cold distribution</div>
-        <div id="intentBars"></div>
-      </div>
-      <div class="card">
-        <div class="card-t">Top Objections</div>
-        <div class="card-s">Primary objection frequency</div>
-        <div id="objBars"></div>
-      </div>
-    </div>
-    <div class="g2">
-      <div class="card">
-        <div class="card-t">Call Outcomes</div>
-        <div class="card-s">How calls ended</div>
-        <div style="position:relative;height:175px"><canvas id="cOutDnt"></canvas></div>
-        <div id="outLeg" style="margin-top:9px"></div>
-      </div>
-      <div class="card">
-        <div class="card-t">Weekly Volume</div>
-        <div class="card-s">Calls per week — last 8 weeks</div>
-        <div style="position:relative;height:175px"><canvas id="cWeekly"></canvas></div>
-      </div>
-    </div>
-    <div class="gfull card">
-      <div class="card-t">Recent Activity</div>
-      <div class="card-s" id="feedSub"></div>
-      <div id="feed"></div>
-    </div>
-  </div>
-
-  <!-- ══ TEAM ══ -->
-  <div class="tp" id="tp-salespersons">
-    <div class="sec">Team Performance</div>
-    <div class="sp-grid" id="spGrid"></div>
-    <div class="sec">Rankings</div>
-    <div class="tbl-wrap"><div class="tbl-scroll">
-      <table>
-        <thead><tr>
-          <th>#</th><th>Name</th><th>Calls</th><th>New Leads</th><th>Follow-ups</th><th>Fee Colln</th>
-          <th>Avg Score</th><th>Hot</th><th>Interested</th><th>High Conv</th><th>Pending FU</th><th>Last Active</th>
-        </tr></thead>
-        <tbody id="spTbody"></tbody>
-      </table>
-    </div></div>
-  </div>
-
-  <!-- ══ ALL CALLS ══ -->
-  <div class="tp" id="tp-calls">
-    <div class="fbar">
-      <label>Salesperson</label>
-      <select class="fsel" id="fSP"  onchange="filterCalls()"><option value="">All</option></select>
-      <label>Type</label>
-      <select class="fsel" id="fType" onchange="filterCalls()"><option value="">All</option></select>
-      <label>Intent</label>
-      <select class="fsel" id="fInt" onchange="filterCalls()"><option value="">All</option></select>
-      <label>Outcome</label>
-      <select class="fsel" id="fOut" onchange="filterCalls()"><option value="">All</option></select>
-      <label>Follow-up</label>
-      <select class="fsel" id="fFU"  onchange="filterCalls()">
-        <option value="">All</option>
-        <option>High</option><option>Medium</option><option>Low</option>
-      </select>
-      <input class="fsearch" id="fSearch" placeholder="Search summary / goal…" oninput="filterCalls()"/>
-      <span class="fcnt" id="callCnt">—</span>
-    </div>
-    <div class="tbl-wrap"><div class="tbl-scroll">
-      <table>
-        <thead><tr>
-          <th>Date</th><th>Salesperson</th><th>Type</th><th>Intent</th><th>Sentiment</th>
-          <th>Objection</th><th>Outcome</th><th>Conv%</th><th>Score</th><th>FU Priority</th><th>Summary</th>
-        </tr></thead>
-        <tbody id="callsTbody"></tbody>
-      </table>
-    </div></div>
-  </div>
-
-  <!-- ══ FOLLOW-UPS ══ -->
-  <div class="tp" id="tp-followups">
-    <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px" id="fuKpis"></div>
-    <div class="g2">
-      <div>
-        <div class="sec">🔴 Hot Lead Follow-ups</div>
-        <div class="card" id="urgList"></div>
-      </div>
-      <div>
-        <div class="sec">💰 Fee Collection Pending</div>
-        <div class="card" id="feeList"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ OBJECTIONS ══ -->
-  <div class="tp" id="tp-objections">
-    <div class="g2">
-      <div class="card">
-        <div class="card-t">Objection Frequency</div>
-        <div class="card-s">How often each objection blocks conversion</div>
-        <div id="objDetailBars"></div>
-      </div>
-      <div class="card">
-        <div class="card-t">Objection → Conversion Rate</div>
-        <div class="card-s">Which objections still convert? (50-75% or 75-100%)</div>
-        <div id="objConvTbl"></div>
-      </div>
-    </div>
-    <div class="gfull card">
-      <div class="card-t">Outcome Trend</div>
-      <div class="card-s">Interested vs Not Interested vs Needs Follow-up over time</div>
-      <div style="position:relative;height:220px"><canvas id="cObjTrend"></canvas></div>
-    </div>
-  </div>
-
-</div><!-- /page -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// ══════════════════════════════════════════════════════════
-//  CONFIG — paste your Apps Script Web App URL here
-// ══════════════════════════════════════════════════════════
-var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwvkFnVpv7EdzJ05XOSoh1EtKSlRCFZRuUuRM0ERIi-2ae4SOyCiB2UzC4psXOi3RKdg/exec";
+// ═══════════════════════════════════════════════════════════
+//  CONFIG — paste your deployed Web App URL here
+// ═══════════════════════════════════════════════════════════
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxwvkFnVpv7EdzJ05XOSoh1EtKSlRCFZRuUuRM0ERIi-2ae4SOyCiB2UzC4psXOi3RKdg/exec"; // ← REPLACE THIS
 
-var _d     = null;   // dashboard data
-var _tok   = null;   // session token
-var _ch    = {};     // chart instances
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let token       = localStorage.getItem("ag_token") || "";
+let dashData    = null;
+let filteredCalls = [];
+let currentPage = 1;
+const PAGE_SIZE = 25;
+let expandedRow = null;
+const charts    = {};
+let spChartInst = null;
 
-// ── AUTO-LOGIN FROM SESSION ────────────────────────────────
-(function(){
-  var t = sessionStorage.getItem("sd_tok");
-  if (t) { _tok = t; fetchDash(); }
-})();
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+window.addEventListener("DOMContentLoaded", () => {
+  if (token) { showApp(); fetchDashboard(); }
+});
 
-// ── LOGIN ──────────────────────────────────────────────────
-function doLogin() {
-  var pw = document.getElementById("pwInput").value.trim();
-  if (!pw) return;
-  document.getElementById("lbtn").disabled = true;
-  document.getElementById("loginOverlay").style.display = "none";
-  showSpin("Logging in…");
-  jsonp(SCRIPT_URL + "?action=login&password=" + encodeURIComponent(pw), function(r) {
-    document.getElementById("lbtn").disabled = false;
-    hideSpin();
-    if (!r || !r.success) {
-      showErr((r && r.error) || "Login failed. Check password.");
-      document.getElementById("loginOverlay").style.display = "flex";
-      return;
+// ═══════════════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════════════
+async function doLogin() {
+  const pw  = document.getElementById("pwInput").value.trim();
+  const err = document.getElementById("loginErr");
+  if (!pw) { err.textContent = "Enter a password"; return; }
+  err.textContent = "";
+  try {
+    const res  = await fetch(`${WEB_APP_URL}?action=login&password=${encodeURIComponent(pw)}`);
+    const data = await res.json();
+    if (data.success) {
+      token = data.token;
+      localStorage.setItem("ag_token", token);
+      showApp();
+      fetchDashboard();
+    } else {
+      err.textContent = data.error || "Login failed";
     }
-    _tok = r.token;
-    sessionStorage.setItem("sd_tok", _tok);
-    fetchDash();
-  });
+  } catch(e) {
+    err.textContent = "Network error — check Web App URL";
+  }
 }
 
-function doLogout() {
-  sessionStorage.removeItem("sd_tok");
-  _d = null; _tok = null;
-  document.getElementById("topbar").style.display   = "none";
-  document.getElementById("dashPage").style.display = "none";
-  document.getElementById("pwInput").value = "";
-  document.getElementById("lbtn").disabled = false;
-  document.getElementById("loginOverlay").style.display = "flex";
+function logout() {
+  localStorage.removeItem("ag_token");
+  token = "";
+  dashData = null;
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("app").style.display = "none";
+}
+
+function showApp() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FETCH
+// ═══════════════════════════════════════════════════════════
+async function fetchDashboard() {
+  showLoader("sec-overview");
+  try {
+    const res  = await fetch(`${WEB_APP_URL}?action=getDashboardData&token=${token}`);
+    const data = await res.json();
+    if (data.expired) { logout(); return; }
+    if (!data.success) { showError("sec-overview", data.error); return; }
+    dashData = data.data;
+    renderAll();
+  } catch(e) {
+    showError("sec-overview", "Failed to load data: " + e.message);
+  }
 }
 
 function refreshData() {
-  if (!_tok) return;
-  Object.keys(_ch).forEach(function(k){ try{_ch[k].destroy();}catch(e){} _ch[k]=null; });
-  _ch = {};
-  fetchDash(true);
+  Object.values(charts).forEach(c => c.destroy());
+  Object.keys(charts).forEach(k => delete charts[k]);
+  fetchDashboard();
 }
 
-function showErr(msg) {
-  var el = document.getElementById("lerr");
-  el.textContent = msg; el.classList.add("show");
+function showLoader(sec) {
+  const el = document.getElementById(sec);
+  if (el) el.innerHTML = `<div class="loader"><div class="spinner"></div> Loading data…</div>`;
+}
+function showError(sec, msg) {
+  const el = document.getElementById(sec);
+  if (el) el.innerHTML = `<div class="empty"><h3>Error</h3><p>${msg}</p></div>`;
 }
 
-// ── FETCH ──────────────────────────────────────────────────
-function fetchDash(bust) {
-  showSpin("Loading dashboard…");
-  var url = SCRIPT_URL + "?action=getDashboardData&token=" + encodeURIComponent(_tok);
-  if (bust) url += "&bust=" + Date.now();
-  jsonp(url, function(r) {
-    hideSpin();
-    if (!r) { showErr("Connection failed. Is the Web App URL correct?"); document.getElementById("loginOverlay").style.display="flex"; return; }
-    if (!r.success) {
-      sessionStorage.removeItem("sd_tok");
-      showErr(r.error || "Session expired.");
-      document.getElementById("loginOverlay").style.display = "flex";
-      return;
-    }
-    _d = r.data;
-    if (!_d) { showErr("No data returned from Apps Script."); document.getElementById("loginOverlay").style.display="flex"; return; }
-    render(_d);
-  });
+// ═══════════════════════════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════════════════════════
+function renderAll() {
+  document.getElementById("genTs").textContent = "Updated " + (dashData.generatedAt || "—");
+  renderTopbarAlerts();
+  renderKPIs();
+  renderCharts();
+  renderCalls();
+  renderTeam();
+  renderAlerts();
+  renderObjectionCharts();
 }
 
-// ── RENDER ─────────────────────────────────────────────────
-function render(d) {
-  document.getElementById("topbar").style.display   = "flex";
-  document.getElementById("genTime").textContent    = "Updated: " + (d.generatedAt || "");
-  document.getElementById("dashPage").style.display = "block";
-
-  renderKPIs(d.kpis);
-  renderOverview(d);
-  renderTeam(d.salespersons || []);
-  renderCallsTab(d.allCalls || [], d.salespersons || []);
-  renderFollowups(d);
-  renderObjections(d);
+// ─── TOPBAR ALERTS ──────────────────────────────────────────
+function renderTopbarAlerts() {
+  const k   = dashData.kpis;
+  const el  = document.getElementById("topbarAlerts");
+  let html  = "";
+  if (k.urgentCount > 0)
+    html += `<div class="alert-pill urgent" onclick="showSection('alerts',null,0)"><span class="alert-dot"></span>${k.urgentCount} Urgent</div>`;
+  if (k.retentionCount > 0)
+    html += `<div class="alert-pill retention" onclick="showSection('alerts',null,1)"><span class="alert-dot"></span>${k.retentionCount} At Risk</div>`;
+  if (k.weakCount > 0)
+    html += `<div class="alert-pill review" onclick="showSection('calls',null)"><span class="alert-dot"></span>${k.weakCount} Weak Calls</div>`;
+  el.innerHTML = html;
 }
 
-// ── KPI STRIP ──────────────────────────────────────────────
-function renderKPIs(k) {
-  document.getElementById("kpiStrip").innerHTML =
-    kpi("Total Calls",     k.totalCalls,     "",  "All time") +
-    kpi("Hot Leads",       k.hotLeads,        "g", k.hotRate + "% of calls 🔥") +
-    kpi("Interested",      k.interested,      "g", k.convRate + "% conversion") +
-    kpi("Avg Score",       k.avgScore,        scCls(k.avgScore), "Salesperson quality") +
-    kpi("High Priority",   k.highPriFU,       k.highPriFU > 0 ? "w" : "g", "Follow-ups pending") +
-    kpi("High Conv Leads", k.highConv,        "g", "75-100% likely to join");
+// ─── KPIs ────────────────────────────────────────────────────
+function renderKPIs() {
+  const k = dashData.kpis;
+  const cards = [
+    { label:"Total Calls",     value: k.totalCalls,    sub: "all time",          color:"var(--accent)"  },
+    { label:"Hot Leads",       value: k.hotLeads,      sub: k.hotRate+"% of calls", color:"var(--hot)"  },
+    { label:"High Conv (75%+)",value: k.highConv,      sub: k.convRate+"% conv rate", color:"var(--green)" },
+    { label:"Avg Score",       value: k.avgScore+"/10",sub: k.strongCount+" strong calls", color:"var(--accent2)" },
+    { label:"Urgent FU",       value: k.highPriFU,     sub: k.urgentCount+" flagged urgent", color:"#f97316" },
+    { label:"Retention Risks", value: k.retentionCount,sub: "students at risk",  color:"#ec4899"        },
+    { label:"New Leads",       value: k.totalNewLeads, sub: "new contacts",      color:"#60a5fa"        },
+    { label:"Neg Sentiment",   value: k.negSentRate+"%",sub: k.negativeSent+" calls", color:"#f87171"   },
+    { label:"Weak Calls",      value: k.weakCount,     sub: "need coaching",     color:"var(--muted)"   },
+  ];
+  document.getElementById("kpiGrid").innerHTML = cards.map(c => `
+    <div class="kpi-card" style="--kpi-color:${c.color}">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value">${c.value}</div>
+      <div class="kpi-sub">${c.sub}</div>
+    </div>`).join("");
 }
 
-function kpi(lbl, val, cls, sub) {
-  return '<div class="kpi"><div class="kpi-lbl">'+esc(lbl)+'</div>'+
-    '<div class="kpi-val'+(cls?' '+cls:'')+'">'+esc(String(val||0))+'</div>'+
-    '<div class="kpi-sub">'+esc(sub)+'</div></div>';
-}
+// ─── CHARTS ─────────────────────────────────────────────────
+function renderCharts() {
+  const trend = dashData.dailyTrend || [];
+  const wv    = dashData.weeklyVolume || [];
+  const ctb   = dashData.callTypeBreakdown || [];
+  const k     = dashData.kpis;
 
-// ── OVERVIEW TAB ───────────────────────────────────────────
-function renderOverview(d) {
-  var trend = d.dailyTrend || [];
-  document.getElementById("trendSub").textContent = trend.length > 1
-    ? trend[0].date + " – " + trend[trend.length-1].date
-    : (trend.length === 1 ? trend[0].date : "No data yet");
-
-  // Daily trend line chart
-  dChart("cTrend");
+  // Trend
   if (trend.length) {
-    _ch["cTrend"] = new Chart(document.getElementById("cTrend").getContext("2d"), {
-      type:"line",
-      data:{
-        labels: trend.map(function(t){ return t.date.slice(5); }),
-        datasets:[
-          { label:"Total",     data:trend.map(function(t){return t.totalCalls;}),  borderColor:"#D0261A", backgroundColor:"rgba(208,38,26,.06)", borderWidth:2, fill:true, tension:.35, pointRadius:0 },
-          { label:"New Leads", data:trend.map(function(t){return t.newLeads;}),    borderColor:"#3b82f6", borderWidth:1.5, fill:false, tension:.35, pointRadius:0 },
-          { label:"Hot",       data:trend.map(function(t){return t.hot;}),         borderColor:"#f59e0b", borderWidth:1.5, fill:false, tension:.35, pointRadius:0 }
-        ]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ position:"top", labels:{ font:{size:10,family:"'Outfit',sans-serif"}, boxWidth:10 }}},
-        scales:{
-          y:{ min:0, grid:{color:"rgba(0,0,0,.04)"}, ticks:{font:{size:10,family:"'Outfit',sans-serif"},color:"#999490"} },
-          x:{ grid:{display:false}, ticks:{font:{size:9,family:"'Outfit',sans-serif"},color:"#999490",maxRotation:0,autoSkip:true,maxTicksLimit:10} }
-        }
-      }
-    });
+    const last = trend.slice(-14);
+    document.getElementById("trendRange").textContent = "last 14 days";
+    mkChart("trendChart", "bar", {
+      labels: last.map(d => fmtDate(d.date)),
+      datasets: [
+        { label:"New Leads",  data: last.map(d=>d.newLeads),  backgroundColor:"rgba(96,165,250,0.7)",  borderRadius:4 },
+        { label:"Follow-up",  data: last.map(d=>d.followUps), backgroundColor:"rgba(192,132,252,0.7)", borderRadius:4 },
+        { label:"Fee Collect",data: last.map(d=>d.feeCollections), backgroundColor:"rgba(74,222,128,0.7)", borderRadius:4 },
+      ]
+    }, { stacked:true, yLabelRight: last.map(d=>d.avgScore), yRightLabel:"Avg Score" });
   }
 
   // Type donut
-  var ctb = d.callTypeBreakdown || [];
-  mkDonut("cTypeDnt", "typeLeg",
-    ctb.map(function(c){return c.type;}),
-    ctb.map(function(c){return c.count;}),
-    ["#D0261A","#3b82f6","#22c55e","#f59e0b"]);
-
-  // Intent bars
-  var k = d.kpis, tot = (k.hotLeads+k.warmLeads+k.coldLeads)||1;
-  document.getElementById("intentBars").innerHTML = [
-    {l:"🔥 Hot",  n:k.hotLeads,  c:"#D0261A"},
-    {l:"🌤 Warm", n:k.warmLeads, c:"#f59e0b"},
-    {l:"🧊 Cold", n:k.coldLeads, c:"#3b82f6"}
-  ].map(function(it){
-    var pct=Math.round(it.n/tot*100);
-    return '<div class="bar-row"><div class="bar-lbl">'+it.l+'</div>'+
-      '<div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%;background:'+it.c+'"></div></div>'+
-      '<div class="bar-n" style="color:'+it.c+'">'+it.n+'</div></div>';
-  }).join("");
-
-  // Top objections
-  var objs = (d.topObjections||[]).slice(0,8);
-  var mx = objs.length ? objs[0].count : 1;
-  document.getElementById("objBars").innerHTML = objs.length
-    ? objs.map(function(o){
-        var w=Math.round(o.count/mx*100);
-        return '<div class="bar-row"><div class="bar-lbl" title="'+esc(o.objection)+'">'+esc(o.objection)+'</div>'+
-          '<div class="bar-bg"><div class="bar-fill" style="width:'+w+'%;background:var(--red)"></div></div>'+
-          '<div class="bar-n">'+o.count+'</div></div>';
-      }).join("")
-    : '<p style="font-size:12px;color:var(--gray);padding:8px 0">No objections logged yet</p>';
-
-  // Outcome donut
-  mkDonut("cOutDnt","outLeg",
-    ["Interested","Needs Follow-up","Not Interested","Call Disc."],
-    [k.interested, k.needsFollowup, k.notInterested,
-     Math.max(0, k.totalCalls - k.interested - k.needsFollowup - k.notInterested)],
-    ["#22c55e","#f59e0b","#D0261A","#e8e4e0"]);
-
-  // Weekly bar
-  var wk = d.weeklyVolume || [];
-  dChart("cWeekly");
-  if (wk.length) {
-    _ch["cWeekly"] = new Chart(document.getElementById("cWeekly").getContext("2d"), {
-      type:"bar",
-      data:{
-        labels: wk.map(function(w){return w.week.slice(5);}),
-        datasets:[
-          { label:"Calls", data:wk.map(function(w){return w.calls;}), backgroundColor:"rgba(208,38,26,.75)", borderRadius:4 },
-          { label:"Hot",   data:wk.map(function(w){return w.hot;}),   backgroundColor:"rgba(245,158,11,.5)", borderRadius:4 }
-        ]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ position:"top", labels:{ font:{size:10,family:"'Outfit',sans-serif"}, boxWidth:10 }}},
-        scales:{
-          y:{ min:0, grid:{color:"rgba(0,0,0,.04)"}, ticks:{font:{size:10,family:"'Outfit',sans-serif"},color:"#999490"} },
-          x:{ grid:{display:false}, ticks:{font:{size:9},color:"#999490"} }
-        }
-      }
-    });
-  }
-
-  // Feed — show last 15
-  var calls = (d.allCalls || []).slice(0, 15);
-  document.getElementById("feedSub").textContent = "Last " + calls.length + " calls";
-  var feedEl = document.getElementById("feed");
-  feedEl.innerHTML = calls.length
-    ? calls.map(function(c){
-        return '<div class="feed-item">'+
-          '<div><div class="feed-av">'+esc((c.salesperson||"?")[0].toUpperCase())+'</div>'+
-          '<div class="feed-date">'+esc(c.dateDisp)+'</div></div>'+
-          '<div class="feed-body">'+
-            '<div class="feed-row">'+
-              '<span class="feed-sp">'+esc(c.salesperson)+'</span>'+
-              '<span class="pill '+pType(c.callType)+'">'+esc(c.callType)+'</span>'+
-              '<span class="pill '+pInt(c.leadIntent)+'">'+esc(c.leadIntent)+'</span>'+
-              '<span class="pill '+pSent(c.sentiment)+'">'+esc(c.sentiment)+'</span>'+
-              '<span class="score '+scCls(c.spScore)+'">'+c.spScore+'</span>'+
-            '</div>'+
-            '<div class="feed-sum">'+esc(c.summary||"")+'</div>'+
-            (c.followUpAct && c.followUpAct!=="Not mentioned" ? '<div class="feed-action">→ '+esc(c.followUpAct)+'</div>' : '')+
-          '</div></div>';
-      }).join("")
-    : '<p style="font-size:12px;color:var(--gray);padding:8px 0">No calls recorded yet</p>';
-}
-
-// ── TEAM TAB ───────────────────────────────────────────────
-function renderTeam(sps) {
-  var grid = document.getElementById("spGrid");
-  var body = document.getElementById("spTbody");
-  if (!sps.length) {
-    grid.innerHTML = '<p style="font-size:12px;color:var(--gray)">No salesperson data yet</p>';
-    body.innerHTML = '<tr><td colspan="12" class="tbl-empty">No data</td></tr>';
-    return;
-  }
-  grid.innerHTML = sps.map(function(sp) {
-    var sc = scCls(sp.avgScore), col = sp.avgScore>=7?"var(--green)":sp.avgScore>=5?"var(--amber)":"var(--red)";
-    var bw = Math.min(sp.avgScore/10*100, 100);
-    return '<div class="sp-card">'+
-      '<div class="sp-av">'+esc(sp.name[0].toUpperCase())+'</div>'+
-      '<div class="sp-nm">'+esc(sp.name)+'</div>'+
-      '<div class="sp-sc '+sc+'">'+sp.avgScore.toFixed(1)+'</div>'+
-      '<div style="font-size:10px;color:var(--gray);margin-bottom:3px">Avg Score / 10</div>'+
-      '<div class="sp-bar"><div style="font-size:9px;color:var(--gray);letter-spacing:.1em;text-transform:uppercase">Performance</div>'+
-      '<div class="sp-bar-bg"><div class="sp-bar-fill" style="width:'+bw+'%;background:'+col+'"></div></div></div>'+
-      '<div class="sp-stats">'+
-        '<div class="sp-si"><div class="sp-sv">'+sp.totalCalls+'</div>Calls</div>'+
-        '<div class="sp-si"><div class="sp-sv" style="color:var(--red)">'+sp.hot+'</div>Hot</div>'+
-        '<div class="sp-si"><div class="sp-sv" style="color:var(--green)">'+sp.interested+'</div>Interested</div>'+
-        '<div class="sp-si"><div class="sp-sv">'+sp.highPriFollowups+'</div>High FU</div>'+
-      '</div></div>';
-  }).join("");
-
-  body.innerHTML = sps.map(function(sp, i) {
-    var sc = scCls(sp.avgScore);
-    return '<tr>'+
-      '<td class="mu">'+(i+1)+'</td>'+
-      '<td><strong>'+esc(sp.name)+'</strong></td>'+
-      '<td>'+sp.totalCalls+'</td>'+
-      '<td class="mu">'+sp.newLeads+'</td>'+
-      '<td class="mu">'+sp.followUps+'</td>'+
-      '<td class="mu">'+sp.feeCollections+'</td>'+
-      '<td><span class="score '+sc+'">'+sp.avgScore.toFixed(1)+'</span></td>'+
-      '<td><span style="color:var(--red);font-weight:700">'+sp.hot+'</span></td>'+
-      '<td><span style="color:var(--green);font-weight:700">'+sp.interested+'</span></td>'+
-      '<td class="mu">'+sp.highConv+'</td>'+
-      '<td><span class="pill '+(sp.highPriFollowups>0?'p-high':'p-low')+'">'+sp.highPriFollowups+'</span></td>'+
-      '<td class="mu">'+esc(sp.lastCallDate||"—")+'</td>'+
-    '</tr>';
-  }).join("");
-}
-
-// ── CALLS TAB ──────────────────────────────────────────────
-function renderCallsTab(calls, sps) {
-  var spSet={}, typeSet={}, intSet={}, outSet={};
-  calls.forEach(function(c){
-    if(c.salesperson)spSet[c.salesperson]=1;
-    if(c.callType)typeSet[c.callType]=1;
-    if(c.leadIntent)intSet[c.leadIntent]=1;
-    if(c.callOutcome)outSet[c.callOutcome]=1;
+  mkChart("typeChart","doughnut",{
+    labels: ctb.map(c=>c.type),
+    datasets:[{
+      data:ctb.map(c=>c.count),
+      backgroundColor:["rgba(96,165,250,0.85)","rgba(192,132,252,0.85)","rgba(74,222,128,0.85)","rgba(34,211,238,0.85)"],
+      borderWidth:0, hoverOffset:6
+    }]
   });
-  fillSel("fSP",  Object.keys(spSet).sort());
-  fillSel("fType",Object.keys(typeSet).sort());
-  fillSel("fInt", Object.keys(intSet).sort());
-  fillSel("fOut", Object.keys(outSet).sort());
+
+  // Intent donut
+  mkChart("intentChart","doughnut",{
+    labels:["Hot","Warm","Cold"],
+    datasets:[{
+      data:[k.hotLeads,k.warmLeads,k.coldLeads],
+      backgroundColor:["rgba(239,68,68,0.85)","rgba(245,158,11,0.85)","rgba(100,116,139,0.85)"],
+      borderWidth:0, hoverOffset:6
+    }]
+  });
+
+  // Weekly
+  if (wv.length) {
+    mkChart("weeklyChart","bar",{
+      labels: wv.map(w=>fmtDate(w.week)),
+      datasets:[
+        { type:"bar",  label:"Calls",     data:wv.map(w=>w.calls),    backgroundColor:"rgba(232,255,71,0.15)", borderRadius:4, yAxisID:"y" },
+        { type:"line", label:"Avg Score", data:wv.map(w=>w.avgScore), borderColor:"var(--accent)", tension:0.4, pointRadius:4, fill:false, yAxisID:"y1" }
+      ]
+    },{dualAxis:true});
+  }
+
+  // Leaderboard
+  const lb = dashData.weeklyLeaderboard || [];
+  const rankClass = ["gold","silver","bronze"];
+  document.getElementById("leaderboardList").innerHTML = lb.length
+    ? lb.map((p,i)=>`
+      <div class="leaderboard-item" onclick="showSpDetail('${p.name}')">
+        <div class="lb-rank ${rankClass[i]||''}">${i+1}</div>
+        <div style="flex:1">
+          <div class="lb-name">${p.name}</div>
+          <div class="lb-calls">${p.calls} calls · <span style="color:var(--hot)">${p.hot} hot</span></div>
+          <div class="lb-score-bar" style="margin-top:6px"><div class="lb-score-fill" style="width:${Math.min(p.avgScore/10*100,100)}%"></div></div>
+        </div>
+        <div style="text-align:right">
+          <div class="lb-score">${p.avgScore || "—"}</div>
+          <div class="lb-score-label">/ 10</div>
+        </div>
+      </div>`).join("")
+    : `<div class="empty" style="padding:30px"><p>No calls this week yet</p></div>`;
+}
+
+// Chart factory
+function mkChart(id, type, data, opts={}) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (charts[id]) charts[id].destroy();
+  const isDoughnut = type === "doughnut";
+  charts[id] = new Chart(ctx, {
+    type,
+    data,
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{ position: isDoughnut ? "right" : "bottom", labels:{ color:"#94a3b8", boxWidth:10, font:{size:11} }},
+        tooltip:{ backgroundColor:"#1e2a3d", titleColor:"#e2e8f0", bodyColor:"#94a3b8", padding:10 }
+      },
+      scales: isDoughnut ? {} : opts.dualAxis ? {
+        y:  { stacked:false, ticks:{color:"#64748b",font:{size:11}}, grid:{color:"rgba(255,255,255,0.04)"} },
+        y1: { position:"right", ticks:{color:"var(--accent)",font:{size:11}}, grid:{drawOnChartArea:false} },
+        x:  { ticks:{color:"#64748b",font:{size:11}}, grid:{color:"rgba(255,255,255,0.04)"} }
+      } : {
+        x:{ stacked:!!opts.stacked, ticks:{color:"#64748b",font:{size:11}}, grid:{color:"rgba(255,255,255,0.04)"} },
+        y:{ stacked:!!opts.stacked, ticks:{color:"#64748b",font:{size:11}}, grid:{color:"rgba(255,255,255,0.04)"} }
+      }
+    }
+  });
+}
+
+// ─── CALLS TABLE ─────────────────────────────────────────────
+function renderCalls() {
+  const sps = [...new Set((dashData.allCalls||[]).map(c=>c.salesperson))].sort();
+  const sel = document.getElementById("f-sp");
+  sel.innerHTML = '<option value="">All Salespeople</option>' + sps.map(s=>`<option>${s}</option>`).join("");
   filterCalls();
 }
 
 function filterCalls() {
-  if (!_d) return;
-  var sp  = v("fSP"), tp = v("fType"), it = v("fInt"), ot = v("fOut"), fu = v("fFU");
-  var srch = (v("fSearch")||"").toLowerCase().trim();
+  const q  = document.getElementById("callSearch").value.toLowerCase();
+  const ft = document.getElementById("f-calltype").value;
+  const fi = document.getElementById("f-intent").value;
+  const fo = document.getElementById("f-outcome").value;
+  const fs = document.getElementById("f-sp").value;
+  const fp = document.getElementById("f-priority").value;
+  const ff = document.getElementById("f-flag").value;
 
-  var calls = (_d.allCalls||[]).filter(function(c){
-    if (sp && c.salesperson !== sp) return false;
-    if (tp && c.callType    !== tp) return false;
-    if (it && c.leadIntent  !== it) return false;
-    if (ot && c.callOutcome !== ot) return false;
-    if (fu && c.followUpPri !== fu) return false;
-    if (srch) {
-      var hay = ((c.summary||"")+" "+(c.studentGoal||"")+" "+(c.keyPoints||"")+" "+(c.primaryObj||"")).toLowerCase();
-      if (hay.indexOf(srch) === -1) return false;
+  filteredCalls = (dashData.allCalls||[]).filter(c => {
+    if (ft && c.callType    !== ft) return false;
+    if (fi && c.leadIntent  !== fi) return false;
+    if (fo && c.callOutcome !== fo) return false;
+    if (fs && c.salesperson !== fs) return false;
+    if (fp && c.followUpPri !== fp) return false;
+    if (ff && (c.qualityFlag||"STANDARD") !== ff) return false;
+    if (q) {
+      const hay = [c.salesperson,c.callType,c.leadIntent,c.callOutcome,c.primaryObj,
+                   c.summary,c.followUpAct,c.keyPoints,c.studentGoal].join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
     }
     return true;
   });
+  currentPage = 1;
+  renderCallsPage();
+}
 
-  document.getElementById("callCnt").textContent = calls.length + " call" + (calls.length!==1?"s":"");
-  var body = document.getElementById("callsTbody");
-  if (!calls.length) {
-    body.innerHTML = '<tr><td colspan="11" class="tbl-empty">No calls match the filters</td></tr>';
+function renderCallsPage() {
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page  = filteredCalls.slice(start, start+PAGE_SIZE);
+  const tbody = document.getElementById("callsTable");
+
+  if (!filteredCalls.length) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty"><h3>No calls match</h3><p>Try adjusting filters</p></div></td></tr>`;
+    document.getElementById("callsPagination").innerHTML = "";
     return;
   }
-  body.innerHTML = calls.map(function(c){
-    var sc = scCls(c.spScore);
-    return '<tr>'+
-      '<td class="mu">'+esc(c.dateDisp)+'</td>'+
-      '<td><strong>'+esc(c.salesperson)+'</strong></td>'+
-      '<td><span class="pill '+pType(c.callType)+'">'+esc(c.callType)+'</span></td>'+
-      '<td><span class="pill '+pInt(c.leadIntent)+'">'+esc(c.leadIntent)+'</span></td>'+
-      '<td><span class="pill '+pSent(c.sentiment)+'">'+esc(c.sentiment)+'</span></td>'+
-      '<td class="mu" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(c.primaryObj)+'">'+esc(c.primaryObj)+'</td>'+
-      '<td><span class="pill '+pOut(c.callOutcome)+'">'+esc(c.callOutcome)+'</span></td>'+
-      '<td class="mu">'+esc(c.convProb)+'</td>'+
-      '<td><span class="score '+sc+'">'+c.spScore+'</span></td>'+
-      '<td><span class="pill '+pFU(c.followUpPri)+'">'+esc(c.followUpPri)+'</span></td>'+
-      '<td class="mu" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(c.summary)+'">'+esc(c.summary)+'</td>'+
-    '</tr>';
+
+  tbody.innerHTML = page.map((c,i) => {
+    const abs = start+i;
+    const sid = "row-"+abs;
+    return `
+    <tr onclick="toggleExpand(${abs})" style="cursor:pointer">
+      <td class="td-mono">${c.dateDisp||"—"}</td>
+      <td class="td-name">${c.salesperson}</td>
+      <td>${typeBadge(c.callType)}</td>
+      <td>${intentBadge(c.leadIntent)}</td>
+      <td>${outcomeBadge(c.callOutcome)}</td>
+      <td>${priBadge(c.followUpPri)}</td>
+      <td>${scorePill(c.spScore)}</td>
+      <td class="td-mono" style="font-size:12px">${c.convProb||"—"}</td>
+      <td>${flagBadge(c.qualityFlag)}</td>
+      <td class="td-mono" style="font-size:12px">${c.feeQuoted&&c.feeQuoted!=="Not mentioned"?c.feeQuoted:"—"}</td>
+      <td style="color:var(--muted);font-size:11px">▸</td>
+    </tr>
+    <tr class="expand-row" id="${sid}">
+      <td colspan="11" class="expand-cell">
+        <div class="expand-grid">
+          <div class="expand-item"><label>Summary</label><p>${c.summary||"—"}</p></div>
+          <div class="expand-item"><label>Follow-up Action</label><p>${c.followUpAct||"—"}</p></div>
+          <div class="expand-item"><label>Primary Objection</label><p>${c.primaryObj||"—"}</p></div>
+          <div class="expand-item"><label>Secondary Objection</label><p>${c.secondaryObj&&c.secondaryObj!=="Not mentioned"?c.secondaryObj:"—"}</p></div>
+          <div class="expand-item"><label>Student Goal</label><p>${c.studentGoal||"—"}</p></div>
+          <div class="expand-item"><label>Course Preference</label><p>${c.coursePref||"—"}</p></div>
+          <div class="expand-item full"><label>Salesperson Feedback</label><p style="color:var(--accent2)">${c.spFeedback||"—"}</p></div>
+          <div class="expand-item full"><label>Key Points</label><p>${c.keyPoints||"—"}</p></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  renderPagination();
+}
+
+function toggleExpand(idx) {
+  const sid = "row-"+idx;
+  const el  = document.getElementById(sid);
+  if (!el) return;
+  if (expandedRow && expandedRow !== sid) {
+    const prev = document.getElementById(expandedRow);
+    if (prev) prev.classList.remove("open");
+  }
+  el.classList.toggle("open");
+  expandedRow = el.classList.contains("open") ? sid : null;
+}
+
+function renderPagination() {
+  const total = Math.ceil(filteredCalls.length / PAGE_SIZE);
+  const el = document.getElementById("callsPagination");
+  if (total <= 1) { el.innerHTML = `<span class="page-info">${filteredCalls.length} calls</span>`; return; }
+  let html = `<span class="page-info">${filteredCalls.length} calls</span>`;
+  html += `<button class="page-btn" onclick="gotoPage(${currentPage-1})" ${currentPage===1?"disabled":""}>‹ Prev</button>`;
+  for (let p=Math.max(1,currentPage-2); p<=Math.min(total,currentPage+2); p++)
+    html += `<button class="page-btn ${p===currentPage?"active":""}" onclick="gotoPage(${p})">${p}</button>`;
+  html += `<button class="page-btn" onclick="gotoPage(${currentPage+1})" ${currentPage===total?"disabled":""}>Next ›</button>`;
+  el.innerHTML = html;
+}
+
+function gotoPage(p) {
+  const total = Math.ceil(filteredCalls.length / PAGE_SIZE);
+  if (p < 1 || p > total) return;
+  currentPage = p;
+  renderCallsPage();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ─── TEAM ────────────────────────────────────────────────────
+function renderTeam() {
+  const sps = dashData.salespersons || [];
+  if (!sps.length) {
+    document.getElementById("spGrid").innerHTML = `<div class="empty"><h3>No salesperson data yet</h3></div>`;
+    return;
+  }
+  document.getElementById("spGrid").innerHTML = sps.map(sp => {
+    const sc = sp.avgScore;
+    const scColor = sc >= 7 ? "var(--green)" : sc >= 5 ? "var(--warm)" : "var(--hot)";
+    return `
+    <div class="sp-card" onclick="showSpDetail('${sp.name}')">
+      <div class="sp-card-header">
+        <div>
+          <div class="sp-name">${sp.name}</div>
+          <div class="sp-last">${sp.lastCallDate ? "Last call " + fmtDate(sp.lastCallDate) : "No calls recorded"}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="sp-score-big" style="color:${scColor}">${sc||0}</div>
+          <div class="sp-score-label">avg score</div>
+        </div>
+      </div>
+      <div class="sp-stats">
+        <div class="sp-stat-item">
+          <div class="sp-stat-val">${sp.totalCalls}</div>
+          <div class="sp-stat-label">Calls</div>
+        </div>
+        <div class="sp-stat-item">
+          <div class="sp-stat-val" style="color:var(--hot)">${sp.hot}</div>
+          <div class="sp-stat-label">Hot</div>
+        </div>
+        <div class="sp-stat-item">
+          <div class="sp-stat-val" style="color:var(--green)">${sp.interested}</div>
+          <div class="sp-stat-label">Converted</div>
+        </div>
+        <div class="sp-stat-item">
+          <div class="sp-stat-val">${sp.newLeads}</div>
+          <div class="sp-stat-label">New Leads</div>
+        </div>
+        <div class="sp-stat-item">
+          <div class="sp-stat-val">${sp.followUps}</div>
+          <div class="sp-stat-label">Follow-ups</div>
+        </div>
+        <div class="sp-stat-item">
+          <div class="sp-stat-val">${sp.feeCollections}</div>
+          <div class="sp-stat-label">Fee Calls</div>
+        </div>
+      </div>
+      <div class="sp-badges" style="margin-top:12px">
+        ${sp.strongCalls>0 ? `<span class="badge badge-strong">${sp.strongCalls} strong</span>` : ""}
+        ${sp.weakCalls>0   ? `<span class="badge badge-weak">${sp.weakCalls} weak</span>`       : ""}
+        ${sp.highPriFollowups>0 ? `<span class="badge badge-urgent">${sp.highPriFollowups} urgent FU</span>` : ""}
+        ${sp.highConv>0    ? `<span class="badge badge-int">${sp.highConv} hi-conv</span>` : ""}
+      </div>
+    </div>`;
   }).join("");
 }
 
-// ── FOLLOW-UPS TAB ─────────────────────────────────────────
-function renderFollowups(d) {
-  var k = d.kpis;
-  document.getElementById("fuKpis").innerHTML =
-    kpi("High Priority FU", k.highPriFU,   k.highPriFU>0?"b":"g", "Need immediate action") +
-    kpi("Hot Leads",        k.hotLeads,     "g", "Chase now") +
-    kpi("High Conv Leads",  k.highConv,     "g", "75-100% likely to join");
-
-  // Urgent follow-ups
-  var uf = d.urgentFollowups || [];
-  var urgEl = document.getElementById("urgList");
-  urgEl.innerHTML = uf.length
-    ? uf.map(function(u){
-        return '<div class="urg-item"><div class="urg-dot"></div><div>'+
-          '<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">'+
-            '<span class="urg-sp">'+esc(u.salesperson)+'</span>'+
-            '<span class="pill '+pType(u.callType)+'">'+esc(u.callType)+'</span>'+
-            '<span class="pill '+pInt(u.leadIntent)+'">'+esc(u.leadIntent)+'</span>'+
-          '</div>'+
-          '<div class="urg-act">→ '+esc(u.followUpAct||"No action specified")+'</div>'+
-          '<div class="urg-meta">Conv: '+esc(u.convProb)+' · '+esc(u.dateDisp)+'</div>'+
-        '</div></div>';
-      }).join("")
-    : '<p style="font-size:12px;color:var(--gray);padding:8px 0">No urgent follow-ups 🎉</p>';
-
-  // Fee collection
-  var ff = d.feeFollowups || [];
-  var feeEl = document.getElementById("feeList");
-  feeEl.innerHTML = ff.length
-    ? ff.map(function(f){
-        return '<div class="urg-item"><div class="urg-dot" style="background:var(--amber)"></div><div>'+
-          '<div style="display:flex;gap:5px;align-items:center">'+
-            '<span class="urg-sp">'+esc(f.salesperson)+'</span>'+
-            '<span class="pill p-fc">Fee Collection</span>'+
-          '</div>'+
-          '<div class="urg-act">→ '+esc(f.followUpAct||"Collect fee")+'</div>'+
-          '<div class="urg-meta">'+esc(f.dateDisp)+'</div>'+
-        '</div></div>';
-      }).join("")
-    : '<p style="font-size:12px;color:var(--gray);padding:8px 0">No pending fee follow-ups</p>';
-}
-
-// ── OBJECTIONS TAB ─────────────────────────────────────────
-function renderObjections(d) {
-  // Detail bars
-  var objs = d.topObjections || [];
-  var mx   = objs.length ? objs[0].count : 1;
-  document.getElementById("objDetailBars").innerHTML = objs.length
-    ? objs.map(function(o){
-        var w=Math.round(o.count/mx*100);
-        return '<div class="bar-row"><div class="bar-lbl" title="'+esc(o.objection)+'">'+esc(o.objection)+'</div>'+
-          '<div class="bar-bg"><div class="bar-fill" style="width:'+w+'%;background:var(--red)"></div></div>'+
-          '<div class="bar-n">'+o.count+'</div></div>';
-      }).join("")
-    : '<p style="font-size:12px;color:var(--gray)">No data yet</p>';
-
-  // Conv rate per objection
-  var calls   = d.allCalls || [];
-  var oMap    = {};
-  calls.forEach(function(c){
-    var o = c.primaryObj;
-    if (!o || o==="Not mentioned" || o==="") return;
-    if (!oMap[o]) oMap[o]={total:0,conv:0};
-    oMap[o].total++;
-    if (c.convProb==="75-100%"||c.convProb==="50-75%") oMap[o].conv++;
-  });
-  var oRows = Object.keys(oMap).sort(function(a,b){ return oMap[b].total-oMap[a].total; });
-  document.getElementById("objConvTbl").innerHTML = oRows.length
-    ? '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-      '<thead><tr style="background:var(--off)"><th style="padding:5px 8px;text-align:left;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)">Objection</th><th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)">Calls</th><th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)">Conv Rate</th></tr></thead>'+
-      '<tbody>'+oRows.map(function(o){
-        var info=oMap[o], pct=Math.round(info.conv/info.total*100);
-        var col=pct>=50?"var(--green)":pct>=25?"var(--amber)":"var(--red)";
-        return '<tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">'+esc(o)+'</td>'+
-          '<td style="padding:6px 8px;text-align:center">'+info.total+'</td>'+
-          '<td style="padding:6px 8px;text-align:center;font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:'+col+'">'+pct+'%</td></tr>';
-      }).join("")+'</tbody></table>'
-    : '<p style="font-size:12px;color:var(--gray)">No data yet</p>';
-
-  // Outcome trend
-  var trend = d.dailyTrend || [];
-  dChart("cObjTrend");
-  if (trend.length > 1) {
-    _ch["cObjTrend"] = new Chart(document.getElementById("cObjTrend").getContext("2d"), {
-      type:"line",
-      data:{
-        labels: trend.map(function(t){return t.date.slice(5);}),
-        datasets:[
-          { label:"Interested",     data:trend.map(function(t){return t.interested;}),   borderColor:"#22c55e", borderWidth:2, fill:false, tension:.35, pointRadius:0 },
-          { label:"Not Interested", data:trend.map(function(t){return t.notInterested;}),borderColor:"#D0261A", borderWidth:2, fill:false, tension:.35, pointRadius:0 },
-          { label:"Needs Follow-up",data:trend.map(function(t){return t.needsFollowup;}),borderColor:"#f59e0b", borderWidth:2, fill:false, tension:.35, pointRadius:0 }
-        ]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ position:"top", labels:{ font:{size:10,family:"'Outfit',sans-serif"}, boxWidth:10 }}},
-        scales:{
-          y:{ min:0, grid:{color:"rgba(0,0,0,.04)"}, ticks:{font:{size:10,family:"'Outfit',sans-serif"},color:"#999490"} },
-          x:{ grid:{display:false}, ticks:{font:{size:9},color:"#999490",maxRotation:0,autoSkip:true,maxTicksLimit:10} }
-        }
-      }
-    });
-  }
-}
-
-// ── HELPERS ───────────────────────────────────────────────
-function switchTab(t) {
-  var tabs = ["overview","salespersons","calls","followups","objections"];
-  var btns = document.querySelectorAll(".tab");
-  tabs.forEach(function(tab, i){
-    btns[i].className = "tab" + (tab===t?" on":"");
-  });
-  document.querySelectorAll(".tp").forEach(function(p){ p.className="tp"; });
-  document.getElementById("tp-"+t).className = "tp on";
-}
-
-function mkDonut(canvasId, legId, labels, data, colors) {
-  dChart(canvasId);
-  var total = data.reduce(function(a,b){return a+b;},0)||1;
-  var ctx = document.getElementById(canvasId).getContext("2d");
-  _ch[canvasId] = new Chart(ctx, {
-    type:"doughnut",
-    data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderWidth:2, borderColor:"#fff" }] },
+function showSpDetail(name) {
+  showSection("team", null);
+  const sp = (dashData.salespersons||[]).find(s=>s.name.toLowerCase()===name.toLowerCase());
+  if (!sp) return;
+  const row = document.getElementById("spChartRow");
+  row.style.display = "block";
+  document.getElementById("spChartTitle").textContent = name + " — Call Breakdown";
+  if (spChartInst) spChartInst.destroy();
+  const ctx = document.getElementById("spChart");
+  spChartInst = new Chart(ctx, {
+    type:"bar",
+    data:{
+      labels:["New Leads","Follow-ups","Fee Collections","Interested","Hot","Warm","Cold"],
+      datasets:[{
+        data:[sp.newLeads,sp.followUps,sp.feeCollections,sp.interested,sp.hot,sp.warm,sp.cold],
+        backgroundColor:["rgba(96,165,250,0.8)","rgba(192,132,252,0.8)","rgba(74,222,128,0.8)",
+          "rgba(34,197,94,0.8)","rgba(239,68,68,0.8)","rgba(245,158,11,0.8)","rgba(100,116,139,0.8)"],
+        borderRadius:6
+      }]
+    },
     options:{
-      responsive:true, maintainAspectRatio:false, cutout:"65%",
-      plugins:{
-        legend:{display:false},
-        tooltip:{ callbacks:{ label:function(ctx){ return ' '+ctx.label+': '+ctx.raw+' ('+parseFloat((ctx.raw/total*100).toFixed(1))+'%)'; }}}
+      responsive:true,maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:"#1e2a3d", titleColor:"#e2e8f0", bodyColor:"#94a3b8" }},
+      scales:{
+        x:{ticks:{color:"#64748b",font:{size:11}},grid:{color:"rgba(255,255,255,0.04)"}},
+        y:{ticks:{color:"#64748b",font:{size:11}},grid:{color:"rgba(255,255,255,0.04)"}}
       }
     }
   });
-  document.getElementById(legId).innerHTML = labels.map(function(l,i){
-    return '<div class="dl-item"><div class="dl-dot" style="background:'+colors[i]+'"></div>'+
-      '<span class="dl-lbl">'+esc(l)+'</span><span class="dl-val">'+data[i]+'</span></div>';
-  }).join("");
+  row.scrollIntoView({ behavior:"smooth", block:"start" });
 }
 
-function dChart(id) {
-  if (_ch[id]) { try{_ch[id].destroy();}catch(e){} _ch[id]=null; }
+// ─── ALERTS ──────────────────────────────────────────────────
+function renderAlerts() {
+  renderAlertCards("urgentCards", dashData.urgentFollowups||[], "urgent-card",
+    c => `<div class="alert-card urgent-card">
+      <div class="alert-card-header">
+        <div>
+          <div class="alert-card-name">${c.salesperson} · ${intentBadge(c.leadIntent)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${c.callType}</div>
+        </div>
+        <div class="alert-card-date">${c.dateDisp||""}</div>
+      </div>
+      <div class="alert-card-action">${c.followUpAct||"—"}</div>
+      <div class="alert-card-summary">${c.summary||""}</div>
+    </div>`);
+
+  renderAlertCards("retentionCards", dashData.retentionRisks||[], "retention-card",
+    c => `<div class="alert-card retention-card">
+      <div class="alert-card-header">
+        <div class="alert-card-name">${c.salesperson}</div>
+        <div class="alert-card-date">${c.dateDisp||""}</div>
+      </div>
+      <div class="alert-card-action">${c.followUpAct||"—"}</div>
+      <div class="alert-card-summary">${c.summary||""}</div>
+    </div>`);
+
+  renderAlertCards("feeCards", dashData.feeFollowups||[], "fee-card",
+    c => `<div class="alert-card fee-card">
+      <div class="alert-card-header">
+        <div class="alert-card-name">${c.salesperson} · <span style="color:var(--green)">${c.convProb||""}</span></div>
+        <div class="alert-card-date">${c.dateDisp||""}</div>
+      </div>
+      <div class="alert-card-action">${c.followUpAct||"—"}</div>
+      <div class="alert-card-summary">${c.summary||""}</div>
+    </div>`);
 }
 
-function fillSel(id, vals) {
-  var el=document.getElementById(id), cur=el.value;
-  el.innerHTML='<option value="">All</option>';
-  vals.forEach(function(v){ el.innerHTML+='<option value="'+esc(v)+'"'+(v===cur?" selected":"")+'>'+esc(v)+'</option>'; });
+function renderAlertCards(elId, data, cls, fn) {
+  const el = document.getElementById(elId);
+  if (!data.length) { el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:12px 0">None at this time ✓</div>`; return; }
+  el.innerHTML = data.map(fn).join("");
 }
 
-function v(id){ return document.getElementById(id) ? document.getElementById(id).value : ""; }
-
-function scCls(s){ return s>=7?"sc-g":s>=5?"sc-w":"sc-b"; }
-function pInt(i) { return i==="Hot"?"p-hot":i==="Warm"?"p-warm":"p-cold"; }
-function pSent(s){ return s==="Positive"?"p-pos":s==="Negative"?"p-neg":"p-neu"; }
-function pType(t){ return t==="New Lead"?"p-nl":t==="Follow-up"?"p-fu":t==="Fee Collection"?"p-fc":"p-bi"; }
-function pOut(o) { return o==="Interested"?"p-pos":o==="Not Interested"?"p-neg":"p-neu"; }
-function pFU(f)  { return f==="High"?"p-high":f==="Medium"?"p-med":"p-low"; }
-
-function showSpin(msg){ document.getElementById("spinLbl").textContent=msg||"Loading…"; document.getElementById("loading").style.display="flex"; }
-function hideSpin(){    document.getElementById("loading").style.display="none"; }
-
-function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-
-// JSONP — works with Apps Script's doGet + callback pattern
-function jsonp(url, cb) {
-  var id="jcb_"+Date.now()+"_"+Math.floor(Math.random()*9999), t=null, fired=false;
-  function cleanup(){
-    if(t){clearTimeout(t);t=null;}
-    var s=document.getElementById(id); if(s){try{document.body.removeChild(s);}catch(e){}}
-    try{delete window[id];}catch(e){window[id]=undefined;}
+// ─── OBJECTION CHARTS ────────────────────────────────────────
+function renderObjectionCharts() {
+  const objs = dashData.topObjections||[];
+  if (objs.length) {
+    mkChart("objChart","bar",{
+      labels: objs.map(o=>o.objection),
+      datasets:[{ data:objs.map(o=>o.count), backgroundColor:"rgba(249,115,22,0.75)", borderRadius:5 }]
+    },{});
   }
-  window[id]=function(data){ if(fired)return; fired=true; cleanup(); cb(data); };
-  t=setTimeout(function(){ if(fired)return; fired=true; cleanup(); cb(null); }, 30000);
-  var s=document.createElement("script"); s.id=id;
-  s.src=url+"&callback="+id;
-  s.onerror=function(){ if(fired)return; fired=true; cleanup(); cb(null); };
-  document.body.appendChild(s);
+
+  const k = dashData.kpis;
+  mkChart("outcomeChart","doughnut",{
+    labels:["Interested","Needs Follow-up","Not Interested","Disconnected","Info Only"],
+    datasets:[{
+      data:[k.interested,k.needsFollowup,k.notInterested,
+            (dashData.allCalls||[]).filter(c=>c.callOutcome==="Call Disconnected").length,
+            (dashData.allCalls||[]).filter(c=>c.callOutcome==="Information Only").length],
+      backgroundColor:["rgba(34,197,94,0.85)","rgba(245,158,11,0.85)","rgba(239,68,68,0.85)",
+                       "rgba(100,116,139,0.85)","rgba(59,130,246,0.85)"],
+      borderWidth:0,hoverOffset:6
+    }]
+  });
+
+  mkChart("sentimentChart","doughnut",{
+    labels:["Positive","Neutral","Negative"],
+    datasets:[{
+      data:[k.positiveSent,(dashData.allCalls||[]).filter(c=>c.sentiment==="Neutral").length,k.negativeSent],
+      backgroundColor:["rgba(34,197,94,0.85)","rgba(100,116,139,0.85)","rgba(239,68,68,0.85)"],
+      borderWidth:0,hoverOffset:6
+    }]
+  });
+
+  const convLabels=["0-25%","25-50%","50-75%","75-100%"];
+  mkChart("convChart","bar",{
+    labels:convLabels,
+    datasets:[{
+      data:convLabels.map(l=>(dashData.allCalls||[]).filter(c=>c.convProb===l).length),
+      backgroundColor:["rgba(239,68,68,0.75)","rgba(245,158,11,0.75)","rgba(59,130,246,0.75)","rgba(34,197,94,0.75)"],
+      borderRadius:5
+    }]
+  },{});
+}
+
+// ─── NAV ──────────────────────────────────────────────────────
+function showSection(id, btn, alertTab) {
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("sec-"+id).classList.add("active");
+  if (btn) btn.classList.add("active");
+  else {
+    document.querySelectorAll(".nav-tab").forEach(t=>{
+      if (t.getAttribute("onclick").includes("'"+id+"'")) t.classList.add("active");
+    });
+  }
+  // Redraw charts on tab switch (they can be invisible when built)
+  Object.values(charts).forEach(c => { try { c.update(); } catch(e){} });
+}
+
+// ─── BADGE HELPERS ───────────────────────────────────────────
+function typeBadge(v) {
+  const m={"New Lead":"new","Follow-up":"follow","Fee Collection":"fee","Batch Info":"batch"};
+  return v ? `<span class="badge badge-${m[v]||'std'}">${v}</span>` : "—";
+}
+function intentBadge(v) {
+  const m={"Hot":"hot","Warm":"warm","Cold":"cold"};
+  return v ? `<span class="badge badge-${m[v]||'std'}">${v}</span>` : "—";
+}
+function outcomeBadge(v) {
+  const m={"Interested":"int","Needs Follow-up":"nfu","Not Interested":"nint",
+           "Call Disconnected":"disc","Information Only":"std"};
+  return v ? `<span class="badge badge-${m[v]||'std'}">${v}</span>` : "—";
+}
+function priBadge(v) {
+  const m={"High":"urgent","Medium":"nfu","Low":"disc"};
+  return v ? `<span class="badge badge-${m[v]||'std'}">${v}</span>` : "—";
+}
+function flagBadge(v) {
+  if (!v||v==="STANDARD") return `<span class="badge badge-std">—</span>`;
+  const map={
+    URGENT_FOLLOWUP:"badge-urgent","URGENT_FOLLOWUP":"badge-urgent",
+    RETENTION_RISK:"badge-ret",STRONG_CALL:"badge-strong",WEAK_CALL:"badge-weak"
+  };
+  const lbl={URGENT_FOLLOWUP:"Urgent",RETENTION_RISK:"At Risk",STRONG_CALL:"Strong",WEAK_CALL:"Weak"};
+  return `<span class="badge ${map[v]||'badge-std'}">${lbl[v]||v}</span>`;
+}
+function scorePill(s) {
+  if (!s||s===0) return `<span class="score-pill score-lo">—</span>`;
+  const cls = s>=7?"score-hi":s>=5?"score-mid":"score-lo";
+  return `<span class="score-pill ${cls}">${s}</span>`;
+}
+function fmtDate(iso) {
+  if (!iso) return "—";
+  try { const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("en-IN",{day:"numeric",month:"short"}); }
+  catch(e){ return iso; }
 }
 </script>
 </body>
