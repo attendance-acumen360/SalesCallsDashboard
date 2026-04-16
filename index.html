@@ -10,394 +10,388 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --black:#0a0a0a;--red:#D0261A;--red-dk:#a81e14;--red-lt:#ff3b2e;
-  --white:#ffffff;--off:#f7f5f2;--gray:#999490;--border:#e8e4e0;
-  --green:#22c55e;--amber:#f59e0b;--blue:#3b82f6;
-  --card-sh:0 4px 24px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
+  --black:#0a0a0a;--red:#D0261A;--red-dk:#a81e14;
+  --white:#fff;--off:#f7f5f2;--gray:#999490;--border:#e8e4e0;
+  --green:#22c55e;--amber:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;
+  --sh:0 4px 24px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
 }
 html,body{height:100%}
 body{font-family:'Outfit',sans-serif;background:var(--off);color:var(--black);min-height:100vh}
 
-/* TOPBAR */
-.topbar{background:var(--black);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
-.topbar-brand{display:flex;align-items:center;gap:10px}
-.topbar-logo{width:30px;height:30px;background:var(--red);border-radius:7px;display:flex;align-items:center;justify-content:center}
-.topbar-logo svg{width:16px;height:16px}
-.topbar-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.07em;color:var(--white)}
-.topbar-subtitle{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-left:4px}
-.topbar-right{display:flex;align-items:center;gap:12px}
-.topbar-gentime{font-size:11px;color:rgba(255,255,255,.3)}
-.btn-sm{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);background:none;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:5px 10px;cursor:pointer;transition:all .2s}
-.btn-sm:hover{color:var(--white);border-color:rgba(255,255,255,.3)}
-.btn-sm.primary{background:var(--red);border-color:var(--red);color:var(--white)}
+/* ── TOPBAR ── */
+.topbar{background:var(--black);height:56px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.tb-brand{display:flex;align-items:center;gap:10px}
+.tb-logo{width:30px;height:30px;background:var(--red);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.tb-logo svg{width:16px;height:16px}
+.tb-name{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.07em;color:#fff}
+.tb-sub{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-left:4px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-gentime{font-size:11px;color:rgba(255,255,255,.3)}
+.btn-xs{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 10px;cursor:pointer;color:rgba(255,255,255,.5);transition:all .2s}
+.btn-xs:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+.btn-xs.danger{border-color:rgba(208,38,26,.4);color:rgba(208,38,26,.7)}
+.btn-xs.danger:hover{background:var(--red);border-color:var(--red);color:#fff}
 
-/* LOGIN */
-.login-overlay{position:fixed;inset:0;background:var(--off);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px}
-.login-card{width:100%;max-width:380px;background:var(--white);border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.1);animation:cardIn .5s cubic-bezier(.22,1,.36,1) both}
-@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
-.login-header{background:var(--black);padding:28px 24px 24px;position:relative;overflow:hidden}
-.login-header::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--red) 0%,transparent 100%)}
-.login-eyebrow{font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:5px}
-.login-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:.03em;color:var(--white);line-height:1}
-.login-title span{color:rgba(255,255,255,.4);font-size:26px;display:block}
-.login-body{padding:24px}
-.input-wrap{position:relative;margin-bottom:8px}
-.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--gray);pointer-events:none;transition:color .2s}
-.input-wrap:focus-within .input-icon{color:var(--red)}
-input[type="password"]{width:100%;padding:14px 14px 14px 42px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:500;color:var(--black);background:var(--off);transition:border-color .2s,box-shadow .2s;-webkit-appearance:none}
-input[type="password"]:focus{outline:none;border-color:var(--red);background:var(--white);box-shadow:0 0 0 4px rgba(208,38,26,.08)}
-.login-error{font-size:12px;color:var(--red-dk);background:rgba(208,38,26,.06);border:1px solid rgba(208,38,26,.2);border-left:3px solid var(--red);border-radius:7px;padding:10px 12px;margin-top:10px;display:none}
-.login-error.visible{display:block}
-.login-btn{width:100%;padding:15px;background:var(--black);color:var(--white);border:none;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.1em;cursor:pointer;margin-top:14px;position:relative;overflow:hidden;transition:transform .1s}
-.login-btn::before{content:'';position:absolute;inset:0;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.22,1,.36,1);z-index:0}
-.login-btn:hover::before{transform:scaleX(1)}
-.login-btn span{position:relative;z-index:1}
-.login-btn:disabled{opacity:.4;cursor:not-allowed}
+/* ── LOGIN ── */
+.overlay{position:fixed;inset:0;background:var(--off);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px}
+.lcard{width:100%;max-width:380px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.1);animation:up .5s cubic-bezier(.22,1,.36,1)}
+@keyframes up{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+.lhead{background:var(--black);padding:28px 24px 24px;position:relative}
+.lhead::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),transparent)}
+.ley{font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:5px}
+.ltitle{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:.03em;color:#fff;line-height:1}
+.ltitle span{color:rgba(255,255,255,.4);font-size:26px;display:block}
+.lbody{padding:24px}
+.iw{position:relative;margin-bottom:8px}
+.iw svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--gray);pointer-events:none;transition:color .2s}
+.iw:focus-within svg{color:var(--red)}
+.iw input{width:100%;padding:13px 13px 13px 42px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;color:var(--black);background:var(--off);transition:border-color .2s}
+.iw input:focus{outline:none;border-color:var(--red);background:#fff;box-shadow:0 0 0 4px rgba(208,38,26,.07)}
+.lerr{font-size:12px;color:var(--red-dk);background:rgba(208,38,26,.06);border:1px solid rgba(208,38,26,.2);border-left:3px solid var(--red);border-radius:7px;padding:10px 12px;margin-top:8px;display:none}
+.lerr.show{display:block}
+.lbtn{width:100%;padding:14px;background:var(--black);color:#fff;border:none;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.1em;cursor:pointer;margin-top:14px;position:relative;overflow:hidden;transition:transform .1s}
+.lbtn::before{content:'';position:absolute;inset:0;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.22,1,.36,1);z-index:0}
+.lbtn:hover::before{transform:scaleX(1)}
+.lbtn span{position:relative;z-index:1}
+.lbtn:disabled{opacity:.4;cursor:not-allowed}
 
-/* LOADING */
-.full-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 56px);gap:16px}
-.spinner-ring svg{width:48px;height:48px;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-label{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);font-weight:500}
+/* ── LOADING ── */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 56px);gap:16px}
+.spin svg{width:48px;height:48px;animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.spin-lbl{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);font-weight:500}
 
-/* PAGE */
-.page{max-width:1200px;margin:0 auto;padding:24px 20px 60px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* ── PAGE ── */
+.page{max-width:1200px;margin:0 auto;padding:20px 20px 60px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
-/* TABS */
-.tab-nav{display:flex;gap:4px;background:var(--white);border-radius:12px;padding:4px;box-shadow:var(--card-sh);border:1px solid var(--border);margin-bottom:16px;animation:fadeUp .5s .1s cubic-bezier(.22,1,.36,1) both;overflow-x:auto}
-.tab-btn{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--gray);background:none;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.tab-btn.active{background:var(--black);color:var(--white)}
-.tab-panel{display:none;animation:fadeUp .3s cubic-bezier(.22,1,.36,1) both}
-.tab-panel.active{display:block}
+/* ── KPI STRIP ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:14px;animation:fadeUp .5s .04s both}
+.kpi{background:#fff;border-radius:11px;padding:14px 12px;box-shadow:var(--sh);border:1px solid var(--border)}
+.kpi-lbl{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-bottom:5px}
+.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.02em;line-height:1;color:var(--black);margin-bottom:2px}
+.kpi-val.g{color:var(--green)}.kpi-val.w{color:var(--amber)}.kpi-val.b{color:var(--red)}
+.kpi-sub{font-size:10px;color:var(--gray)}
 
-/* KPI GRID */
-.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;animation:fadeUp .5s .05s cubic-bezier(.22,1,.36,1) both}
-.kpi-card{background:var(--white);border-radius:12px;padding:16px 14px;box-shadow:var(--card-sh);border:1px solid var(--border)}
-.kpi-label{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);margin-bottom:6px}
-.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.02em;color:var(--black);line-height:1;margin-bottom:3px}
-.kpi-val.good{color:var(--green)} .kpi-val.warn{color:var(--amber)} .kpi-val.bad{color:var(--red)}
-.kpi-sub{font-size:11px;color:var(--gray)}
-.kpi-pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;border-radius:20px;padding:2px 7px;margin-top:4px}
-.kpi-pill.up{background:rgba(34,197,94,.1);color:#15803d}
-.kpi-pill.down{background:rgba(208,38,26,.1);color:var(--red-dk)}
-.kpi-pill.neutral{background:rgba(153,148,144,.1);color:var(--gray)}
+/* ── TABS ── */
+.tab-bar{display:flex;gap:3px;background:#fff;border-radius:11px;padding:4px;box-shadow:var(--sh);border:1px solid var(--border);margin-bottom:14px;animation:fadeUp .5s .08s both;overflow-x:auto}
+.tab{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);background:none;border:none;border-radius:7px;padding:7px 13px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.tab.on{background:var(--black);color:#fff}
+.tp{display:none;animation:fadeUp .25s both}
+.tp.on{display:block}
 
-/* CARDS */
-.card{background:var(--white);border-radius:14px;box-shadow:var(--card-sh);border:1px solid var(--border);padding:20px}
-.card-title{font-size:13px;font-weight:600;color:var(--black);margin-bottom:3px}
-.card-sub{font-size:11px;color:var(--gray);margin-bottom:14px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
-.grid-21{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
-.grid-12{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:12px}
-.full-row{margin-bottom:12px}
+/* ── CARD ── */
+.card{background:#fff;border-radius:13px;box-shadow:var(--sh);border:1px solid var(--border);padding:18px}
+.card-t{font-size:13px;font-weight:600;color:var(--black);margin-bottom:2px}
+.card-s{font-size:11px;color:var(--gray);margin-bottom:13px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:11px;margin-bottom:11px}
+.g12{display:grid;grid-template-columns:1fr 2fr;gap:11px;margin-bottom:11px}
+.gfull{margin-bottom:11px}
 
-/* TABLE */
-.table-wrap{background:var(--white);border-radius:14px;box-shadow:var(--card-sh);border:1px solid var(--border);overflow:hidden}
-.table-scroll{overflow-x:auto}
-.data-table{width:100%;border-collapse:collapse}
-.data-table thead tr{background:var(--black)}
-.data-table thead th{padding:10px 12px;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);text-align:left;white-space:nowrap}
-.data-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
-.data-table tbody tr:last-child{border-bottom:none}
-.data-table tbody tr:hover{background:var(--off)}
-.data-table tbody td{padding:9px 12px;font-size:12px;color:var(--black);vertical-align:middle}
-.data-table tbody td.muted{color:var(--gray);font-size:11px}
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;font-size:10px;font-weight:600;letter-spacing:.04em;border-radius:20px;padding:2px 7px;white-space:nowrap;border:1px solid transparent}
+.p-hot{background:rgba(208,38,26,.1);color:var(--red-dk);border-color:rgba(208,38,26,.2)}
+.p-warm{background:rgba(245,158,11,.1);color:#92400e;border-color:rgba(245,158,11,.2)}
+.p-cold{background:rgba(59,130,246,.1);color:#1e40af;border-color:rgba(59,130,246,.2)}
+.p-pos{background:rgba(34,197,94,.1);color:#15803d;border-color:rgba(34,197,94,.2)}
+.p-neg{background:rgba(208,38,26,.08);color:var(--red-dk);border-color:rgba(208,38,26,.15)}
+.p-neu{background:rgba(153,148,144,.1);color:#555;border-color:rgba(153,148,144,.2)}
+.p-high{background:rgba(208,38,26,.1);color:var(--red-dk);border-color:rgba(208,38,26,.2)}
+.p-med{background:rgba(245,158,11,.1);color:#92400e;border-color:rgba(245,158,11,.2)}
+.p-low{background:rgba(34,197,94,.1);color:#15803d;border-color:rgba(34,197,94,.2)}
+.p-nl{background:rgba(208,38,26,.08);color:var(--red-dk);border-color:rgba(208,38,26,.15)}
+.p-fu{background:rgba(245,158,11,.08);color:#92400e;border-color:rgba(245,158,11,.2)}
+.p-fc{background:rgba(34,197,94,.08);color:#15803d;border-color:rgba(34,197,94,.2)}
+.p-bi{background:rgba(59,130,246,.08);color:#1e40af;border-color:rgba(59,130,246,.2)}
 
-/* PILLS / BADGES */
-.pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;letter-spacing:.04em;border-radius:20px;padding:3px 8px;white-space:nowrap}
-.pill.hot{background:rgba(208,38,26,.1);color:var(--red-dk);border:1px solid rgba(208,38,26,.2)}
-.pill.warm{background:rgba(245,158,11,.1);color:#92400e;border:1px solid rgba(245,158,11,.2)}
-.pill.cold{background:rgba(153,148,144,.1);color:#555;border:1px solid rgba(153,148,144,.2)}
-.pill.pos{background:rgba(34,197,94,.1);color:#15803d;border:1px solid rgba(34,197,94,.2)}
-.pill.neg{background:rgba(208,38,26,.08);color:var(--red-dk);border:1px solid rgba(208,38,26,.15)}
-.pill.neu{background:rgba(153,148,144,.1);color:#555;border:1px solid rgba(153,148,144,.2)}
-.pill.high{background:rgba(208,38,26,.1);color:var(--red-dk);border:1px solid rgba(208,38,26,.2)}
-.pill.medium{background:rgba(245,158,11,.1);color:#92400e;border:1px solid rgba(245,158,11,.2)}
-.pill.low{background:rgba(34,197,94,.1);color:#15803d;border:1px solid rgba(34,197,94,.2)}
-.score-badge{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:17px;min-width:28px;text-align:center}
-.score-badge.good{color:var(--green)}.score-badge.warn{color:var(--amber)}.score-badge.bad{color:var(--red)}
+.score{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:17px;min-width:24px;text-align:center}
+.sc-g{color:var(--green)}.sc-w{color:var(--amber)}.sc-b{color:var(--red)}
 
-/* BAR CHART */
-.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-.bar-label{font-size:11px;font-weight:500;color:var(--black);width:150px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar-bg{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+/* ── BAR CHART ── */
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bar-lbl{font-size:11px;color:var(--black);width:145px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-bg{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden}
 .bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.22,1,.36,1)}
-.bar-val{font-family:'Bebas Neue',sans-serif;font-size:16px;width:40px;text-align:right;flex-shrink:0}
-.bar-count{font-size:10px;color:var(--gray);width:40px;text-align:right;flex-shrink:0}
+.bar-n{font-family:'Bebas Neue',sans-serif;font-size:15px;width:32px;text-align:right;flex-shrink:0}
 
-/* DONUT */
-.donut-wrap{display:flex;align-items:center;gap:16px;padding:4px 0}
-.donut-legend{flex:1}
-.donut-legend-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
-.donut-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.donut-legend-label{color:var(--gray);flex:1}
-.donut-legend-val{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--black)}
+/* ── DONUT ── */
+.donut-wrap{display:flex;align-items:center;gap:14px}
+.donut-leg{flex:1}
+.dl-item{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:12px}
+.dl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dl-lbl{color:var(--gray);flex:1}
+.dl-val{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--black)}
 
-/* HEATMAP */
-.heatmap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14px,1fr));gap:2px;margin-top:8px}
-.heatmap-cell{aspect-ratio:1;border-radius:2px;cursor:default}
-.heatmap-legend{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--gray);margin-top:8px}
-.heatmap-lc{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+/* ── TABLE ── */
+.tbl-wrap{background:#fff;border-radius:13px;box-shadow:var(--sh);border:1px solid var(--border);overflow:hidden}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--black)}
+thead th{padding:9px 11px;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);text-align:left;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--off)}
+tbody td{padding:8px 11px;font-size:12px;vertical-align:middle}
+tbody td.mu{color:var(--gray);font-size:11px}
+.tbl-empty{padding:32px;text-align:center;font-size:13px;color:var(--gray);font-style:italic}
 
-/* CALL FEED */
-.call-feed-item{border-bottom:1px solid var(--border);padding:12px 0;display:flex;gap:12px;align-items:flex-start}
-.call-feed-item:last-child{border-bottom:none}
-.call-feed-left{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px}
-.call-feed-avatar{width:36px;height:36px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--white)}
-.call-feed-date{font-size:9px;color:var(--gray);text-align:center}
-.call-feed-body{flex:1}
-.call-feed-header{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
-.call-feed-sp{font-size:12px;font-weight:700;color:var(--black)}
-.call-feed-summary{font-size:11px;color:var(--gray);line-height:1.5;margin-bottom:6px}
-.call-feed-action{font-size:11px;color:var(--black);background:rgba(208,38,26,.05);border:1px solid rgba(208,38,26,.12);border-radius:6px;padding:4px 8px;margin-top:4px;display:inline-block}
+/* ── CALL FEED ── */
+.feed-item{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.feed-item:last-child{border-bottom:none}
+.feed-av{width:34px;height:34px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:#fff;flex-shrink:0}
+.feed-date{font-size:9px;color:var(--gray);text-align:center;margin-top:3px}
+.feed-body{flex:1;min-width:0}
+.feed-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px}
+.feed-sp{font-size:12px;font-weight:700;color:var(--black)}
+.feed-sum{font-size:11px;color:var(--gray);line-height:1.5;margin-bottom:4px}
+.feed-action{font-size:11px;background:rgba(208,38,26,.05);border:1px solid rgba(208,38,26,.12);border-radius:6px;padding:3px 8px;display:inline-block;color:var(--black)}
 
-/* FILTER BAR */
-.filter-bar{background:var(--white);border-radius:12px;padding:10px 16px;box-shadow:var(--card-sh);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
-.filter-bar label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray)}
-select.filter-select{padding:5px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;color:var(--black);background:var(--off);cursor:pointer}
-select.filter-select:focus{outline:none;border-color:var(--red)}
-.filter-count{margin-left:auto;font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);background:var(--off);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
-.search-input{flex:1;min-width:140px;padding:5px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;color:var(--black);background:var(--off)}
-.search-input:focus{outline:none;border-color:var(--red)}
+/* ── FILTER BAR ── */
+.fbar{background:#fff;border-radius:11px;padding:9px 14px;box-shadow:var(--sh);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:11px}
+.fbar label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
+select.fsel{padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;color:var(--black);background:var(--off);cursor:pointer}
+select.fsel:focus{outline:none;border-color:var(--red)}
+.fsearch{flex:1;min-width:130px;padding:5px 11px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;color:var(--black);background:var(--off)}
+.fsearch:focus{outline:none;border-color:var(--red)}
+.fcnt{margin-left:auto;font-size:11px;font-weight:500;color:var(--gray);background:var(--off);border:1px solid var(--border);border-radius:20px;padding:3px 9px;white-space:nowrap}
 
-/* URGENT CARD */
-.urgent-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
-.urgent-item:last-child{border-bottom:none}
-.urgent-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:4px}
-.urgent-sp{font-size:12px;font-weight:700;color:var(--black)}
-.urgent-action{font-size:11px;color:var(--gray);margin-top:2px}
-.urgent-pills{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
-
-/* SP CARD */
-.sp-card{background:var(--white);border-radius:12px;border:1px solid var(--border);padding:16px;box-shadow:var(--card-sh);transition:transform .15s}
+/* ── SP CARDS ── */
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:9px;margin-bottom:14px}
+.sp-card{background:#fff;border-radius:11px;border:1px solid var(--border);padding:14px;box-shadow:var(--sh);transition:transform .15s}
 .sp-card:hover{transform:translateY(-1px)}
-.sp-avatar{width:40px;height:40px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);margin-bottom:8px}
-.sp-name{font-size:14px;font-weight:700;color:var(--black);margin-bottom:2px}
-.sp-score{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin-bottom:4px}
-.sp-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px}
-.sp-stat-item{font-size:10px;color:var(--gray)}
-.sp-stat-val{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--black)}
-.sp-bar-wrap{margin-top:8px}
+.sp-av{width:38px;height:38px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:17px;color:#fff;margin-bottom:7px}
+.sp-nm{font-size:13px;font-weight:700;margin-bottom:1px}
+.sp-sc{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;margin-bottom:3px}
+.sp-stats{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:7px}
+.sp-si{font-size:10px;color:var(--gray)}
+.sp-sv{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--black)}
+.sp-bar{margin-top:7px}
 .sp-bar-bg{height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:2px}
 .sp-bar-fill{height:100%;border-radius:4px}
 
-/* SECTION TITLE */
-.section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.04em;color:var(--black);margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+/* ── URGENT ── */
+.urg-item{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border)}
+.urg-item:last-child{border-bottom:none}
+.urg-dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:5px}
+.urg-sp{font-size:12px;font-weight:700}
+.urg-act{font-size:11px;color:var(--gray);margin-top:2px}
+.urg-meta{font-size:10px;color:var(--gray);margin-top:2px}
 
-/* SP GRID */
-.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+/* ── SECTION TITLE ── */
+.sec{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.04em;color:var(--black);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
 
 @media(max-width:900px){
-  .kpi-grid{grid-template-columns:repeat(3,1fr)}
-  .grid-2,.grid-21,.grid-12{grid-template-columns:1fr}
-  .grid-3{grid-template-columns:1fr 1fr}
+  .kpi-strip{grid-template-columns:repeat(3,1fr)}
+  .g2,.g21,.g12{grid-template-columns:1fr}
+  .g3{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){
-  .kpi-grid{grid-template-columns:repeat(2,1fr)}
-  .grid-3{grid-template-columns:1fr}
-  .page{padding:16px 12px 48px}
-  .topbar-gentime{display:none}
+@media(max-width:580px){
+  .kpi-strip{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .page{padding:14px 12px 48px}
+  .tb-gentime{display:none}
 }
 </style>
 </head>
 <body>
 
-<!-- ── LOGIN ── -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-card">
-    <div class="login-header">
-      <div class="login-eyebrow">Sales Intelligence</div>
-      <div class="login-title">Call Analytics<span>Dashboard</span></div>
+<!-- LOGIN -->
+<div class="overlay" id="loginOverlay">
+  <div class="lcard">
+    <div class="lhead">
+      <div class="ley">Sales Intelligence</div>
+      <div class="ltitle">Call Analytics<span>Dashboard</span></div>
     </div>
-    <div class="login-body">
-      <div class="input-wrap">
-        <svg class="input-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+    <div class="lbody">
+      <div class="iw">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
           <rect x="1.5" y="6" width="13" height="9" rx="1.5"/>
           <path d="M5 6V4.5a3 3 0 016 0V6"/>
           <circle cx="8" cy="10.5" r="1.5" fill="currentColor" stroke="none"/>
         </svg>
-        <input type="password" id="pwInput" placeholder="Enter dashboard password"
+        <input type="password" id="pwInput" placeholder="Dashboard password"
           autocomplete="current-password"
-          oninput="document.getElementById('loginError').classList.remove('visible')"
-          onkeydown="if(event.key==='Enter') doLogin()" />
+          oninput="document.getElementById('lerr').classList.remove('show')"
+          onkeydown="if(event.key==='Enter')doLogin()"/>
       </div>
-      <div class="login-error" id="loginError"></div>
-      <button class="login-btn" id="loginBtn" onclick="doLogin()"><span>Access Dashboard</span></button>
+      <div class="lerr" id="lerr"></div>
+      <button class="lbtn" id="lbtn" onclick="doLogin()"><span>Access Dashboard</span></button>
     </div>
   </div>
 </div>
 
-<!-- ── TOPBAR ── -->
+<!-- TOPBAR -->
 <div class="topbar" id="topbar" style="display:none">
-  <div class="topbar-brand">
-    <div class="topbar-logo">
+  <div class="tb-brand">
+    <div class="tb-logo">
       <svg viewBox="0 0 20 20" fill="none">
-        <path d="M10 2L17 6v8l-7 4-7-4V6z" stroke="white" stroke-width="1.5" fill="none"/>
-        <circle cx="10" cy="10" r="2.5" fill="white"/>
+        <path d="M10 2L17 6v8l-7 4-7-4V6z" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="10" cy="10" r="2.5" fill="#fff"/>
       </svg>
     </div>
-    <span class="topbar-title">ACUMEN GATE</span>
-    <span class="topbar-subtitle">Sales Dashboard</span>
+    <span class="tb-name">ACUMEN GATE</span>
+    <span class="tb-sub">Sales Dashboard</span>
   </div>
-  <div class="topbar-right">
-    <span class="topbar-gentime" id="genTime"></span>
-    <button class="btn-sm primary" onclick="refreshData()">↻ Refresh</button>
-    <button class="btn-sm" onclick="doLogout()">Logout</button>
+  <div class="tb-right">
+    <span class="tb-gentime" id="genTime"></span>
+    <button class="btn-xs" onclick="refreshData()">↻ Refresh</button>
+    <button class="btn-xs danger" onclick="doLogout()">Logout</button>
   </div>
 </div>
 
-<!-- ── LOADING ── -->
-<div class="full-loading" id="fullLoading" style="display:none">
-  <div class="spinner-ring">
+<!-- LOADING -->
+<div class="loading" id="loading" style="display:none">
+  <div class="spin">
     <svg viewBox="0 0 48 48" fill="none">
       <circle cx="24" cy="24" r="20" stroke="#e8e4e0" stroke-width="3"/>
       <path d="M24 4A20 20 0 0144 24" stroke="#D0261A" stroke-width="3" stroke-linecap="round"/>
     </svg>
   </div>
-  <span class="loading-label" id="loadingLabel">Loading…</span>
+  <span class="spin-lbl" id="spinLbl">Loading…</span>
 </div>
 
-<!-- ── DASHBOARD ── -->
+<!-- DASHBOARD -->
 <div class="page" id="dashPage" style="display:none">
 
-  <!-- KPI Row -->
-  <div class="kpi-grid" id="kpiGrid"></div>
+  <div class="kpi-strip" id="kpiStrip"></div>
 
-  <!-- Tabs -->
-  <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('overview')">📊 Overview</button>
-    <button class="tab-btn"        onclick="switchTab('salespersons')">👤 Salespersons</button>
-    <button class="tab-btn"        onclick="switchTab('calls')">📞 All Calls</button>
-    <button class="tab-btn"        onclick="switchTab('followups')">🔔 Follow-ups</button>
-    <button class="tab-btn"        onclick="switchTab('objections')">🛡️ Objections</button>
+  <div class="tab-bar">
+    <button class="tab on"  onclick="switchTab('overview')">📊 Overview</button>
+    <button class="tab"     onclick="switchTab('salespersons')">👤 Team</button>
+    <button class="tab"     onclick="switchTab('calls')">📞 All Calls</button>
+    <button class="tab"     onclick="switchTab('followups')">🔔 Follow-ups</button>
+    <button class="tab"     onclick="switchTab('objections')">🛡 Objections</button>
   </div>
 
-  <!-- OVERVIEW TAB -->
-  <div class="tab-panel active" id="tab-overview">
-    <div class="grid-21">
+  <!-- ══ OVERVIEW ══ -->
+  <div class="tp on" id="tp-overview">
+    <div class="g21">
       <div class="card">
-        <div class="card-title">Daily Call Volume — Last 30 Days</div>
-        <div class="card-sub" id="trendSub"></div>
-        <div style="position:relative;height:200px"><canvas id="trendChart"></canvas></div>
+        <div class="card-t">Daily Call Volume — Last 30 Days</div>
+        <div class="card-s" id="trendSub">All time</div>
+        <div style="position:relative;height:200px"><canvas id="cTrend"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Call Type Mix</div>
-        <div class="card-sub">All time breakdown</div>
-        <div style="position:relative;height:180px"><canvas id="typeDonut"></canvas></div>
-        <div id="typeLegend" style="margin-top:10px"></div>
+        <div class="card-t">Call Type Mix</div>
+        <div class="card-s">All time</div>
+        <div style="position:relative;height:175px"><canvas id="cTypeDnt"></canvas></div>
+        <div id="typeLeg" style="margin-top:9px"></div>
       </div>
     </div>
-    <div class="grid-2">
+    <div class="g2">
       <div class="card">
-        <div class="card-title">Lead Intent Distribution</div>
-        <div class="card-sub">Hot / Warm / Cold split across all calls</div>
+        <div class="card-t">Lead Intent Split</div>
+        <div class="card-s">Hot / Warm / Cold distribution</div>
         <div id="intentBars"></div>
       </div>
       <div class="card">
-        <div class="card-title">Top Objections</div>
-        <div class="card-sub">Primary objection frequency</div>
+        <div class="card-t">Top Objections</div>
+        <div class="card-s">Primary objection frequency</div>
         <div id="objBars"></div>
       </div>
     </div>
-    <div class="grid-2">
+    <div class="g2">
       <div class="card">
-        <div class="card-title">Call Outcomes</div>
-        <div class="card-sub">How calls ended</div>
-        <div style="position:relative;height:180px"><canvas id="outcomeDonut"></canvas></div>
-        <div id="outcomeLegend" style="margin-top:10px"></div>
+        <div class="card-t">Call Outcomes</div>
+        <div class="card-s">How calls ended</div>
+        <div style="position:relative;height:175px"><canvas id="cOutDnt"></canvas></div>
+        <div id="outLeg" style="margin-top:9px"></div>
       </div>
       <div class="card">
-        <div class="card-title">Weekly Volume Trend</div>
-        <div class="card-sub">Calls per week — last 8 weeks</div>
-        <div style="position:relative;height:180px"><canvas id="weeklyChart"></canvas></div>
+        <div class="card-t">Weekly Volume</div>
+        <div class="card-s">Calls per week — last 8 weeks</div>
+        <div style="position:relative;height:175px"><canvas id="cWeekly"></canvas></div>
       </div>
     </div>
-    <div class="full-row card">
-      <div class="card-title">Recent Activity Feed</div>
-      <div class="card-sub" id="feedSub"></div>
-      <div id="callFeed"></div>
+    <div class="gfull card">
+      <div class="card-t">Recent Activity</div>
+      <div class="card-s" id="feedSub"></div>
+      <div id="feed"></div>
     </div>
   </div>
 
-  <!-- SALESPERSONS TAB -->
-  <div class="tab-panel" id="tab-salespersons">
-    <div class="section-title">Team Performance</div>
+  <!-- ══ TEAM ══ -->
+  <div class="tp" id="tp-salespersons">
+    <div class="sec">Team Performance</div>
     <div class="sp-grid" id="spGrid"></div>
-    <div class="section-title">Salesperson Rankings</div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead><tr>
-            <th>Salesperson</th><th>Total Calls</th><th>New Leads</th><th>Follow-ups</th><th>Fee Colln</th>
-            <th>Avg Score</th><th>Hot Leads</th><th>Interested</th><th>High Conv</th><th>High Priority</th><th>Last Active</th>
-          </tr></thead>
-          <tbody id="spTable"></tbody>
-        </table>
-      </div>
-    </div>
+    <div class="sec">Rankings</div>
+    <div class="tbl-wrap"><div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Name</th><th>Calls</th><th>New Leads</th><th>Follow-ups</th><th>Fee Colln</th>
+          <th>Avg Score</th><th>Hot</th><th>Interested</th><th>High Conv</th><th>Pending FU</th><th>Last Active</th>
+        </tr></thead>
+        <tbody id="spTbody"></tbody>
+      </table>
+    </div></div>
   </div>
 
-  <!-- ALL CALLS TAB -->
-  <div class="tab-panel" id="tab-calls">
-    <div class="filter-bar">
+  <!-- ══ ALL CALLS ══ -->
+  <div class="tp" id="tp-calls">
+    <div class="fbar">
       <label>Salesperson</label>
-      <select class="filter-select" id="fSP"      onchange="applyCallFilters()"><option value="">All</option></select>
-      <label>Call Type</label>
-      <select class="filter-select" id="fType"    onchange="applyCallFilters()"><option value="">All</option></select>
+      <select class="fsel" id="fSP"  onchange="filterCalls()"><option value="">All</option></select>
+      <label>Type</label>
+      <select class="fsel" id="fType" onchange="filterCalls()"><option value="">All</option></select>
       <label>Intent</label>
-      <select class="filter-select" id="fIntent"  onchange="applyCallFilters()"><option value="">All</option></select>
+      <select class="fsel" id="fInt" onchange="filterCalls()"><option value="">All</option></select>
       <label>Outcome</label>
-      <select class="filter-select" id="fOutcome" onchange="applyCallFilters()"><option value="">All</option></select>
+      <select class="fsel" id="fOut" onchange="filterCalls()"><option value="">All</option></select>
       <label>Follow-up</label>
-      <select class="filter-select" id="fFU"      onchange="applyCallFilters()">
+      <select class="fsel" id="fFU"  onchange="filterCalls()">
         <option value="">All</option>
-        <option value="High">High Priority</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
+        <option>High</option><option>Medium</option><option>Low</option>
       </select>
-      <span class="filter-count" id="callCount">—</span>
+      <input class="fsearch" id="fSearch" placeholder="Search summary / goal…" oninput="filterCalls()"/>
+      <span class="fcnt" id="callCnt">—</span>
     </div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead><tr>
-            <th>Date</th><th>Salesperson</th><th>Call Type</th><th>Intent</th><th>Sentiment</th>
-            <th>Objection</th><th>Outcome</th><th>Conv%</th><th>Score</th><th>Follow-up</th><th>Summary</th>
-          </tr></thead>
-          <tbody id="callsTable"></tbody>
-        </table>
+    <div class="tbl-wrap"><div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Salesperson</th><th>Type</th><th>Intent</th><th>Sentiment</th>
+          <th>Objection</th><th>Outcome</th><th>Conv%</th><th>Score</th><th>FU Priority</th><th>Summary</th>
+        </tr></thead>
+        <tbody id="callsTbody"></tbody>
+      </table>
+    </div></div>
+  </div>
+
+  <!-- ══ FOLLOW-UPS ══ -->
+  <div class="tp" id="tp-followups">
+    <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px" id="fuKpis"></div>
+    <div class="g2">
+      <div>
+        <div class="sec">🔴 Hot Lead Follow-ups</div>
+        <div class="card" id="urgList"></div>
+      </div>
+      <div>
+        <div class="sec">💰 Fee Collection Pending</div>
+        <div class="card" id="feeList"></div>
       </div>
     </div>
   </div>
 
-  <!-- FOLLOW-UPS TAB -->
-  <div class="tab-panel" id="tab-followups">
-    <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)" id="fuKpis"></div>
-    <div class="section-title">Urgent Follow-ups</div>
-    <div class="card" id="urgentList"></div>
-  </div>
-
-  <!-- OBJECTIONS TAB -->
-  <div class="tab-panel" id="tab-objections">
-    <div class="grid-2">
+  <!-- ══ OBJECTIONS ══ -->
+  <div class="tp" id="tp-objections">
+    <div class="g2">
       <div class="card">
-        <div class="card-title">Objection Frequency</div>
-        <div class="card-sub">How often each objection blocks conversion</div>
+        <div class="card-t">Objection Frequency</div>
+        <div class="card-s">How often each objection blocks conversion</div>
         <div id="objDetailBars"></div>
       </div>
       <div class="card">
-        <div class="card-title">Objection vs Conv. Probability</div>
-        <div class="card-sub">Which objections still convert?</div>
-        <div id="objConvTable"></div>
+        <div class="card-t">Objection → Conversion Rate</div>
+        <div class="card-s">Which objections still convert? (50-75% or 75-100%)</div>
+        <div id="objConvTbl"></div>
       </div>
     </div>
-    <div class="full-row card">
-      <div class="card-title">Objection Trend — Last 30 Days</div>
-      <div class="card-sub">Top 4 objection patterns over time</div>
-      <div style="position:relative;height:220px"><canvas id="objTrendChart"></canvas></div>
+    <div class="gfull card">
+      <div class="card-t">Outcome Trend</div>
+      <div class="card-s">Interested vs Not Interested vs Needs Follow-up over time</div>
+      <div style="position:relative;height:220px"><canvas id="cObjTrend"></canvas></div>
     </div>
   </div>
 
@@ -405,498 +399,511 @@ select.filter-select:focus{outline:none;border-color:var(--red)}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// ── CONFIG ──
-// IMPORTANT: Replace with your deployed Apps Script Web App URL
-var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwvkFnVpv7EdzJ05XOSoh1EtKSlRCFZRuUuRM0ERIi-2ae4SOyCiB2UzC4psXOi3RKdg/exec";
+// ══════════════════════════════════════════════════════════
+//  CONFIG — paste your Apps Script Web App URL here
+// ══════════════════════════════════════════════════════════
+var SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
 
-var _data    = null;
-var _token   = null;
-var _charts  = {};
+var _d     = null;   // dashboard data
+var _tok   = null;   // session token
+var _ch    = {};     // chart instances
 
-// ── INIT ──────────────────────────────────────────────────
+// ── AUTO-LOGIN FROM SESSION ────────────────────────────────
 (function(){
-  var tok = sessionStorage.getItem("sales_dash_token");
-  if (tok) { _token = tok; fetchDashboard(); }
+  var t = sessionStorage.getItem("sd_tok");
+  if (t) { _tok = t; fetchDash(); }
 })();
 
-// ── LOGIN ─────────────────────────────────────────────────
-async function doLogin() {
+// ── LOGIN ──────────────────────────────────────────────────
+function doLogin() {
   var pw = document.getElementById("pwInput").value.trim();
   if (!pw) return;
-  document.getElementById("loginBtn").disabled = true;
+  document.getElementById("lbtn").disabled = true;
   document.getElementById("loginOverlay").style.display = "none";
-  showLoading("Logging in…");
-
-  jsonp(SCRIPT_URL + "?action=login&password=" + encodeURIComponent(pw), function(res) {
-    document.getElementById("loginBtn").disabled = false;
-    hideLoading();
-    if (!res || !res.success) {
-      showLoginError((res && res.error) || "Login failed.");
+  showSpin("Logging in…");
+  jsonp(SCRIPT_URL + "?action=login&password=" + encodeURIComponent(pw), function(r) {
+    document.getElementById("lbtn").disabled = false;
+    hideSpin();
+    if (!r || !r.success) {
+      showErr((r && r.error) || "Login failed. Check password.");
       document.getElementById("loginOverlay").style.display = "flex";
       return;
     }
-    _token = res.token;
-    sessionStorage.setItem("sales_dash_token", _token);
-    fetchDashboard();
+    _tok = r.token;
+    sessionStorage.setItem("sd_tok", _tok);
+    fetchDash();
   });
 }
 
 function doLogout() {
-  sessionStorage.removeItem("sales_dash_token");
-  _data = null; _token = null;
+  sessionStorage.removeItem("sd_tok");
+  _d = null; _tok = null;
   document.getElementById("topbar").style.display   = "none";
   document.getElementById("dashPage").style.display = "none";
   document.getElementById("pwInput").value = "";
-  document.getElementById("loginBtn").disabled = false;
+  document.getElementById("lbtn").disabled = false;
   document.getElementById("loginOverlay").style.display = "flex";
 }
 
 function refreshData() {
-  if (!_token) return;
-  fetchDashboard(true);
+  if (!_tok) return;
+  Object.keys(_ch).forEach(function(k){ try{_ch[k].destroy();}catch(e){} _ch[k]=null; });
+  _ch = {};
+  fetchDash(true);
 }
 
-function showLoginError(msg) {
-  var el = document.getElementById("loginError");
-  el.textContent = msg; el.classList.add("visible");
-  document.getElementById("loginOverlay").style.display = "flex";
+function showErr(msg) {
+  var el = document.getElementById("lerr");
+  el.textContent = msg; el.classList.add("show");
 }
 
-// ── FETCH ─────────────────────────────────────────────────
-function fetchDashboard(forceRefresh) {
-  showLoading("Loading dashboard…");
-  var url = SCRIPT_URL + "?action=getDashboardData&token=" + encodeURIComponent(_token);
-  if (forceRefresh) url += "&bust=" + Date.now();
-
-  jsonp(url, function(res) {
-    hideLoading();
-    if (!res) { showLoginError("Connection failed."); return; }
-    if (!res.success) {
-      sessionStorage.removeItem("sales_dash_token");
-      showLoginError(res.error || "Session expired.");
+// ── FETCH ──────────────────────────────────────────────────
+function fetchDash(bust) {
+  showSpin("Loading dashboard…");
+  var url = SCRIPT_URL + "?action=getDashboardData&token=" + encodeURIComponent(_tok);
+  if (bust) url += "&bust=" + Date.now();
+  jsonp(url, function(r) {
+    hideSpin();
+    if (!r) { showErr("Connection failed. Is the Web App URL correct?"); document.getElementById("loginOverlay").style.display="flex"; return; }
+    if (!r.success) {
+      sessionStorage.removeItem("sd_tok");
+      showErr(r.error || "Session expired.");
       document.getElementById("loginOverlay").style.display = "flex";
       return;
     }
-    _data = res.data;
-    render(_data);
+    _d = r.data;
+    if (!_d) { showErr("No data returned from Apps Script."); document.getElementById("loginOverlay").style.display="flex"; return; }
+    render(_d);
   });
 }
 
-// ── RENDER ────────────────────────────────────────────────
+// ── RENDER ─────────────────────────────────────────────────
 function render(d) {
-  document.getElementById("topbar").style.display  = "flex";
-  document.getElementById("genTime").textContent   = "Updated: " + (d.generatedAt || "");
+  document.getElementById("topbar").style.display   = "flex";
+  document.getElementById("genTime").textContent    = "Updated: " + (d.generatedAt || "");
   document.getElementById("dashPage").style.display = "block";
 
   renderKPIs(d.kpis);
-  renderOverviewTab(d);
-  renderSPTab(d.salespersons);
-  renderCallsTab(d.recentCalls, d.salespersons);
-  renderFollowUpsTab(d);
-  renderObjectionsTab(d);
+  renderOverview(d);
+  renderTeam(d.salespersons || []);
+  renderCallsTab(d.allCalls || [], d.salespersons || []);
+  renderFollowups(d);
+  renderObjections(d);
 }
 
-// ── KPI GRID ──────────────────────────────────────────────
+// ── KPI STRIP ──────────────────────────────────────────────
 function renderKPIs(k) {
-  var el = document.getElementById("kpiGrid");
-  el.innerHTML =
-    kpiCard("Total Calls",    k.totalCalls,     "",      "All time",               "") +
-    kpiCard("Hot Leads",      k.hotLeads,        "good",  k.hotRate + "% of calls", '<span class="kpi-pill up">🔥 '+k.hotRate+'%</span>') +
-    kpiCard("Interested",     k.interested,      "good",  k.convRate + "% conv rate", "") +
-    kpiCard("Avg Score",      k.avgScore,        scoreClass(k.avgScore), "Salesperson quality", "") +
-    kpiCard("High Priority",  k.highPriFollowups,"warn",  "Follow-ups needed", "");
+  document.getElementById("kpiStrip").innerHTML =
+    kpi("Total Calls",     k.totalCalls,     "",  "All time") +
+    kpi("Hot Leads",       k.hotLeads,        "g", k.hotRate + "% of calls 🔥") +
+    kpi("Interested",      k.interested,      "g", k.convRate + "% conversion") +
+    kpi("Avg Score",       k.avgScore,        scCls(k.avgScore), "Salesperson quality") +
+    kpi("High Priority",   k.highPriFU,       k.highPriFU > 0 ? "w" : "g", "Follow-ups pending") +
+    kpi("High Conv Leads", k.highConv,        "g", "75-100% likely to join");
 }
 
-function kpiCard(label, val, cls, sub, extra) {
-  return '<div class="kpi-card">' +
-    '<div class="kpi-label">' + esc(label) + '</div>' +
-    '<div class="kpi-val' + (cls?' '+cls:'') + '">' + esc(String(val)) + '</div>' +
-    '<div class="kpi-sub">' + esc(sub) + '</div>' +
-    (extra || '') + '</div>';
+function kpi(lbl, val, cls, sub) {
+  return '<div class="kpi"><div class="kpi-lbl">'+esc(lbl)+'</div>'+
+    '<div class="kpi-val'+(cls?' '+cls:'')+'">'+esc(String(val||0))+'</div>'+
+    '<div class="kpi-sub">'+esc(sub)+'</div></div>';
 }
 
-// ── OVERVIEW TAB ──────────────────────────────────────────
-function renderOverviewTab(d) {
-  var daily = d.dailyTrend || [];
-  document.getElementById("trendSub").textContent = daily.length > 0 ?
-    daily[0].date + " – " + daily[daily.length-1].date : "No data yet";
+// ── OVERVIEW TAB ───────────────────────────────────────────
+function renderOverview(d) {
+  var trend = d.dailyTrend || [];
+  document.getElementById("trendSub").textContent = trend.length > 1
+    ? trend[0].date + " – " + trend[trend.length-1].date
+    : (trend.length === 1 ? trend[0].date : "No data yet");
 
-  // Trend chart
-  destroyChart("trendChart");
-  if (daily.length) {
-    var ctx = document.getElementById("trendChart").getContext("2d");
-    _charts["trendChart"] = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: daily.map(function(d){ return d.date.slice(5); }),
-        datasets: [
-          { label:"Total", data: daily.map(function(d){ return d.totalCalls; }), borderColor:"#D0261A", backgroundColor:"rgba(208,38,26,0.06)", borderWidth:2, fill:true, tension:.35, pointRadius:0 },
-          { label:"New Leads", data: daily.map(function(d){ return d.newLeads; }), borderColor:"#3b82f6", borderWidth:1.5, fill:false, tension:.35, pointRadius:0 },
-          { label:"Hot", data: daily.map(function(d){ return d.hot; }), borderColor:"#f59e0b", borderWidth:1.5, fill:false, tension:.35, pointRadius:0 }
+  // Daily trend line chart
+  dChart("cTrend");
+  if (trend.length) {
+    _ch["cTrend"] = new Chart(document.getElementById("cTrend").getContext("2d"), {
+      type:"line",
+      data:{
+        labels: trend.map(function(t){ return t.date.slice(5); }),
+        datasets:[
+          { label:"Total",     data:trend.map(function(t){return t.totalCalls;}),  borderColor:"#D0261A", backgroundColor:"rgba(208,38,26,.06)", borderWidth:2, fill:true, tension:.35, pointRadius:0 },
+          { label:"New Leads", data:trend.map(function(t){return t.newLeads;}),    borderColor:"#3b82f6", borderWidth:1.5, fill:false, tension:.35, pointRadius:0 },
+          { label:"Hot",       data:trend.map(function(t){return t.hot;}),         borderColor:"#f59e0b", borderWidth:1.5, fill:false, tension:.35, pointRadius:0 }
         ]
       },
-      options: {
+      options:{
         responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ position:"top", labels:{ font:{ size:10, family:"'Outfit',sans-serif" }, boxWidth:10 }}},
+        plugins:{ legend:{ position:"top", labels:{ font:{size:10,family:"'Outfit',sans-serif"}, boxWidth:10 }}},
         scales:{
-          y:{ min:0, grid:{ color:"rgba(0,0,0,0.04)" }, ticks:{ font:{size:10,family:"'Outfit',sans-serif"}, color:"#999490" }},
-          x:{ grid:{ display:false }, ticks:{ font:{size:9,family:"'Outfit',sans-serif"}, color:"#999490", maxRotation:0, autoSkip:true, maxTicksLimit:10 }}
+          y:{ min:0, grid:{color:"rgba(0,0,0,.04)"}, ticks:{font:{size:10,family:"'Outfit',sans-serif"},color:"#999490"} },
+          x:{ grid:{display:false}, ticks:{font:{size:9,family:"'Outfit',sans-serif"},color:"#999490",maxRotation:0,autoSkip:true,maxTicksLimit:10} }
         }
       }
     });
   }
 
-  // Call type donut
+  // Type donut
   var ctb = d.callTypeBreakdown || [];
-  var ctColors = ["#D0261A","#3b82f6","#22c55e","#f59e0b"];
-  renderDonut("typeDonut", "typeLegend",
-    ctb.map(function(c){ return c.type; }),
-    ctb.map(function(c){ return c.count; }),
-    ctColors);
+  mkDonut("cTypeDnt", "typeLeg",
+    ctb.map(function(c){return c.type;}),
+    ctb.map(function(c){return c.count;}),
+    ["#D0261A","#3b82f6","#22c55e","#f59e0b"]);
 
   // Intent bars
-  var totalI = (d.kpis.hotLeads + d.kpis.warmLeads + d.kpis.coldLeads) || 1;
-  var intentEl = document.getElementById("intentBars");
-  intentEl.innerHTML = [
-    { label:"🔥 Hot",  count: d.kpis.hotLeads,  color:"#D0261A" },
-    { label:"🌤 Warm", count: d.kpis.warmLeads,  color:"#f59e0b" },
-    { label:"🧊 Cold", count: d.kpis.coldLeads,  color:"#3b82f6" }
-  ].map(function(item) {
-    var pct = Math.round(item.count / totalI * 100);
-    return '<div class="bar-row">' +
-      '<div class="bar-label">'+esc(item.label)+'</div>' +
-      '<div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%;background:'+item.color+'"></div></div>' +
-      '<div class="bar-val" style="color:'+item.color+'">'+item.count+'</div>' +
-      '<div class="bar-count">'+pct+'%</div>' +
-    '</div>';
+  var k = d.kpis, tot = (k.hotLeads+k.warmLeads+k.coldLeads)||1;
+  document.getElementById("intentBars").innerHTML = [
+    {l:"🔥 Hot",  n:k.hotLeads,  c:"#D0261A"},
+    {l:"🌤 Warm", n:k.warmLeads, c:"#f59e0b"},
+    {l:"🧊 Cold", n:k.coldLeads, c:"#3b82f6"}
+  ].map(function(it){
+    var pct=Math.round(it.n/tot*100);
+    return '<div class="bar-row"><div class="bar-lbl">'+it.l+'</div>'+
+      '<div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%;background:'+it.c+'"></div></div>'+
+      '<div class="bar-n" style="color:'+it.c+'">'+it.n+'</div></div>';
   }).join("");
 
-  // Top objections bars
-  var objs = (d.topObjections || []).slice(0, 8);
-  var maxObj = objs.length ? objs[0].count : 1;
-  var objEl = document.getElementById("objBars");
-  objEl.innerHTML = objs.length ? objs.map(function(o) {
-    var w = Math.round(o.count / maxObj * 100);
-    var col = "#D0261A";
-    return '<div class="bar-row">' +
-      '<div class="bar-label" title="'+esc(o.objection)+'">'+esc(o.objection)+'</div>' +
-      '<div class="bar-bg"><div class="bar-fill" style="width:'+w+'%;background:'+col+'"></div></div>' +
-      '<div class="bar-val">'+o.count+'</div>' +
-      '<div class="bar-count" style="color:var(--gray)"></div>' +
-    '</div>';
-  }).join("") : '<div style="color:var(--gray);font-size:12px;padding:8px 0">No data yet</div>';
+  // Top objections
+  var objs = (d.topObjections||[]).slice(0,8);
+  var mx = objs.length ? objs[0].count : 1;
+  document.getElementById("objBars").innerHTML = objs.length
+    ? objs.map(function(o){
+        var w=Math.round(o.count/mx*100);
+        return '<div class="bar-row"><div class="bar-lbl" title="'+esc(o.objection)+'">'+esc(o.objection)+'</div>'+
+          '<div class="bar-bg"><div class="bar-fill" style="width:'+w+'%;background:var(--red)"></div></div>'+
+          '<div class="bar-n">'+o.count+'</div></div>';
+      }).join("")
+    : '<p style="font-size:12px;color:var(--gray);padding:8px 0">No objections logged yet</p>';
 
   // Outcome donut
-  var kp = d.kpis;
-  renderDonut("outcomeDonut", "outcomeLegend",
-    ["Interested","Needs Follow-up","Not Interested","Other"],
-    [kp.interested, kp.needsFollowup, kp.notInterested, Math.max(0, kp.totalCalls - kp.interested - kp.needsFollowup - kp.notInterested)],
+  mkDonut("cOutDnt","outLeg",
+    ["Interested","Needs Follow-up","Not Interested","Call Disc."],
+    [k.interested, k.needsFollowup, k.notInterested,
+     Math.max(0, k.totalCalls - k.interested - k.needsFollowup - k.notInterested)],
     ["#22c55e","#f59e0b","#D0261A","#e8e4e0"]);
 
-  // Weekly chart
-  destroyChart("weeklyChart");
+  // Weekly bar
   var wk = d.weeklyVolume || [];
+  dChart("cWeekly");
   if (wk.length) {
-    var ctx2 = document.getElementById("weeklyChart").getContext("2d");
-    _charts["weeklyChart"] = new Chart(ctx2, {
+    _ch["cWeekly"] = new Chart(document.getElementById("cWeekly").getContext("2d"), {
       type:"bar",
       data:{
-        labels: wk.map(function(w){ return w.week.slice(5); }),
+        labels: wk.map(function(w){return w.week.slice(5);}),
         datasets:[
-          { label:"Calls", data: wk.map(function(w){ return w.calls; }), backgroundColor:"rgba(208,38,26,0.75)", borderRadius:4 },
-          { label:"Hot",   data: wk.map(function(w){ return w.hot;   }), backgroundColor:"rgba(245,158,11,0.5)", borderRadius:4 }
+          { label:"Calls", data:wk.map(function(w){return w.calls;}), backgroundColor:"rgba(208,38,26,.75)", borderRadius:4 },
+          { label:"Hot",   data:wk.map(function(w){return w.hot;}),   backgroundColor:"rgba(245,158,11,.5)", borderRadius:4 }
         ]
       },
-      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"top",labels:{font:{size:10,family:"'Outfit',sans-serif"},boxWidth:10}}}, scales:{y:{min:0,grid:{color:"rgba(0,0,0,0.04)"},ticks:{font:{size:10,family:"'Outfit',sans-serif"},color:"#999490"}},x:{grid:{display:false},ticks:{font:{size:9},color:"#999490"}}}}
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:"top", labels:{ font:{size:10,family:"'Outfit',sans-serif"}, boxWidth:10 }}},
+        scales:{
+          y:{ min:0, grid:{color:"rgba(0,0,0,.04)"}, ticks:{font:{size:10,family:"'Outfit',sans-serif"},color:"#999490"} },
+          x:{ grid:{display:false}, ticks:{font:{size:9},color:"#999490"} }
+        }
+      }
     });
   }
 
-  // Call feed
-  var feed = d.recentCalls || [];
-  document.getElementById("feedSub").textContent = "Last " + feed.length + " calls";
-  var feedEl = document.getElementById("callFeed");
-  if (!feed.length) { feedEl.innerHTML = '<div style="color:var(--gray);font-size:12px;padding:12px 0;">No calls yet</div>'; return; }
-  feedEl.innerHTML = feed.map(function(c) {
-    var ic = intentClass(c.leadIntent);
-    var sc = scoreClass(c.spScore);
-    return '<div class="call-feed-item">' +
-      '<div class="call-feed-left">' +
-        '<div class="call-feed-avatar">' + esc((c.salesperson||"?")[0].toUpperCase()) + '</div>' +
-        '<div class="call-feed-date">' + esc(c.dateDisp) + '</div>' +
-      '</div>' +
-      '<div class="call-feed-body">' +
-        '<div class="call-feed-header">' +
-          '<span class="call-feed-sp">'+esc(c.salesperson)+'</span>' +
-          '<span class="pill '+typeClass(c.callType)+'">'+esc(c.callType)+'</span>' +
-          '<span class="pill '+ic+'">'+esc(c.leadIntent)+'</span>' +
-          '<span class="pill '+sentClass(c.sentiment)+'">'+esc(c.sentiment)+'</span>' +
-          '<span class="score-badge '+sc+'">'+c.spScore+'</span>' +
-        '</div>' +
-        '<div class="call-feed-summary">'+esc(c.summary||"")+'</div>' +
-        (c.followUpAct && c.followUpAct !== "Not mentioned" ?
-          '<div class="call-feed-action">→ '+esc(c.followUpAct)+'</div>' : '') +
-      '</div>' +
-    '</div>';
-  }).join("");
+  // Feed — show last 15
+  var calls = (d.allCalls || []).slice(0, 15);
+  document.getElementById("feedSub").textContent = "Last " + calls.length + " calls";
+  var feedEl = document.getElementById("feed");
+  feedEl.innerHTML = calls.length
+    ? calls.map(function(c){
+        return '<div class="feed-item">'+
+          '<div><div class="feed-av">'+esc((c.salesperson||"?")[0].toUpperCase())+'</div>'+
+          '<div class="feed-date">'+esc(c.dateDisp)+'</div></div>'+
+          '<div class="feed-body">'+
+            '<div class="feed-row">'+
+              '<span class="feed-sp">'+esc(c.salesperson)+'</span>'+
+              '<span class="pill '+pType(c.callType)+'">'+esc(c.callType)+'</span>'+
+              '<span class="pill '+pInt(c.leadIntent)+'">'+esc(c.leadIntent)+'</span>'+
+              '<span class="pill '+pSent(c.sentiment)+'">'+esc(c.sentiment)+'</span>'+
+              '<span class="score '+scCls(c.spScore)+'">'+c.spScore+'</span>'+
+            '</div>'+
+            '<div class="feed-sum">'+esc(c.summary||"")+'</div>'+
+            (c.followUpAct && c.followUpAct!=="Not mentioned" ? '<div class="feed-action">→ '+esc(c.followUpAct)+'</div>' : '')+
+          '</div></div>';
+      }).join("")
+    : '<p style="font-size:12px;color:var(--gray);padding:8px 0">No calls recorded yet</p>';
 }
 
-// ── SALESPERSONS TAB ──────────────────────────────────────
-function renderSPTab(sps) {
+// ── TEAM TAB ───────────────────────────────────────────────
+function renderTeam(sps) {
   var grid = document.getElementById("spGrid");
-  var tbody = document.getElementById("spTable");
-  if (!sps || !sps.length) {
-    grid.innerHTML = '<div style="color:var(--gray);font-size:12px;">No data</div>';
-    tbody.innerHTML = '<tr><td colspan="11" style="padding:20px;text-align:center;color:var(--gray)">No data</td></tr>';
+  var body = document.getElementById("spTbody");
+  if (!sps.length) {
+    grid.innerHTML = '<p style="font-size:12px;color:var(--gray)">No salesperson data yet</p>';
+    body.innerHTML = '<tr><td colspan="12" class="tbl-empty">No data</td></tr>';
     return;
   }
-
   grid.innerHTML = sps.map(function(sp) {
-    var sc = scoreClass(sp.avgScore);
-    var barW = Math.min(sp.avgScore / 10 * 100, 100);
-    var barCol = sp.avgScore >= 7 ? "var(--green)" : sp.avgScore >= 5 ? "var(--amber)" : "var(--red)";
-    return '<div class="sp-card">' +
-      '<div class="sp-avatar">' + esc(sp.name[0].toUpperCase()) + '</div>' +
-      '<div class="sp-name">'+esc(sp.name)+'</div>' +
-      '<div class="sp-score '+sc+'">'+sp.avgScore.toFixed(1)+'</div>' +
-      '<div style="font-size:10px;color:var(--gray);margin-bottom:4px">Avg Score / 10</div>' +
-      '<div class="sp-bar-wrap"><div style="font-size:9px;color:var(--gray);letter-spacing:.1em;text-transform:uppercase">Score</div><div class="sp-bar-bg"><div class="sp-bar-fill" style="width:'+barW+'%;background:'+barCol+'"></div></div></div>' +
-      '<div class="sp-stats">' +
-        '<div class="sp-stat-item"><div class="sp-stat-val">'+sp.totalCalls+'</div>Calls</div>' +
-        '<div class="sp-stat-item"><div class="sp-stat-val" style="color:var(--red)">'+sp.hot+'</div>Hot</div>' +
-        '<div class="sp-stat-item"><div class="sp-stat-val" style="color:var(--green)">'+sp.interested+'</div>Interested</div>' +
-        '<div class="sp-stat-item"><div class="sp-stat-val">'+sp.highPriFollowups+'</div>High Pri</div>' +
-      '</div>' +
-    '</div>';
+    var sc = scCls(sp.avgScore), col = sp.avgScore>=7?"var(--green)":sp.avgScore>=5?"var(--amber)":"var(--red)";
+    var bw = Math.min(sp.avgScore/10*100, 100);
+    return '<div class="sp-card">'+
+      '<div class="sp-av">'+esc(sp.name[0].toUpperCase())+'</div>'+
+      '<div class="sp-nm">'+esc(sp.name)+'</div>'+
+      '<div class="sp-sc '+sc+'">'+sp.avgScore.toFixed(1)+'</div>'+
+      '<div style="font-size:10px;color:var(--gray);margin-bottom:3px">Avg Score / 10</div>'+
+      '<div class="sp-bar"><div style="font-size:9px;color:var(--gray);letter-spacing:.1em;text-transform:uppercase">Performance</div>'+
+      '<div class="sp-bar-bg"><div class="sp-bar-fill" style="width:'+bw+'%;background:'+col+'"></div></div></div>'+
+      '<div class="sp-stats">'+
+        '<div class="sp-si"><div class="sp-sv">'+sp.totalCalls+'</div>Calls</div>'+
+        '<div class="sp-si"><div class="sp-sv" style="color:var(--red)">'+sp.hot+'</div>Hot</div>'+
+        '<div class="sp-si"><div class="sp-sv" style="color:var(--green)">'+sp.interested+'</div>Interested</div>'+
+        '<div class="sp-si"><div class="sp-sv">'+sp.highPriFollowups+'</div>High FU</div>'+
+      '</div></div>';
   }).join("");
 
-  tbody.innerHTML = sps.map(function(sp, i) {
-    var sc = scoreClass(sp.avgScore);
-    return '<tr>' +
-      '<td><strong>#'+(i+1)+' '+esc(sp.name)+'</strong></td>' +
-      '<td>'+sp.totalCalls+'</td>' +
-      '<td class="muted">'+sp.newLeads+'</td>' +
-      '<td class="muted">'+sp.followUps+'</td>' +
-      '<td class="muted">'+sp.feeCollections+'</td>' +
-      '<td><span class="score-badge '+sc+'">'+sp.avgScore.toFixed(1)+'</span></td>' +
-      '<td><span style="color:var(--red);font-weight:700">'+sp.hot+'</span></td>' +
-      '<td><span style="color:var(--green);font-weight:700">'+sp.interested+'</span></td>' +
-      '<td class="muted">'+sp.highConv+'</td>' +
-      '<td><span class="pill '+(sp.highPriFollowups>0?'high':'low')+'">'+sp.highPriFollowups+'</span></td>' +
-      '<td class="muted">'+esc(sp.lastCallDate||"—")+'</td>' +
+  body.innerHTML = sps.map(function(sp, i) {
+    var sc = scCls(sp.avgScore);
+    return '<tr>'+
+      '<td class="mu">'+(i+1)+'</td>'+
+      '<td><strong>'+esc(sp.name)+'</strong></td>'+
+      '<td>'+sp.totalCalls+'</td>'+
+      '<td class="mu">'+sp.newLeads+'</td>'+
+      '<td class="mu">'+sp.followUps+'</td>'+
+      '<td class="mu">'+sp.feeCollections+'</td>'+
+      '<td><span class="score '+sc+'">'+sp.avgScore.toFixed(1)+'</span></td>'+
+      '<td><span style="color:var(--red);font-weight:700">'+sp.hot+'</span></td>'+
+      '<td><span style="color:var(--green);font-weight:700">'+sp.interested+'</span></td>'+
+      '<td class="mu">'+sp.highConv+'</td>'+
+      '<td><span class="pill '+(sp.highPriFollowups>0?'p-high':'p-low')+'">'+sp.highPriFollowups+'</span></td>'+
+      '<td class="mu">'+esc(sp.lastCallDate||"—")+'</td>'+
     '</tr>';
   }).join("");
 }
 
-// ── CALLS TAB ─────────────────────────────────────────────
+// ── CALLS TAB ──────────────────────────────────────────────
 function renderCallsTab(calls, sps) {
-  // Populate filters
-  var spSet = {}, typeSet = {}, intentSet = {}, outcomeSet = {};
-  calls.forEach(function(c) {
-    if (c.salesperson) spSet[c.salesperson] = 1;
-    if (c.callType)    typeSet[c.callType]   = 1;
-    if (c.leadIntent)  intentSet[c.leadIntent] = 1;
-    if (c.callOutcome) outcomeSet[c.callOutcome] = 1;
+  var spSet={}, typeSet={}, intSet={}, outSet={};
+  calls.forEach(function(c){
+    if(c.salesperson)spSet[c.salesperson]=1;
+    if(c.callType)typeSet[c.callType]=1;
+    if(c.leadIntent)intSet[c.leadIntent]=1;
+    if(c.callOutcome)outSet[c.callOutcome]=1;
   });
-  fillSelect("fSP",      Object.keys(spSet).sort());
-  fillSelect("fType",    Object.keys(typeSet).sort());
-  fillSelect("fIntent",  Object.keys(intentSet).sort());
-  fillSelect("fOutcome", Object.keys(outcomeSet).sort());
-  applyCallFilters();
+  fillSel("fSP",  Object.keys(spSet).sort());
+  fillSel("fType",Object.keys(typeSet).sort());
+  fillSel("fInt", Object.keys(intSet).sort());
+  fillSel("fOut", Object.keys(outSet).sort());
+  filterCalls();
 }
 
-function applyCallFilters() {
-  if (!_data) return;
-  var sp      = document.getElementById("fSP").value;
-  var type    = document.getElementById("fType").value;
-  var intent  = document.getElementById("fIntent").value;
-  var outcome = document.getElementById("fOutcome").value;
-  var fu      = document.getElementById("fFU").value;
+function filterCalls() {
+  if (!_d) return;
+  var sp  = v("fSP"), tp = v("fType"), it = v("fInt"), ot = v("fOut"), fu = v("fFU");
+  var srch = (v("fSearch")||"").toLowerCase().trim();
 
-  var calls = (_data.recentCalls || []).filter(function(c) {
-    if (sp      && c.salesperson !== sp)      return false;
-    if (type    && c.callType    !== type)     return false;
-    if (intent  && c.leadIntent  !== intent)   return false;
-    if (outcome && c.callOutcome !== outcome)  return false;
-    if (fu      && c.followUpPri !== fu)       return false;
+  var calls = (_d.allCalls||[]).filter(function(c){
+    if (sp && c.salesperson !== sp) return false;
+    if (tp && c.callType    !== tp) return false;
+    if (it && c.leadIntent  !== it) return false;
+    if (ot && c.callOutcome !== ot) return false;
+    if (fu && c.followUpPri !== fu) return false;
+    if (srch) {
+      var hay = ((c.summary||"")+" "+(c.studentGoal||"")+" "+(c.keyPoints||"")+" "+(c.primaryObj||"")).toLowerCase();
+      if (hay.indexOf(srch) === -1) return false;
+    }
     return true;
   });
 
-  document.getElementById("callCount").textContent = calls.length + " call" + (calls.length !== 1 ? "s" : "");
-  var tbody = document.getElementById("callsTable");
+  document.getElementById("callCnt").textContent = calls.length + " call" + (calls.length!==1?"s":"");
+  var body = document.getElementById("callsTbody");
   if (!calls.length) {
-    tbody.innerHTML = '<tr><td colspan="11" style="padding:20px;text-align:center;color:var(--gray)">No calls match filters</td></tr>';
+    body.innerHTML = '<tr><td colspan="11" class="tbl-empty">No calls match the filters</td></tr>';
     return;
   }
-  tbody.innerHTML = calls.map(function(c) {
-    var sc = scoreClass(c.spScore);
-    return '<tr>' +
-      '<td class="muted">'+esc(c.dateDisp)+'</td>' +
-      '<td><strong>'+esc(c.salesperson)+'</strong></td>' +
-      '<td><span class="pill '+typeClass(c.callType)+'">'+esc(c.callType)+'</span></td>' +
-      '<td><span class="pill '+intentClass(c.leadIntent)+'">'+esc(c.leadIntent)+'</span></td>' +
-      '<td><span class="pill '+sentClass(c.sentiment)+'">'+esc(c.sentiment)+'</span></td>' +
-      '<td class="muted">'+esc(c.primaryObj)+'</td>' +
-      '<td><span class="pill '+outcomeClass(c.callOutcome)+'">'+esc(c.callOutcome)+'</span></td>' +
-      '<td class="muted">'+esc(c.convProb)+'</td>' +
-      '<td><span class="score-badge '+sc+'">'+c.spScore+'</span></td>' +
-      '<td><span class="pill '+fuClass(c.followUpPri)+'">'+esc(c.followUpPri)+'</span></td>' +
-      '<td class="muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(c.summary)+'">'+esc(c.summary)+'</td>' +
+  body.innerHTML = calls.map(function(c){
+    var sc = scCls(c.spScore);
+    return '<tr>'+
+      '<td class="mu">'+esc(c.dateDisp)+'</td>'+
+      '<td><strong>'+esc(c.salesperson)+'</strong></td>'+
+      '<td><span class="pill '+pType(c.callType)+'">'+esc(c.callType)+'</span></td>'+
+      '<td><span class="pill '+pInt(c.leadIntent)+'">'+esc(c.leadIntent)+'</span></td>'+
+      '<td><span class="pill '+pSent(c.sentiment)+'">'+esc(c.sentiment)+'</span></td>'+
+      '<td class="mu" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(c.primaryObj)+'">'+esc(c.primaryObj)+'</td>'+
+      '<td><span class="pill '+pOut(c.callOutcome)+'">'+esc(c.callOutcome)+'</span></td>'+
+      '<td class="mu">'+esc(c.convProb)+'</td>'+
+      '<td><span class="score '+sc+'">'+c.spScore+'</span></td>'+
+      '<td><span class="pill '+pFU(c.followUpPri)+'">'+esc(c.followUpPri)+'</span></td>'+
+      '<td class="mu" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(c.summary)+'">'+esc(c.summary)+'</td>'+
     '</tr>';
   }).join("");
 }
 
-// ── FOLLOW-UPS TAB ────────────────────────────────────────
-function renderFollowUpsTab(d) {
-  var kp = d.kpis;
+// ── FOLLOW-UPS TAB ─────────────────────────────────────────
+function renderFollowups(d) {
+  var k = d.kpis;
   document.getElementById("fuKpis").innerHTML =
-    kpiCard("High Priority", kp.highPriFollowups, "bad",  "Need immediate action", "") +
-    kpiCard("Hot + Interested", kp.hotLeads, "good", "Hot leads to chase", "") +
-    kpiCard("High Conv Prob", kp.highConv, "good", "75-100% likely to join", "");
+    kpi("High Priority FU", k.highPriFU,   k.highPriFU>0?"b":"g", "Need immediate action") +
+    kpi("Hot Leads",        k.hotLeads,     "g", "Chase now") +
+    kpi("High Conv Leads",  k.highConv,     "g", "75-100% likely to join");
 
+  // Urgent follow-ups
   var uf = d.urgentFollowups || [];
-  var el = document.getElementById("urgentList");
-  if (!uf.length) {
-    el.innerHTML = '<div style="color:var(--gray);font-size:12px;padding:12px 0">No high priority follow-ups right now 🎉</div>';
-    return;
-  }
-  el.innerHTML = uf.map(function(u) {
-    return '<div class="urgent-item">' +
-      '<div class="urgent-dot"></div>' +
-      '<div>' +
-        '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
-          '<span class="urgent-sp">'+esc(u.salesperson)+'</span>' +
-          '<span class="pill '+typeClass(u.callType)+'">'+esc(u.callType)+'</span>' +
-          '<span class="pill '+intentClass(u.leadIntent)+'">'+esc(u.leadIntent)+'</span>' +
-        '</div>' +
-        '<div class="urgent-action">→ '+esc(u.followUpAct||"No action specified")+'</div>' +
-        '<div style="font-size:10px;color:var(--gray);margin-top:3px">Conv: '+esc(u.convProb)+' · '+esc(u.dateDisp)+'</div>' +
-      '</div>' +
-    '</div>';
-  }).join("");
+  var urgEl = document.getElementById("urgList");
+  urgEl.innerHTML = uf.length
+    ? uf.map(function(u){
+        return '<div class="urg-item"><div class="urg-dot"></div><div>'+
+          '<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">'+
+            '<span class="urg-sp">'+esc(u.salesperson)+'</span>'+
+            '<span class="pill '+pType(u.callType)+'">'+esc(u.callType)+'</span>'+
+            '<span class="pill '+pInt(u.leadIntent)+'">'+esc(u.leadIntent)+'</span>'+
+          '</div>'+
+          '<div class="urg-act">→ '+esc(u.followUpAct||"No action specified")+'</div>'+
+          '<div class="urg-meta">Conv: '+esc(u.convProb)+' · '+esc(u.dateDisp)+'</div>'+
+        '</div></div>';
+      }).join("")
+    : '<p style="font-size:12px;color:var(--gray);padding:8px 0">No urgent follow-ups 🎉</p>';
+
+  // Fee collection
+  var ff = d.feeFollowups || [];
+  var feeEl = document.getElementById("feeList");
+  feeEl.innerHTML = ff.length
+    ? ff.map(function(f){
+        return '<div class="urg-item"><div class="urg-dot" style="background:var(--amber)"></div><div>'+
+          '<div style="display:flex;gap:5px;align-items:center">'+
+            '<span class="urg-sp">'+esc(f.salesperson)+'</span>'+
+            '<span class="pill p-fc">Fee Collection</span>'+
+          '</div>'+
+          '<div class="urg-act">→ '+esc(f.followUpAct||"Collect fee")+'</div>'+
+          '<div class="urg-meta">'+esc(f.dateDisp)+'</div>'+
+        '</div></div>';
+      }).join("")
+    : '<p style="font-size:12px;color:var(--gray);padding:8px 0">No pending fee follow-ups</p>';
 }
 
-// ── OBJECTIONS TAB ────────────────────────────────────────
-function renderObjectionsTab(d) {
+// ── OBJECTIONS TAB ─────────────────────────────────────────
+function renderObjections(d) {
+  // Detail bars
   var objs = d.topObjections || [];
-  var maxC = objs.length ? objs[0].count : 1;
+  var mx   = objs.length ? objs[0].count : 1;
+  document.getElementById("objDetailBars").innerHTML = objs.length
+    ? objs.map(function(o){
+        var w=Math.round(o.count/mx*100);
+        return '<div class="bar-row"><div class="bar-lbl" title="'+esc(o.objection)+'">'+esc(o.objection)+'</div>'+
+          '<div class="bar-bg"><div class="bar-fill" style="width:'+w+'%;background:var(--red)"></div></div>'+
+          '<div class="bar-n">'+o.count+'</div></div>';
+      }).join("")
+    : '<p style="font-size:12px;color:var(--gray)">No data yet</p>';
 
-  document.getElementById("objDetailBars").innerHTML = objs.length ? objs.map(function(o) {
-    var w = Math.round(o.count / maxC * 100);
-    return '<div class="bar-row">' +
-      '<div class="bar-label" title="'+esc(o.objection)+'">'+esc(o.objection)+'</div>' +
-      '<div class="bar-bg"><div class="bar-fill" style="width:'+w+'%;background:var(--red)"></div></div>' +
-      '<div class="bar-val">'+o.count+'</div>' +
-    '</div>';
-  }).join("") : '<div style="color:var(--gray);font-size:12px">No data yet</div>';
-
-  // Objection conv table: for each objection, what % have high conv?
-  var calls = d.recentCalls || [];
-  var objConvMap = {};
-  calls.forEach(function(c) {
-    if (!c.primaryObj || c.primaryObj === "Not mentioned") return;
-    if (!objConvMap[c.primaryObj]) objConvMap[c.primaryObj] = { total:0, high:0 };
-    objConvMap[c.primaryObj].total++;
-    if (c.convProb === "75-100%" || c.convProb === "50-75%") objConvMap[c.primaryObj].high++;
+  // Conv rate per objection
+  var calls   = d.allCalls || [];
+  var oMap    = {};
+  calls.forEach(function(c){
+    var o = c.primaryObj;
+    if (!o || o==="Not mentioned" || o==="") return;
+    if (!oMap[o]) oMap[o]={total:0,conv:0};
+    oMap[o].total++;
+    if (c.convProb==="75-100%"||c.convProb==="50-75%") oMap[o].conv++;
   });
-  var rows = Object.keys(objConvMap).sort(function(a,b){ return objConvMap[b].total - objConvMap[a].total; });
-  var tableEl = document.getElementById("objConvTable");
-  tableEl.innerHTML = rows.length ?
-    '<table style="width:100%;border-collapse:collapse;font-size:12px">' +
-    '<thead><tr style="background:var(--off)"><th style="padding:6px 8px;text-align:left;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)">Objection</th><th style="padding:6px 8px;text-align:center;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)">Calls</th><th style="padding:6px 8px;text-align:center;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)">Conv %</th></tr></thead>' +
-    '<tbody>' + rows.map(function(obj) {
-      var info = objConvMap[obj];
-      var pct  = Math.round(info.high / info.total * 100);
-      var col  = pct >= 50 ? "var(--green)" : pct >= 25 ? "var(--amber)" : "var(--red)";
-      return '<tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px">'+esc(obj)+'</td><td style="padding:7px 8px;text-align:center">'+info.total+'</td><td style="padding:7px 8px;text-align:center;font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:'+col+'">'+pct+'%</td></tr>';
-    }).join("") + '</tbody></table>'
-    : '<div style="color:var(--gray);font-size:12px">No data yet</div>';
+  var oRows = Object.keys(oMap).sort(function(a,b){ return oMap[b].total-oMap[a].total; });
+  document.getElementById("objConvTbl").innerHTML = oRows.length
+    ? '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
+      '<thead><tr style="background:var(--off)"><th style="padding:5px 8px;text-align:left;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)">Objection</th><th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)">Calls</th><th style="padding:5px 8px;text-align:center;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)">Conv Rate</th></tr></thead>'+
+      '<tbody>'+oRows.map(function(o){
+        var info=oMap[o], pct=Math.round(info.conv/info.total*100);
+        var col=pct>=50?"var(--green)":pct>=25?"var(--amber)":"var(--red)";
+        return '<tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">'+esc(o)+'</td>'+
+          '<td style="padding:6px 8px;text-align:center">'+info.total+'</td>'+
+          '<td style="padding:6px 8px;text-align:center;font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:'+col+'">'+pct+'%</td></tr>';
+      }).join("")+'</tbody></table>'
+    : '<p style="font-size:12px;color:var(--gray)">No data yet</p>';
 
-  // Objection trend chart
-  var daily = d.dailyTrend || [];
-  destroyChart("objTrendChart");
-  if (daily.length > 1) {
-    // We don't have per-day objection data in dailyTrend yet, so show "Interested vs Not Interested" trend instead
-    var ctx3 = document.getElementById("objTrendChart").getContext("2d");
-    _charts["objTrendChart"] = new Chart(ctx3, {
+  // Outcome trend
+  var trend = d.dailyTrend || [];
+  dChart("cObjTrend");
+  if (trend.length > 1) {
+    _ch["cObjTrend"] = new Chart(document.getElementById("cObjTrend").getContext("2d"), {
       type:"line",
       data:{
-        labels: daily.map(function(d){ return d.date.slice(5); }),
+        labels: trend.map(function(t){return t.date.slice(5);}),
         datasets:[
-          { label:"Interested",    data: daily.map(function(d){ return d.interested; }),    borderColor:"#22c55e", borderWidth:2, fill:false, tension:.35, pointRadius:0 },
-          { label:"Not Interested",data: daily.map(function(d){ return d.notInterested; }), borderColor:"#D0261A", borderWidth:2, fill:false, tension:.35, pointRadius:0 },
-          { label:"Needs Follow-up",data: daily.map(function(d){ return d.needsFollowup; }),borderColor:"#f59e0b", borderWidth:2, fill:false, tension:.35, pointRadius:0 }
+          { label:"Interested",     data:trend.map(function(t){return t.interested;}),   borderColor:"#22c55e", borderWidth:2, fill:false, tension:.35, pointRadius:0 },
+          { label:"Not Interested", data:trend.map(function(t){return t.notInterested;}),borderColor:"#D0261A", borderWidth:2, fill:false, tension:.35, pointRadius:0 },
+          { label:"Needs Follow-up",data:trend.map(function(t){return t.needsFollowup;}),borderColor:"#f59e0b", borderWidth:2, fill:false, tension:.35, pointRadius:0 }
         ]
       },
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"top",labels:{font:{size:10,family:"'Outfit',sans-serif"},boxWidth:10}}},scales:{y:{min:0,grid:{color:"rgba(0,0,0,0.04)"},ticks:{font:{size:10,family:"'Outfit',sans-serif"},color:"#999490"}},x:{grid:{display:false},ticks:{font:{size:9},color:"#999490",maxRotation:0,autoSkip:true,maxTicksLimit:10}}}}
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:"top", labels:{ font:{size:10,family:"'Outfit',sans-serif"}, boxWidth:10 }}},
+        scales:{
+          y:{ min:0, grid:{color:"rgba(0,0,0,.04)"}, ticks:{font:{size:10,family:"'Outfit',sans-serif"},color:"#999490"} },
+          x:{ grid:{display:false}, ticks:{font:{size:9},color:"#999490",maxRotation:0,autoSkip:true,maxTicksLimit:10} }
+        }
+      }
     });
   }
 }
 
 // ── HELPERS ───────────────────────────────────────────────
-function renderDonut(canvasId, legendId, labels, data, colors) {
-  destroyChart(canvasId);
-  var total = data.reduce(function(a,b){ return a+b; },0) || 1;
+function switchTab(t) {
+  var tabs = ["overview","salespersons","calls","followups","objections"];
+  var btns = document.querySelectorAll(".tab");
+  tabs.forEach(function(tab, i){
+    btns[i].className = "tab" + (tab===t?" on":"");
+  });
+  document.querySelectorAll(".tp").forEach(function(p){ p.className="tp"; });
+  document.getElementById("tp-"+t).className = "tp on";
+}
+
+function mkDonut(canvasId, legId, labels, data, colors) {
+  dChart(canvasId);
+  var total = data.reduce(function(a,b){return a+b;},0)||1;
   var ctx = document.getElementById(canvasId).getContext("2d");
-  _charts[canvasId] = new Chart(ctx, {
+  _ch[canvasId] = new Chart(ctx, {
     type:"doughnut",
-    data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderWidth:2, borderColor:"#ffffff" }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:"65%",
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:function(ctx){ return ' '+ctx.label+': '+ctx.raw+' ('+parseFloat((ctx.raw/total*100).toFixed(1))+'%)'; } } } }
+    data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderWidth:2, borderColor:"#fff" }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:"65%",
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{ label:function(ctx){ return ' '+ctx.label+': '+ctx.raw+' ('+parseFloat((ctx.raw/total*100).toFixed(1))+'%)'; }}}
+      }
     }
   });
-  var el = document.getElementById(legendId);
-  el.innerHTML = labels.map(function(l,i){
-    return '<div class="donut-legend-item"><div class="donut-dot" style="background:'+colors[i]+'"></div><span class="donut-legend-label">'+esc(l)+'</span><span class="donut-legend-val">'+data[i]+'</span></div>';
+  document.getElementById(legId).innerHTML = labels.map(function(l,i){
+    return '<div class="dl-item"><div class="dl-dot" style="background:'+colors[i]+'"></div>'+
+      '<span class="dl-lbl">'+esc(l)+'</span><span class="dl-val">'+data[i]+'</span></div>';
   }).join("");
 }
 
-function switchTab(t) {
-  var tabs = ["overview","salespersons","calls","followups","objections"];
-  var btns = document.querySelectorAll(".tab-btn");
-  tabs.forEach(function(tab, i) { btns[i].className = "tab-btn" + (tab === t ? " active" : ""); });
-  document.querySelectorAll(".tab-panel").forEach(function(p){ p.className = "tab-panel"; });
-  document.getElementById("tab-"+t).className = "tab-panel active";
+function dChart(id) {
+  if (_ch[id]) { try{_ch[id].destroy();}catch(e){} _ch[id]=null; }
 }
 
-function fillSelect(id, vals) {
-  var el = document.getElementById(id), cur = el.value;
-  el.innerHTML = '<option value="">All</option>';
-  vals.forEach(function(v){ el.innerHTML += '<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(v)+'</option>'; });
+function fillSel(id, vals) {
+  var el=document.getElementById(id), cur=el.value;
+  el.innerHTML='<option value="">All</option>';
+  vals.forEach(function(v){ el.innerHTML+='<option value="'+esc(v)+'"'+(v===cur?" selected":"")+'>'+esc(v)+'</option>'; });
 }
 
-function destroyChart(id) {
-  if (_charts[id]) { try { _charts[id].destroy(); } catch(e){} _charts[id] = null; }
-}
+function v(id){ return document.getElementById(id) ? document.getElementById(id).value : ""; }
 
-function showLoading(msg) {
-  document.getElementById("loadingLabel").textContent = msg || "Loading…";
-  document.getElementById("fullLoading").style.display = "flex";
-}
-function hideLoading() { document.getElementById("fullLoading").style.display = "none"; }
+function scCls(s){ return s>=7?"sc-g":s>=5?"sc-w":"sc-b"; }
+function pInt(i) { return i==="Hot"?"p-hot":i==="Warm"?"p-warm":"p-cold"; }
+function pSent(s){ return s==="Positive"?"p-pos":s==="Negative"?"p-neg":"p-neu"; }
+function pType(t){ return t==="New Lead"?"p-nl":t==="Follow-up"?"p-fu":t==="Fee Collection"?"p-fc":"p-bi"; }
+function pOut(o) { return o==="Interested"?"p-pos":o==="Not Interested"?"p-neg":"p-neu"; }
+function pFU(f)  { return f==="High"?"p-high":f==="Medium"?"p-med":"p-low"; }
 
-function esc(s) {
-  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
+function showSpin(msg){ document.getElementById("spinLbl").textContent=msg||"Loading…"; document.getElementById("loading").style.display="flex"; }
+function hideSpin(){    document.getElementById("loading").style.display="none"; }
 
-function scoreClass(s) { return s >= 7 ? "good" : s >= 5 ? "warn" : "bad"; }
-function intentClass(i) { return i === "Hot" ? "hot" : i === "Warm" ? "warm" : "cold"; }
-function sentClass(s) { return s === "Positive" ? "pos" : s === "Negative" ? "neg" : "neu"; }
-function typeClass(t) { return t === "New Lead" ? "hot" : t === "Follow-up" ? "warm" : t === "Fee Collection" ? "pos" : "neu"; }
-function outcomeClass(o) { return o === "Interested" ? "pos" : o === "Not Interested" ? "neg" : "neu"; }
-function fuClass(f) { return f === "High" ? "high" : f === "Medium" ? "medium" : "low"; }
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
+// JSONP — works with Apps Script's doGet + callback pattern
 function jsonp(url, cb) {
-  var id = "cb_"+Date.now()+"_"+Math.floor(Math.random()*99999), t = null, fired = false;
-  function cleanup() {
+  var id="jcb_"+Date.now()+"_"+Math.floor(Math.random()*9999), t=null, fired=false;
+  function cleanup(){
     if(t){clearTimeout(t);t=null;}
     var s=document.getElementById(id); if(s){try{document.body.removeChild(s);}catch(e){}}
     try{delete window[id];}catch(e){window[id]=undefined;}
   }
-  window[id] = function(data){ if(fired)return; fired=true; cleanup(); cb(data); };
-  t = setTimeout(function(){ if(fired)return; fired=true; cleanup(); cb(null); }, 30000);
-  var s = document.createElement("script"); s.id = id;
-  s.src = url + "&callback=" + id;
-  s.onerror = function(){ if(fired)return; fired=true; cleanup(); cb(null); };
+  window[id]=function(data){ if(fired)return; fired=true; cleanup(); cb(data); };
+  t=setTimeout(function(){ if(fired)return; fired=true; cleanup(); cb(null); }, 30000);
+  var s=document.createElement("script"); s.id=id;
+  s.src=url+"&callback="+id;
+  s.onerror=function(){ if(fired)return; fired=true; cleanup(); cb(null); };
   document.body.appendChild(s);
 }
 </script>
