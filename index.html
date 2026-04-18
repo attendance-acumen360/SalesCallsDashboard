@@ -765,7 +765,7 @@ function renderStatsRow() {
     statCard(k.totalCalls||0,            "Total Calls",   "") +
     statCard(k.hotLeads||0,              "Hot Leads",     (k.hotLeads||0)>0?"red":"") +
     statCard((k.avgScore||0)+"/10",      "Avg Score",     (k.avgScore||0)>=7?"green":(k.avgScore||0)>=5?"amber":"red") +
-    statCard(k.interested||0,            "Converted",     (k.interested||0)>0?"green":"") +
+    statCard(k.interested||0,            "Expressed Interest",     (k.interested||0)>0?"green":"") +
     statCard(actionItems,                "Action Items",  actionItems>0?"red":"green") +
     statCard(k.weakCount||0,             "Weak Calls",    (k.weakCount||0)>0?"amber":"green");
 }
@@ -1105,7 +1105,7 @@ function renderAnalytics() {
   var k=_dashData.kpis||{}, sps=_dashData.salespersons||[], calls=_dashData.allCalls||[];
   document.getElementById("analyticsKPI").innerHTML=
     akpiCard("Hot Rate",(k.hotRate||0)+"%",(k.hotRate||0)>=30?"good":(k.hotRate||0)>=15?"warn":"bad",(k.hotLeads||0)+" hot leads")+
-    akpiCard("Conv. Rate",(k.convRate||0)+"%",(k.convRate||0)>=20?"good":(k.convRate||0)>=10?"warn":"bad",(k.interested||0)+" interested")+
+    akpiCard("Interest Rate",(k.convRate||0)+"%",(k.convRate||0)>=20?"good":(k.convRate||0)>=10?"warn":"bad",(k.interested||0)+" expressed interest")+
     akpiCard("Avg Score",(k.avgScore||0)+"/10",(k.avgScore||0)>=7?"good":(k.avgScore||0)>=5?"warn":"bad",(k.strongCount||0)+" strong calls")+
     akpiCard("High Priority",k.highPriFU||0,(k.highPriFU||0)>0?"warn":"","follow-ups pending");
   document.getElementById("alertSummary").innerHTML=
