@@ -6,325 +6,380 @@
 <title>Acumen GATE — Sales Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --black: #0a0a0a; --red: #D0261A; --red-dk: #a81e14; --red-lt: #ff3b2e;
-  --white: #ffffff; --off: #f7f5f2; --gray: #999490; --border: #e8e4e0;
-  --green: #22c55e; --amber: #f59e0b; --blue: #3b82f6; --purple: #8b5cf6;
-  --card-sh: 0 4px 24px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04);
-  --card-sh-hover: 0 8px 32px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+/* ════════════════════════════════════════════════════════
+   RESET + TOKENS
+════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d0d; --ink2:#2a2a2a; --ink3:#555;
+  --red:#D0261A; --red-dk:#a81e14; --red-lt:#ff4336; --red-glow:rgba(208,38,26,.15);
+  --white:#fff; --off:#f6f4f1; --surface:#fafaf8; --border:#e8e3dd; --border2:#d4cec7;
+  --green:#16a34a; --green-lt:#22c55e; --amber:#d97706; --amber-lt:#f59e0b;
+  --blue:#2563eb; --purple:#7c3aed;
+  --card-sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+  --card-sh-hover:0 4px 12px rgba(0,0,0,.1),0 12px 32px rgba(0,0,0,.07);
+  --radius:14px; --radius-sm:8px; --radius-xs:6px;
+  --font-body:'DM Sans',sans-serif; --font-display:'Bebas Neue',sans-serif; --font-mono:'DM Mono',monospace;
 }
-html, body { height: 100%; }
-body { font-family: 'Outfit', sans-serif; background: var(--off); color: var(--black); min-height: 100vh; overflow-x: hidden; }
-button { cursor: pointer; border: none; outline: none; font-family: inherit; }
-input, select { font-family: inherit; outline: none; }
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--off); }
-::-webkit-scrollbar-thumb { background: #d4cfc9; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--gray); }
+html,body{height:100%;scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--off);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input,select{font-family:inherit;outline:none}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d4cec7;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#b8b2ab}
 
-/* ══ LOGIN ══ */
-.login-overlay { position: fixed; inset: 0; background: var(--off); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 20px; }
-.login-card { width: 100%; max-width: 380px; background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,.12); animation: cardIn .5s cubic-bezier(.22,1,.36,1) both; }
-@keyframes cardIn { from { opacity:0; transform:translateY(24px) scale(.97); } to { opacity:1; transform:none; } }
-.login-header { background: var(--black); padding: 28px 24px 24px; position: relative; overflow: hidden; }
-.login-header::after { content:''; position:absolute; bottom:0; left:0; width:100%; height:3px; background:linear-gradient(90deg,var(--red) 0%,transparent 100%); }
-.login-eyebrow { font-size:10px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--red); margin-bottom:5px; }
-.login-title { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:.03em; color:var(--white); line-height:1; }
-.login-title span { color:rgba(255,255,255,.4); font-size:26px; display:block; }
-.login-body { padding:24px; }
-.input-wrap { position:relative; margin-bottom:8px; }
-.input-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--gray); pointer-events:none; transition:color .2s; }
-.input-wrap:focus-within .input-icon { color:var(--red); }
-input[type="password"] { width:100%; padding:14px 14px 14px 42px; border:1.5px solid var(--border); border-radius:10px; font-family:'Outfit',sans-serif; font-size:16px; font-weight:500; color:var(--black); background:var(--off); transition:border-color .2s,box-shadow .2s; }
-input[type="password"]:focus { border-color:var(--red); background:var(--white); box-shadow:0 0 0 4px rgba(208,38,26,.08); }
-.login-error { font-size:12px; color:var(--red-dk); background:rgba(208,38,26,.06); border:1px solid rgba(208,38,26,.2); border-left:3px solid var(--red); border-radius:7px; padding:10px 12px; margin-top:10px; display:none; }
-.login-error.visible { display:block; animation:slideDown .2s ease; }
-@keyframes slideDown { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
-.login-btn { width:100%; padding:15px; background:var(--black); color:var(--white); border-radius:10px; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:.1em; margin-top:14px; position:relative; overflow:hidden; transition:transform .1s; }
-.login-btn::before { content:''; position:absolute; inset:0; background:var(--red); transform:scaleX(0); transform-origin:left; transition:transform .3s cubic-bezier(.22,1,.36,1); z-index:0; }
-.login-btn:hover::before { transform:scaleX(1); }
-.login-btn:active { transform:scale(.98); }
-.login-btn:disabled { opacity:.5; cursor:not-allowed; }
-.login-btn span { position:relative; z-index:1; }
+/* ════════════════════════════════════════════════════════
+   TOAST NOTIFICATIONS
+════════════════════════════════════════════════════════ */
+.toast-stack{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--ink2);color:#fff;border-radius:var(--radius-sm);padding:10px 16px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;pointer-events:all;animation:toastIn .3s cubic-bezier(.22,1,.36,1);box-shadow:0 4px 20px rgba(0,0,0,.25);max-width:320px}
+.toast.success{background:#15803d}
+.toast.error{background:#b91c1c}
+.toast.warn{background:#b45309}
+.toast.removing{animation:toastOut .25s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px) scale(.96)}}
 
-/* ══ TOPBAR ══ */
-.topbar { background:var(--black); padding:0 20px; height:56px; display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:200; }
-.topbar-brand { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-.topbar-logo { width:30px; height:30px; background:var(--red); border-radius:7px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.topbar-logo svg { width:16px; height:16px; }
-.topbar-wordmark { display:flex; flex-direction:column; }
-.topbar-title { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:.07em; color:var(--white); line-height:1; }
-.topbar-subtitle { font-size:9px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.3); }
-.topbar-divider { width:1px; height:24px; background:rgba(255,255,255,.1); flex-shrink:0; }
-.topbar-alerts { display:flex; gap:6px; align-items:center; flex:1; min-width:0; overflow:hidden; }
-.alert-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:.03em; white-space:nowrap; cursor:default; flex-shrink:0; }
-.alert-pill.urgent { background:rgba(208,38,26,.18); border:1px solid rgba(208,38,26,.35); color:#ff6b6b; }
-.alert-pill.retention { background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.3); color:var(--amber); }
-.alert-pill.weak { background:rgba(100,116,139,.15); border:1px solid rgba(100,116,139,.3); color:#94a3b8; }
-.alert-dot { width:5px; height:5px; border-radius:50%; background:currentColor; animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-.topbar-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-.topbar-ts { font-size:11px; color:rgba(255,255,255,.3); white-space:nowrap; }
-.refresh-btn { display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.6); font-size:11px; font-weight:500; transition:all .2s; white-space:nowrap; }
-.refresh-btn:hover { background:rgba(255,255,255,.12); color:var(--white); }
-.refresh-btn svg { transition:transform .4s; }
-.refresh-btn:active svg { transform:rotate(180deg); }
-.logout-btn { font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.4); background:none; border:1px solid rgba(255,255,255,.12); border-radius:6px; padding:5px 10px; transition:all .2s; white-space:nowrap; }
-.logout-btn:hover { color:var(--white); border-color:rgba(255,255,255,.3); }
+/* ════════════════════════════════════════════════════════
+   LOGIN
+════════════════════════════════════════════════════════ */
+.login-overlay{position:fixed;inset:0;background:var(--off);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px}
+.login-card{width:100%;max-width:400px;background:var(--white);border-radius:20px;overflow:hidden;box-shadow:0 8px 48px rgba(0,0,0,.14);animation:cardIn .5s cubic-bezier(.22,1,.36,1) both}
+@keyframes cardIn{from{opacity:0;transform:translateY(28px) scale(.96)}to{opacity:1;transform:none}}
+.login-header{background:var(--ink);padding:32px 28px 28px;position:relative;overflow:hidden}
+.login-header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:var(--red-glow);border-radius:50%;filter:blur(40px)}
+.login-header::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--red) 0%,transparent 70%)}
+.login-eyebrow{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:6px;font-family:var(--font-mono)}
+.login-title{font-family:var(--font-display);font-size:42px;letter-spacing:.03em;color:var(--white);line-height:1}
+.login-title small{color:rgba(255,255,255,.35);font-size:28px;display:block;letter-spacing:.06em}
+.login-body{padding:28px}
+.input-wrap{position:relative;margin-bottom:10px}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--border2);pointer-events:none;transition:color .2s}
+.input-wrap:focus-within .input-icon{color:var(--red)}
+input[type="password"]{width:100%;padding:14px 14px 14px 44px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-weight:500;color:var(--ink);background:var(--off);transition:border-color .2s,box-shadow .2s}
+input[type="password"]:focus{border-color:var(--red);background:var(--white);box-shadow:0 0 0 4px rgba(208,38,26,.1)}
+.login-error{font-size:12px;color:#991b1b;background:rgba(185,28,28,.06);border:1px solid rgba(185,28,28,.2);border-left:3px solid var(--red);border-radius:var(--radius-xs);padding:10px 14px;margin-top:10px;display:none;line-height:1.5}
+.login-error.visible{display:block;animation:slideDown .2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.login-btn{width:100%;padding:15px;background:var(--ink);color:var(--white);border-radius:var(--radius-sm);font-family:var(--font-display);font-size:19px;letter-spacing:.12em;margin-top:16px;position:relative;overflow:hidden;transition:transform .12s}
+.login-btn::before{content:'';position:absolute;inset:0;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.22,1,.36,1);z-index:0}
+.login-btn:hover::before{transform:scaleX(1)}
+.login-btn:active{transform:scale(.98)}
+.login-btn:disabled{opacity:.5;cursor:not-allowed}
+.login-btn span{position:relative;z-index:1}
 
-/* ══ LOADING ══ */
-.full-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 56px); gap:16px; }
-.spinner-ring svg { width:48px; height:48px; animation:spin 1s linear infinite; }
-@keyframes spin { to{transform:rotate(360deg)} }
-.loading-label { font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--gray); font-weight:500; }
+/* ════════════════════════════════════════════════════════
+   TOPBAR
+════════════════════════════════════════════════════════ */
+.topbar{background:var(--ink);padding:0 24px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;border-bottom:1px solid rgba(255,255,255,.05)}
+.topbar-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none}
+.topbar-logo{width:32px;height:32px;background:var(--red);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.topbar-logo svg{width:18px;height:18px}
+.topbar-title{font-family:var(--font-display);font-size:18px;letter-spacing:.07em;color:var(--white);line-height:1}
+.topbar-sub{font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.28)}
+.topbar-div{width:1px;height:22px;background:rgba(255,255,255,.08);flex-shrink:0}
+.topbar-alerts{display:flex;gap:6px;align-items:center;flex:1;min-width:0;overflow:hidden}
+.alert-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.03em;white-space:nowrap;cursor:default;flex-shrink:0}
+.alert-pill.urgent{background:rgba(208,38,26,.18);border:1px solid rgba(208,38,26,.35);color:#ff7b7b}
+.alert-pill.retention{background:rgba(217,119,6,.15);border:1px solid rgba(217,119,6,.3);color:#fbbf24}
+.alert-pill.weak{background:rgba(100,116,139,.15);border:1px solid rgba(100,116,139,.3);color:#94a3b8}
+.alert-dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.topbar-ts{font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,.28);white-space:nowrap}
+.topbar-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--radius-xs);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);font-size:11px;font-weight:500;transition:all .18s;white-space:nowrap}
+.topbar-btn:hover{background:rgba(255,255,255,.11);color:var(--white);border-color:rgba(255,255,255,.2)}
+.topbar-btn svg{flex-shrink:0}
+.topbar-btn.spinning svg{animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.export-btn{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.38);background:none;border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-xs);padding:5px 10px;transition:all .18s;white-space:nowrap}
+.export-btn:hover{color:var(--white);border-color:rgba(255,255,255,.3)}
 
-/* ══ PAGE ══ */
-.page { max-width:1240px; margin:0 auto; padding:20px 20px 60px; }
+/* ════════════════════════════════════════════════════════
+   LOADING
+════════════════════════════════════════════════════════ */
+.full-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 56px);gap:18px}
+.spin-ring svg{width:44px;height:44px;animation:spin 1s linear infinite}
+.load-label{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);font-weight:500;font-family:var(--font-mono)}
 
-/* ══ SECTION INTRO ══ */
-.section-intro { background:var(--white); border-radius:12px; border:1px solid var(--border); border-left:3px solid var(--red); padding:12px 16px; margin-bottom:14px; display:flex; align-items:flex-start; gap:10px; }
-.section-intro-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
-.section-intro-text strong { font-size:13px; font-weight:700; color:var(--black); display:block; margin-bottom:2px; }
-.section-intro-text span { font-size:12px; color:var(--gray); line-height:1.5; }
+/* ════════════════════════════════════════════════════════
+   PAGE + GRID
+════════════════════════════════════════════════════════ */
+.page{max-width:1280px;margin:0 auto;padding:20px 20px 72px}
 
-/* ══ STATS ROW ══ */
-.stats-row { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:16px; }
-.stat-card { background:var(--white); border-radius:12px; padding:16px 12px; box-shadow:var(--card-sh); border:1px solid var(--border); text-align:center; transition:transform .15s,box-shadow .15s; cursor:default; position:relative; }
-.stat-card:hover { transform:translateY(-2px); box-shadow:var(--card-sh-hover); }
-.stat-val { font-family:'Bebas Neue',sans-serif; font-size:34px; letter-spacing:.02em; line-height:1; margin-bottom:4px; color:var(--black); }
-.stat-val.red { color:var(--red); }
-.stat-val.green { color:var(--green); }
-.stat-val.amber { color:var(--amber); }
-.stat-label { font-size:9px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--gray); }
-.stat-hint { font-size:10px; color:var(--gray); margin-top:4px; font-style:italic; }
+/* ════════════════════════════════════════════════════════
+   STATS ROW
+════════════════════════════════════════════════════════ */
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:18px 14px 14px;box-shadow:var(--card-sh);border:1px solid var(--border);text-align:center;transition:transform .15s,box-shadow .15s;cursor:default;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:transparent;transition:background .2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--card-sh-hover)}
+.stat-card:hover::after{background:var(--red)}
+.stat-val{font-family:var(--font-display);font-size:36px;letter-spacing:.02em;line-height:1;margin-bottom:5px;color:var(--ink)}
+.stat-val.red{color:var(--red)}
+.stat-val.green{color:var(--green-lt)}
+.stat-val.amber{color:var(--amber-lt)}
+.stat-label{font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.stat-sub{font-size:10px;color:var(--border2);margin-top:4px;font-style:italic}
 
-/* ══ TABS ══ */
-.tab-nav { display:flex; gap:4px; background:var(--white); border-radius:12px; padding:4px; box-shadow:var(--card-sh); border:1px solid var(--border); margin-bottom:16px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-.tab-nav::-webkit-scrollbar { height:0; }
-.tab-btn { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--gray); background:none; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; transition:all .15s; white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:5px; }
-.tab-btn.active { background:var(--black); color:var(--white); }
-.tab-btn:not(.active):hover { background:var(--off); color:var(--black); }
-.tab-icon { font-size:13px; }
-.tab-panel { display:none; animation:fadeUp .3s cubic-bezier(.22,1,.36,1) both; }
-.tab-panel.active { display:block; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+/* ════════════════════════════════════════════════════════
+   TABS
+════════════════════════════════════════════════════════ */
+.tab-nav{display:flex;gap:3px;background:var(--white);border-radius:var(--radius);padding:4px;box-shadow:var(--card-sh);border:1px solid var(--border);margin-bottom:18px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{height:0}
+.tab-btn{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);background:none;border-radius:var(--radius-sm);padding:8px 16px;transition:all .15s;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px;font-family:var(--font-body)}
+.tab-btn.active{background:var(--ink);color:var(--white)}
+.tab-btn:not(.active):hover{background:var(--off);color:var(--ink)}
+.tab-icon{font-size:13px}
+.tab-panel{display:none;animation:fadeUp .28s cubic-bezier(.22,1,.36,1) both}
+.tab-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-/* ══ CHART CARDS ══ */
-.chart-card { background:var(--white); border-radius:14px; box-shadow:var(--card-sh); border:1px solid var(--border); padding:20px; }
-.chart-card-title { font-size:13px; font-weight:700; color:var(--black); margin-bottom:2px; }
-.chart-card-sub { font-size:11px; color:var(--gray); margin-bottom:14px; }
-.charts-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
-.charts-grid-3 { display:grid; grid-template-columns:2fr 1fr 1fr; gap:12px; margin-bottom:12px; }
-.charts-grid-12 { display:grid; grid-template-columns:2fr 1fr; gap:12px; margin-bottom:12px; }
-.charts-full { margin-bottom:12px; }
+/* ════════════════════════════════════════════════════════
+   SECTION INTRO
+════════════════════════════════════════════════════════ */
+.section-intro{background:var(--white);border-radius:var(--radius-sm);border:1px solid var(--border);border-left:3px solid var(--red);padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px}
+.section-intro-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.section-intro-text strong{font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:2px}
+.section-intro-text span{font-size:11.5px;color:var(--ink3);line-height:1.55}
 
-/* ══ TABLE ══ */
-.table-wrap { background:var(--white); border-radius:14px; box-shadow:var(--card-sh); border:1px solid var(--border); overflow:hidden; margin-bottom:12px; }
-.table-scroll { overflow-x:auto; }
-.data-table { width:100%; border-collapse:collapse; }
-.data-table thead tr { background:var(--black); }
-.data-table thead th { padding:10px 12px; font-size:9px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.5); text-align:left; white-space:nowrap; }
-.data-table thead th .th-hint { font-size:8px; font-weight:400; letter-spacing:0; text-transform:none; color:rgba(255,255,255,.3); display:block; margin-top:1px; }
-.data-table tbody tr.data-row { border-bottom:1px solid var(--border); transition:background .1s; cursor:pointer; }
-.data-table tbody tr.data-row:last-of-type { border-bottom:none; }
-.data-table tbody tr.data-row:hover { background:#fdf4f3; }
-.data-table tbody td { padding:9px 12px; font-size:12px; color:var(--black); vertical-align:middle; }
-.td-muted { color:var(--gray); font-size:11px; }
-.table-empty { padding:36px; text-align:center; font-size:13px; color:var(--gray); font-style:italic; cursor:default; }
+/* ════════════════════════════════════════════════════════
+   CHART CARDS
+════════════════════════════════════════════════════════ */
+.chart-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-sh);border:1px solid var(--border);padding:20px}
+.card-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.card-sub{font-size:11px;color:var(--ink3);margin-bottom:14px;line-height:1.5}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.g12{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+.gfull{margin-bottom:12px}
 
-/* Expand rows */
-.expand-row { display:none; }
-.expand-row.open { display:table-row; }
-.expand-cell { background:#fdf9f8; border-top:1px solid var(--border) !important; padding:16px 18px; }
-.expand-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px 20px; }
-.expand-item label { font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--gray); display:block; margin-bottom:3px; }
-.expand-item p { font-size:12px; color:var(--black); line-height:1.55; }
-.expand-item.full { grid-column:1/-1; }
-.expand-item.feedback p { color:var(--red-dk); font-style:italic; background:rgba(208,38,26,.04); border-left:2px solid var(--red); padding:6px 10px; border-radius:0 6px 6px 0; }
-.expand-chevron { display:inline-block; transition:transform .2s; font-size:10px; color:var(--gray); }
-.expand-hint { font-size:10px; color:rgba(208,38,26,.6); margin-left:4px; }
-.data-row.expanded .expand-chevron { transform:rotate(90deg); }
+/* ════════════════════════════════════════════════════════
+   TABLE
+════════════════════════════════════════════════════════ */
+.table-wrap{background:var(--white);border-radius:var(--radius);box-shadow:var(--card-sh);border:1px solid var(--border);overflow:hidden;margin-bottom:12px}
+.table-scroll{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse}
+.data-table thead tr{background:var(--ink)}
+.data-table thead th{padding:10px 13px;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);text-align:left;white-space:nowrap}
+.data-table thead th .th-sub{font-size:8px;font-weight:400;letter-spacing:0;text-transform:none;color:rgba(255,255,255,.25);display:block;margin-top:1px}
+.data-table tbody tr.data-row{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
+.data-table tbody tr.data-row:last-of-type{border-bottom:none}
+.data-table tbody tr.data-row:hover{background:#fdf6f5}
+.data-table tbody td{padding:9px 13px;font-size:12px;color:var(--ink);vertical-align:middle}
+.td-muted{color:var(--ink3);font-size:11px}
+.table-empty{padding:48px;text-align:center;font-size:13px;color:var(--ink3);font-style:italic;cursor:default}
 
-/* ══ FILTER BAR ══ */
-.filter-bar { background:var(--white); border-radius:12px; padding:10px 14px; box-shadow:var(--card-sh); border:1px solid var(--border); display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:12px; }
-.filter-group { display:flex; align-items:center; gap:5px; }
-.filter-label { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--gray); white-space:nowrap; }
-.filter-select { padding:5px 10px; border:1.5px solid var(--border); border-radius:8px; font-family:'Outfit',sans-serif; font-size:12px; font-weight:500; color:var(--black); background:var(--off); cursor:pointer; transition:border-color .15s; }
-.filter-select:focus { border-color:var(--red); }
-.search-input { flex:1; min-width:140px; padding:5px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:'Outfit',sans-serif; font-size:12px; color:var(--black); background:var(--off); }
-.search-input:focus { border-color:var(--red); }
-.filter-count { font-size:11px; font-weight:500; letter-spacing:.05em; color:var(--gray); background:var(--off); border:1px solid var(--border); border-radius:20px; padding:3px 10px; white-space:nowrap; }
-.filter-cap-notice { font-size:10px; color:var(--amber); background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); border-radius:20px; padding:3px 10px; white-space:nowrap; display:none; }
-.filter-cap-notice.visible { display:inline-block; }
-.clear-filters-btn { font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--red); background:none; border:none; padding:2px 0; opacity:.7; transition:opacity .15s; }
-.clear-filters-btn:hover { opacity:1; }
-.pagination { display:flex; gap:5px; align-items:center; justify-content:flex-end; margin-top:10px; flex-wrap:wrap; }
-.page-btn { padding:5px 10px; border-radius:6px; background:var(--white); border:1px solid var(--border); color:var(--gray); font-size:11px; font-family:'Outfit',sans-serif; transition:all .15s; }
-.page-btn:hover:not(:disabled) { border-color:var(--red); color:var(--red); }
-.page-btn:disabled { opacity:.35; cursor:not-allowed; }
-.page-btn.active { background:var(--black); color:var(--white); border-color:var(--black); font-weight:600; }
-.page-info { font-size:11px; color:var(--gray); margin-right:4px; }
+/* expand rows */
+.expand-row{display:none}
+.expand-row.open{display:table-row}
+.expand-cell{background:#fdf9f8;border-top:1px solid var(--border)!important;padding:18px 20px}
+.expand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px 22px}
+.expand-item label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:3px}
+.expand-item p{font-size:12px;color:var(--ink);line-height:1.6}
+.expand-item.full{grid-column:1/-1}
+.expand-item.feedback p{color:#7f1d1d;font-style:italic;background:rgba(208,38,26,.04);border-left:2px solid var(--red);padding:8px 12px;border-radius:0 var(--radius-xs) var(--radius-xs) 0}
+.expand-chevron{display:inline-block;transition:transform .2s;font-size:10px;color:var(--border2)}
+.data-row.expanded .expand-chevron{transform:rotate(90deg)}
+.expand-hint{font-size:10px;color:rgba(208,38,26,.55);margin-left:3px}
 
-/* ══ BADGES ══ */
-.badge { display:inline-flex; align-items:center; padding:3px 8px; border-radius:20px; font-size:10px; font-weight:600; white-space:nowrap; letter-spacing:.03em; }
-.badge-hot    { background:rgba(208,38,26,.1);    color:var(--red-dk); border:1px solid rgba(208,38,26,.2); }
-.badge-warm   { background:rgba(245,158,11,.1);   color:#92400e;       border:1px solid rgba(245,158,11,.2); }
-.badge-cold   { background:rgba(100,116,139,.1);  color:#475569;       border:1px solid rgba(100,116,139,.2); }
-.badge-new    { background:rgba(59,130,246,.1);   color:#1d4ed8;       border:1px solid rgba(59,130,246,.2); }
-.badge-follow { background:rgba(139,92,246,.1);   color:#5b21b6;       border:1px solid rgba(139,92,246,.2); }
-.badge-fee    { background:rgba(34,197,94,.1);    color:#15803d;       border:1px solid rgba(34,197,94,.2); }
-.badge-batch  { background:rgba(6,182,212,.1);    color:#0e7490;       border:1px solid rgba(6,182,212,.2); }
-.badge-int    { background:rgba(34,197,94,.1);    color:#15803d;       border:1px solid rgba(34,197,94,.2); }
-.badge-nfu    { background:rgba(245,158,11,.1);   color:#92400e;       border:1px solid rgba(245,158,11,.2); }
-.badge-nint   { background:rgba(208,38,26,.08);   color:var(--red-dk); border:1px solid rgba(208,38,26,.2); }
-.badge-disc   { background:rgba(100,116,139,.08); color:#475569;       border:1px solid rgba(100,116,139,.2); }
-.badge-urgent { background:rgba(208,38,26,.12);   color:var(--red-dk); border:1px solid rgba(208,38,26,.3); }
-.badge-ret    { background:rgba(245,158,11,.12);  color:#92400e;       border:1px solid rgba(245,158,11,.3); }
-.badge-strong { background:rgba(34,197,94,.1);    color:#15803d;       border:1px solid rgba(34,197,94,.2); }
-.badge-weak   { background:rgba(100,116,139,.1);  color:#475569;       border:1px solid rgba(100,116,139,.2); }
-.badge-std    { background:var(--off); color:var(--gray); border:1px solid var(--border); }
+/* ════════════════════════════════════════════════════════
+   FILTER BAR
+════════════════════════════════════════════════════════ */
+.filter-bar{background:var(--white);border-radius:var(--radius-sm);padding:10px 14px;box-shadow:var(--card-sh);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.filter-group{display:flex;align-items:center;gap:5px}
+.filter-label{font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
+.filter-select{padding:5px 10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:12px;font-weight:500;color:var(--ink);background:var(--off);cursor:pointer;transition:border-color .15s}
+.filter-select:focus{border-color:var(--red)}
+.search-input{flex:1;min-width:150px;padding:5px 12px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:12px;color:var(--ink);background:var(--off);transition:border-color .15s}
+.search-input:focus{border-color:var(--red);background:var(--white)}
+.filter-count{font-size:11px;font-weight:500;letter-spacing:.04em;color:var(--ink3);background:var(--off);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
+.cap-notice{font-size:10px;color:var(--amber);background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);border-radius:20px;padding:3px 10px;white-space:nowrap;display:none}
+.cap-notice.visible{display:inline-block}
+.clear-btn{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--red);background:none;border:none;padding:2px 0;opacity:.7;transition:opacity .15s}
+.clear-btn:hover{opacity:1}
+.csv-btn{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--green);background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.2);border-radius:var(--radius-xs);padding:4px 10px;transition:all .15s}
+.csv-btn:hover{background:rgba(22,163,74,.12)}
 
-.score-pill { display:inline-flex; align-items:center; justify-content:center; min-width:32px; height:22px; border-radius:6px; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:.02em; padding:0 4px; }
-.score-hi   { background:rgba(34,197,94,.12);   color:#15803d; }
-.score-mid  { background:rgba(245,158,11,.12);  color:#92400e; }
-.score-lo   { background:rgba(208,38,26,.1);    color:var(--red-dk); }
-.score-na   { background:var(--off); color:var(--gray); }
+/* pagination */
+.pagination{display:flex;gap:5px;align-items:center;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+.page-btn{padding:5px 10px;border-radius:var(--radius-xs);background:var(--white);border:1px solid var(--border);color:var(--ink3);font-size:11px;font-family:var(--font-body);transition:all .15s;cursor:pointer}
+.page-btn:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+.page-btn:disabled{opacity:.3;cursor:not-allowed}
+.page-btn.active{background:var(--ink);color:var(--white);border-color:var(--ink);font-weight:600}
+.page-info{font-size:11px;color:var(--ink3);margin-right:4px}
 
-/* ══ TEAM CARDS ══ */
-.sp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin-bottom:16px; }
-.sp-card { background:var(--white); border-radius:14px; padding:20px; box-shadow:var(--card-sh); border:1px solid var(--border); cursor:pointer; transition:border-color .2s,transform .15s,box-shadow .15s; }
-.sp-card:hover { border-color:var(--red); transform:translateY(-2px); box-shadow:var(--card-sh-hover); }
-.sp-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
-.sp-name { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.03em; color:var(--black); }
-.sp-last { font-size:10px; color:var(--gray); margin-top:2px; }
-.sp-score-big { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:.02em; line-height:1; }
-.sp-score-label { font-size:10px; color:var(--gray); letter-spacing:.06em; text-transform:uppercase; text-align:right; }
-.sp-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px; }
-.sp-stat { background:var(--off); border-radius:8px; padding:8px 10px; }
-.sp-stat-val { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.02em; line-height:1; }
-.sp-stat-label { font-size:9px; color:var(--gray); text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
-.sp-sparkline { display:flex; align-items:flex-end; gap:2px; height:28px; margin-top:12px; padding-top:4px; border-top:1px solid var(--border); }
-.sp-spark-bar { flex:1; background:rgba(208,38,26,.2); border-radius:2px 2px 0 0; min-height:2px; }
-.sp-spark-bar.today { background:var(--red); }
-.sp-spark-label { font-size:9px; color:var(--gray); margin-top:5px; text-align:center; letter-spacing:.05em; }
-.sp-badges { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
-.sp-click-hint { font-size:10px; color:rgba(208,38,26,.5); text-align:center; margin-top:8px; letter-spacing:.02em; }
+/* ════════════════════════════════════════════════════════
+   BADGES
+════════════════════════════════════════════════════════ */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;letter-spacing:.02em}
+.badge-hot   {background:rgba(208,38,26,.09);   color:#9b1c1c;   border:1px solid rgba(208,38,26,.22)}
+.badge-warm  {background:rgba(217,119,6,.09);   color:#78350f;   border:1px solid rgba(217,119,6,.22)}
+.badge-cold  {background:rgba(100,116,139,.09); color:#374151;   border:1px solid rgba(100,116,139,.22)}
+.badge-new   {background:rgba(37,99,235,.09);   color:#1e3a8a;   border:1px solid rgba(37,99,235,.22)}
+.badge-follow{background:rgba(124,58,237,.09);  color:#4c1d95;   border:1px solid rgba(124,58,237,.22)}
+.badge-fee   {background:rgba(22,163,74,.09);   color:#14532d;   border:1px solid rgba(22,163,74,.22)}
+.badge-batch {background:rgba(6,182,212,.09);   color:#164e63;   border:1px solid rgba(6,182,212,.22)}
+.badge-int   {background:rgba(22,163,74,.09);   color:#14532d;   border:1px solid rgba(22,163,74,.22)}
+.badge-nfu   {background:rgba(217,119,6,.09);   color:#78350f;   border:1px solid rgba(217,119,6,.22)}
+.badge-nint  {background:rgba(208,38,26,.07);   color:#9b1c1c;   border:1px solid rgba(208,38,26,.2)}
+.badge-disc  {background:rgba(100,116,139,.07); color:#374151;   border:1px solid rgba(100,116,139,.2)}
+.badge-std   {background:var(--off);color:var(--ink3);border:1px solid var(--border)}
+.badge-urgent{background:rgba(208,38,26,.11);   color:#9b1c1c;   border:1px solid rgba(208,38,26,.28)}
+.badge-ret   {background:rgba(217,119,6,.11);   color:#78350f;   border:1px solid rgba(217,119,6,.28)}
+.badge-strong{background:rgba(22,163,74,.09);   color:#14532d;   border:1px solid rgba(22,163,74,.22)}
+.badge-weak  {background:rgba(100,116,139,.09); color:#374151;   border:1px solid rgba(100,116,139,.22)}
+.score-pill{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:22px;border-radius:var(--radius-xs);font-family:var(--font-mono);font-size:12px;font-weight:500;padding:0 5px}
+.score-hi  {background:rgba(22,163,74,.12);   color:#14532d}
+.score-mid {background:rgba(217,119,6,.12);   color:#78350f}
+.score-lo  {background:rgba(208,38,26,.1);    color:#9b1c1c}
+.score-na  {background:var(--off);color:var(--border2)}
 
-/* ══ LEADERBOARD ══ */
-.leaderboard-list { display:flex; flex-direction:column; gap:7px; }
-.lb-item { display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--off); border-radius:10px; border:1px solid transparent; transition:border-color .15s,background .15s; cursor:pointer; }
-.lb-item:hover { border-color:var(--border); background:var(--white); }
-.lb-rank { font-family:'Bebas Neue',sans-serif; font-size:20px; width:26px; text-align:center; color:var(--gray); flex-shrink:0; }
-.lb-rank.gold   { color:#ca8a04; }
-.lb-rank.silver { color:#6b7280; }
-.lb-rank.bronze { color:#92400e; }
-.lb-name { flex:1; font-weight:600; font-size:13px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.lb-meta { font-size:10px; color:var(--gray); margin-top:1px; }
-.lb-score { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:.02em; color:var(--red); flex-shrink:0; }
-.lb-score-bar-bg { width:50px; height:4px; background:var(--border); border-radius:4px; overflow:hidden; flex-shrink:0; }
-.lb-score-bar-fill { height:100%; background:var(--red); border-radius:4px; }
+/* ════════════════════════════════════════════════════════
+   TEAM CARDS
+════════════════════════════════════════════════════════ */
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-bottom:16px}
+.sp-card{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--card-sh);border:1px solid var(--border);cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.sp-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:0;background:var(--red);transition:height .25s cubic-bezier(.22,1,.36,1)}
+.sp-card:hover::before{height:100%}
+.sp-card:hover{border-color:rgba(208,38,26,.3);transform:translateY(-2px);box-shadow:var(--card-sh-hover)}
+.sp-card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.sp-name{font-family:var(--font-display);font-size:24px;letter-spacing:.03em;color:var(--ink)}
+.sp-last{font-size:10px;color:var(--ink3);margin-top:2px}
+.sp-score-big{font-family:var(--font-display);font-size:44px;letter-spacing:.02em;line-height:1}
+.sp-score-label{font-size:9px;color:var(--ink3);letter-spacing:.07em;text-transform:uppercase;text-align:right}
+.sp-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.sp-stat{background:var(--off);border-radius:var(--radius-xs);padding:8px 10px}
+.sp-stat-val{font-family:var(--font-display);font-size:22px;letter-spacing:.02em;line-height:1}
+.sp-stat-lbl{font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.sp-spark{display:flex;align-items:flex-end;gap:2px;height:28px;margin-top:12px;padding-top:4px;border-top:1px solid var(--border)}
+.sp-bar{flex:1;background:rgba(208,38,26,.18);border-radius:2px 2px 0 0;min-height:2px}
+.sp-bar.today{background:var(--red)}
+.sp-spark-lbl{font-size:9px;color:var(--ink3);margin-top:5px;text-align:center;letter-spacing:.04em}
+.sp-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.sp-hint{font-size:10px;color:rgba(208,38,26,.5);text-align:center;margin-top:8px;letter-spacing:.02em}
 
-/* ══ ANALYTICS ══ */
-.analytics-kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
-.akpi-card { background:var(--white); border-radius:12px; padding:16px 14px; box-shadow:var(--card-sh); border:1px solid var(--border); }
-.akpi-label { font-size:9px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--gray); margin-bottom:6px; }
-.akpi-val { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:.02em; color:var(--black); line-height:1; margin-bottom:3px; }
-.akpi-val.good { color:#15803d; }
-.akpi-val.warn { color:#92400e; }
-.akpi-val.bad  { color:var(--red); }
-.akpi-sub { font-size:11px; color:var(--gray); }
-.alert-summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
-.alert-sum-card { border-radius:12px; padding:16px; border:1px solid; }
-.alert-sum-card.danger { background:rgba(208,38,26,.05); border-color:rgba(208,38,26,.2); }
-.alert-sum-card.warn   { background:rgba(245,158,11,.05); border-color:rgba(245,158,11,.2); }
-.alert-sum-card.ok     { background:rgba(34,197,94,.05);  border-color:rgba(34,197,94,.2); }
-.alert-sum-num { font-family:'Bebas Neue',sans-serif; font-size:36px; line-height:1; margin-bottom:4px; }
-.alert-sum-card.danger .alert-sum-num { color:var(--red); }
-.alert-sum-card.warn   .alert-sum-num { color:var(--amber); }
-.alert-sum-card.ok     .alert-sum-num { color:var(--green); }
-.alert-sum-label { font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
-.alert-sum-card.danger .alert-sum-label { color:var(--red-dk); }
-.alert-sum-card.warn   .alert-sum-label { color:#92400e; }
-.alert-sum-card.ok     .alert-sum-label { color:#15803d; }
-.alert-sum-sub { font-size:11px; color:var(--gray); margin-top:3px; }
-.spotlight-wrap { background:var(--white); border-radius:12px; border:1px solid var(--border); box-shadow:var(--card-sh); overflow:hidden; }
-.spotlight-head { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-.spotlight-head-title { font-size:13px; font-weight:700; }
-.spotlight-count { font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; background:var(--off); border:1px solid var(--border); border-radius:20px; padding:3px 9px; color:var(--gray); }
-.spotlight-list { max-height:280px; overflow-y:auto; }
-.spotlight-row { display:flex; align-items:center; gap:10px; padding:9px 16px; border-bottom:1px solid var(--border); transition:background .1s; cursor:pointer; }
-.spotlight-row:last-child { border-bottom:none; }
-.spotlight-row:hover { background:var(--off); }
-.spotlight-rank { font-family:'Bebas Neue',sans-serif; font-size:16px; color:var(--gray); width:20px; text-align:center; flex-shrink:0; }
-.spotlight-name { flex:1; font-size:12px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.spotlight-meta { font-size:10px; color:var(--gray); margin-top:1px; }
-.spotlight-pct { font-family:'Bebas Neue',sans-serif; font-size:18px; flex-shrink:0; }
-.spotlight-pct.good { color:var(--green); }
-.spotlight-pct.warn { color:var(--amber); }
-.spotlight-pct.bad  { color:var(--red); }
-.spotlight-bar { width:36px; height:4px; background:var(--border); border-radius:4px; overflow:hidden; flex-shrink:0; }
-.spotlight-bar-fill { height:100%; border-radius:4px; }
-.spotlight-bar-fill.good { background:var(--green); }
-.spotlight-bar-fill.warn { background:var(--amber); }
-.spotlight-bar-fill.bad  { background:var(--red); }
-.dow-row { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
-.dow-label { font-size:11px; font-weight:600; width:32px; flex-shrink:0; }
-.dow-bar-bg { flex:1; height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
-.dow-bar-fill { height:100%; border-radius:4px; }
-.dow-pct { font-size:11px; color:var(--gray); width:40px; text-align:right; flex-shrink:0; }
-.donut-legend-item { display:flex; align-items:center; gap:8px; margin-bottom:7px; font-size:12px; }
-.donut-legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.donut-legend-label { color:var(--gray); flex:1; }
-.donut-legend-val { font-family:'Bebas Neue',sans-serif; font-size:16px; color:var(--black); }
-.batch-compare-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-.batch-compare-label { font-size:11px; font-weight:600; width:90px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.batch-compare-bar-bg { flex:1; height:10px; background:var(--border); border-radius:5px; overflow:hidden; }
-.batch-compare-bar-fill { height:100%; border-radius:5px; transition:width .4s ease; }
-.batch-compare-pct { font-family:'Bebas Neue',sans-serif; font-size:16px; width:40px; text-align:right; flex-shrink:0; }
-.batch-compare-cnt { font-size:10px; color:var(--gray); width:50px; text-align:right; flex-shrink:0; }
-.obj-heat-table { width:100%; border-collapse:collapse; font-size:11px; }
-.obj-heat-table th { padding:6px 10px; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--gray); font-weight:600; text-align:center; white-space:nowrap; }
-.obj-heat-table th:first-child { text-align:left; }
-.obj-heat-table td { padding:6px 10px; border:1px solid var(--border); text-align:center; font-weight:600; }
-.obj-heat-table td:first-child { text-align:left; font-weight:600; color:var(--black); border:none; border-bottom:1px solid var(--border); background:var(--white); white-space:nowrap; }
-.obj-heat-table tr:last-child td { border-bottom:none; }
+/* ════════════════════════════════════════════════════════
+   LEADERBOARD
+════════════════════════════════════════════════════════ */
+.lb-list{display:flex;flex-direction:column;gap:6px}
+.lb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--off);border-radius:var(--radius-sm);border:1px solid transparent;transition:border-color .15s,background .15s;cursor:pointer}
+.lb-item:hover{border-color:var(--border);background:var(--white)}
+.lb-rank{font-family:var(--font-display);font-size:20px;width:26px;text-align:center;color:var(--border2);flex-shrink:0}
+.lb-rank.gold{color:#ca8a04}.lb-rank.silver{color:#6b7280}.lb-rank.bronze{color:#92400e}
+.lb-name{flex:1;font-weight:600;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-meta{font-size:10px;color:var(--ink3);margin-top:1px}
+.lb-score{font-family:var(--font-display);font-size:26px;letter-spacing:.02em;color:var(--red);flex-shrink:0}
+.lb-bar-bg{width:50px;height:4px;background:var(--border);border-radius:4px;overflow:hidden;flex-shrink:0}
+.lb-bar-fill{height:100%;background:var(--red);border-radius:4px}
 
-/* ══ LEGEND BOX ══ */
-.legend-box { background:rgba(208,38,26,.04); border:1px solid rgba(208,38,26,.12); border-radius:8px; padding:10px 14px; margin-bottom:12px; display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; }
-.legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--gray); }
-.legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+/* ════════════════════════════════════════════════════════
+   ANALYTICS
+════════════════════════════════════════════════════════ */
+.akpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.akpi-card{background:var(--white);border-radius:var(--radius);padding:16px 14px;box-shadow:var(--card-sh);border:1px solid var(--border)}
+.akpi-label{font-size:9px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.akpi-val{font-family:var(--font-display);font-size:32px;letter-spacing:.02em;color:var(--ink);line-height:1;margin-bottom:3px}
+.akpi-val.good{color:var(--green)}.akpi-val.warn{color:var(--amber)}.akpi-val.bad{color:var(--red)}
+.akpi-sub{font-size:11px;color:var(--ink3)}
+.alert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.alert-card{border-radius:var(--radius);padding:18px;border:1px solid}
+.alert-card.danger{background:rgba(208,38,26,.04);border-color:rgba(208,38,26,.18)}
+.alert-card.warn{background:rgba(217,119,6,.04);border-color:rgba(217,119,6,.18)}
+.alert-card.ok{background:rgba(22,163,74,.04);border-color:rgba(22,163,74,.18)}
+.alert-num{font-family:var(--font-display);font-size:40px;line-height:1;margin-bottom:4px}
+.alert-card.danger .alert-num{color:var(--red)}.alert-card.warn .alert-num{color:var(--amber-lt)}.alert-card.ok .alert-num{color:var(--green-lt)}
+.alert-lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.alert-card.danger .alert-lbl{color:#9b1c1c}.alert-card.warn .alert-lbl{color:#78350f}.alert-card.ok .alert-lbl{color:#14532d}
+.alert-sub{font-size:11px;color:var(--ink3);margin-top:3px}
 
-/* ══ RESPONSIVE ══ */
-@media (max-width:1024px) { .charts-grid-3 { grid-template-columns:1fr 1fr; } .charts-grid-12 { grid-template-columns:1fr; } }
-@media (max-width:900px) {
-  .stats-row { grid-template-columns:repeat(3,1fr); }
-  .charts-grid-2,.charts-grid-3 { grid-template-columns:1fr; }
-  .analytics-kpi-row { grid-template-columns:repeat(2,1fr); }
-  .alert-summary-grid { grid-template-columns:1fr 1fr; }
-  .topbar-ts { display:none; }
+/* spotlight */
+.spot-wrap{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--card-sh);overflow:hidden}
+.spot-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.spot-head-title{font-size:13px;font-weight:600}
+.spot-count{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--off);border:1px solid var(--border);border-radius:20px;padding:3px 9px;color:var(--ink3)}
+.spot-desc{padding:8px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--ink3)}
+.spot-list{max-height:290px;overflow-y:auto}
+.spot-row{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
+.spot-row:last-child{border-bottom:none}
+.spot-row:hover{background:var(--off)}
+.spot-rank{font-family:var(--font-display);font-size:16px;color:var(--border2);width:20px;text-align:center;flex-shrink:0}
+.spot-name{flex:1;font-size:12px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spot-meta{font-size:10px;color:var(--ink3);margin-top:1px}
+.spot-val{font-family:var(--font-display);font-size:18px;flex-shrink:0}
+.spot-val.good{color:var(--green)}.spot-val.warn{color:var(--amber)}.spot-val.bad{color:var(--red)}
+.spot-bar{width:36px;height:4px;background:var(--border);border-radius:4px;overflow:hidden;flex-shrink:0}
+.spot-bar-fill{height:100%;border-radius:4px}
+.spot-bar-fill.good{background:var(--green-lt)}.spot-bar-fill.warn{background:var(--amber-lt)}.spot-bar-fill.bad{background:var(--red)}
+
+/* day-of-week, score dist, heatmap */
+.dow-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.dow-label{font-size:11px;font-weight:600;width:32px;flex-shrink:0}
+.dow-bg{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.dow-fill{height:100%;border-radius:4px;transition:width .4s ease}
+.dow-pct{font-size:11px;color:var(--ink3);width:44px;text-align:right;flex-shrink:0;font-family:var(--font-mono)}
+.compare-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.compare-label{font-size:11px;font-weight:600;width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.compare-bg{flex:1;height:10px;background:var(--border);border-radius:5px;overflow:hidden}
+.compare-fill{height:100%;border-radius:5px;transition:width .4s ease}
+.compare-score{font-family:var(--font-display);font-size:17px;width:40px;text-align:right;flex-shrink:0}
+.compare-cnt{font-size:10px;color:var(--ink3);width:52px;text-align:right;flex-shrink:0}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.donut-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px}
+.donut-lbl{color:var(--ink3);flex:1}
+.donut-val{font-family:var(--font-display);font-size:17px;color:var(--ink)}
+
+/* heatmap */
+.heat-table{width:100%;border-collapse:collapse;font-size:11px}
+.heat-table th{padding:6px 10px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-weight:600;text-align:center;white-space:nowrap}
+.heat-table th:first-child{text-align:left}
+.heat-table td{padding:6px 10px;border:1px solid var(--border);text-align:center;font-weight:600}
+.heat-table td:first-child{text-align:left;font-weight:600;color:var(--ink);border:none;border-bottom:1px solid var(--border);background:var(--white);white-space:nowrap}
+.heat-table tr:last-child td{border-bottom:none}
+
+/* legend bar */
+.legend-box{background:rgba(208,38,26,.04);border:1px solid rgba(208,38,26,.12);border-radius:var(--radius-xs);padding:10px 14px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink3)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════ */
+@media(max-width:1024px){.g3{grid-template-columns:1fr 1fr}.g12{grid-template-columns:1fr}}
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  .g2,.g3{grid-template-columns:1fr}
+  .akpi-row{grid-template-columns:repeat(2,1fr)}
+  .alert-grid{grid-template-columns:1fr 1fr}
+  .topbar-ts{display:none}
 }
-@media (max-width:640px) {
-  .stats-row,.analytics-kpi-row { grid-template-columns:repeat(2,1fr); }
-  .alert-summary-grid { grid-template-columns:1fr; }
-  .page { padding:12px 12px 48px; }
-  .tab-btn { font-size:10px; padding:7px 10px; }
-  .topbar { padding:0 12px; gap:8px; }
-  .topbar-subtitle { display:none; }
+@media(max-width:640px){
+  .stats-row,.akpi-row{grid-template-columns:repeat(2,1fr)}
+  .alert-grid{grid-template-columns:1fr}
+  .page{padding:12px 12px 56px}
+  .tab-btn{font-size:10px;padding:7px 10px}
+  .topbar{padding:0 14px;gap:8px}
+  .topbar-sub{display:none}
 }
 </style>
 </head>
 <body>
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toastStack"></div>
 
 <!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
     <div class="login-header">
       <div class="login-eyebrow">Management Access</div>
-      <div class="login-title">Sales<span>Intelligence</span></div>
+      <div class="login-title">Sales<small>Intelligence</small></div>
     </div>
     <div class="login-body">
       <div class="input-wrap">
@@ -345,137 +400,131 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 </div>
 
 <!-- TOPBAR -->
-<div class="topbar" id="topbar" style="display:none">
-  <div class="topbar-brand">
-    <div class="topbar-logo">
-      <svg viewBox="0 0 20 20" fill="none">
-        <path d="M10 2L17 6v8l-7 4-7-4V6z" stroke="white" stroke-width="1.5" fill="none"/>
-        <circle cx="10" cy="10" r="2.5" fill="white"/>
-      </svg>
+<div class="topbar" id="topbar" style="display:none" role="banner">
+  <a class="topbar-brand" href="#" onclick="return false">
+    <div class="topbar-logo" aria-hidden="true">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M10 2L17 6v8l-7 4-7-4V6z" stroke="white" stroke-width="1.5" fill="none"/><circle cx="10" cy="10" r="2.5" fill="white"/></svg>
     </div>
-    <div class="topbar-wordmark">
-      <span class="topbar-title">ACUMEN GATE</span>
-      <span class="topbar-subtitle">Sales Intelligence</span>
+    <div>
+      <div class="topbar-title">ACUMEN GATE</div>
+      <div class="topbar-sub">Sales Intelligence</div>
     </div>
-  </div>
-  <div class="topbar-divider"></div>
-  <div class="topbar-alerts" id="topbarAlerts"></div>
+  </a>
+  <div class="topbar-div" aria-hidden="true"></div>
+  <div class="topbar-alerts" id="topbarAlerts" aria-live="polite"></div>
   <div class="topbar-right">
     <span class="topbar-ts" id="genTs"></span>
-    <button class="refresh-btn" onclick="refreshData()">
-      <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 1.2-3.6M2 2v4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <button class="topbar-btn" id="refreshBtn" onclick="refreshData()" aria-label="Refresh dashboard data">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 1.2-3.6M2 2v4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Refresh
     </button>
-    <button class="logout-btn" onclick="doLogout()">Logout</button>
+    <button class="export-btn" onclick="doLogout()" aria-label="Logout">Logout</button>
   </div>
 </div>
 
 <!-- LOADING -->
-<div class="full-loading" id="fullLoading" style="display:none">
-  <div class="spinner-ring">
+<div class="full-loading" id="fullLoading" style="display:none" role="status" aria-label="Loading">
+  <div class="spin-ring">
     <svg viewBox="0 0 48 48" fill="none">
-      <circle cx="24" cy="24" r="20" stroke="#e8e4e0" stroke-width="3"/>
+      <circle cx="24" cy="24" r="20" stroke="#e8e3dd" stroke-width="3"/>
       <path d="M24 4A20 20 0 0 1 44 24" stroke="#D0261A" stroke-width="3" stroke-linecap="round"/>
     </svg>
   </div>
-  <span class="loading-label" id="loadingLabel">Loading…</span>
+  <span class="load-label" id="loadingLabel">Loading…</span>
 </div>
 
 <!-- DASHBOARD -->
-<div class="page" id="dashPage" style="display:none">
+<main class="page" id="dashPage" style="display:none">
 
-  <!-- Summary KPI cards -->
-  <div class="stats-row" id="statsRow"></div>
+  <!-- KPI Stats -->
+  <div class="stats-row" id="statsRow" role="region" aria-label="Key metrics"></div>
 
-  <!-- Tab Navigation -->
-  <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('overview',this)"><span class="tab-icon">📊</span> Overview</button>
-    <button class="tab-btn"        onclick="switchTab('calls',this)"><span class="tab-icon">📞</span> All Calls</button>
-    <button class="tab-btn"        onclick="switchTab('team',this)"><span class="tab-icon">👥</span> Team</button>
-    <button class="tab-btn"        onclick="switchTab('objections',this)"><span class="tab-icon">🔍</span> Objections</button>
-    <button class="tab-btn"        onclick="switchTab('analytics',this)"><span class="tab-icon">📈</span> Analytics</button>
-  </div>
+  <!-- Tab Nav -->
+  <nav class="tab-nav" role="tablist" aria-label="Dashboard sections">
+    <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="overview"    onclick="switchTab('overview',this)"><span class="tab-icon" aria-hidden="true">📊</span> Overview</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="calls"       onclick="switchTab('calls',this)"><span class="tab-icon" aria-hidden="true">📞</span> All Calls</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="team"        onclick="switchTab('team',this)"><span class="tab-icon" aria-hidden="true">👥</span> Team</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="objections"  onclick="switchTab('objections',this)"><span class="tab-icon" aria-hidden="true">🔍</span> Objections</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="analytics"   onclick="switchTab('analytics',this)"><span class="tab-icon" aria-hidden="true">📈</span> Analytics</button>
+  </nav>
 
-  <!-- ═══ OVERVIEW TAB ═══ -->
-  <div class="tab-panel active" id="tab-overview">
+  <!-- ═══ OVERVIEW ═══ -->
+  <div class="tab-panel active" id="tab-overview" role="tabpanel">
     <div class="section-intro">
-      <div class="section-intro-icon">📊</div>
+      <div class="section-intro-icon" aria-hidden="true">📊</div>
       <div class="section-intro-text">
         <strong>Dashboard Overview</strong>
-        <span>A quick snapshot of how your team is performing — call volume trends, lead quality breakdown, and this week's top performers. All data is updated automatically.</span>
+        <span>Call volume trends, lead quality breakdown, and this week's top performers. Data refreshes every 10 minutes — hit Refresh for the latest.</span>
       </div>
     </div>
-    <div class="charts-grid-3">
+    <div class="g3">
       <div class="chart-card">
-        <div class="chart-card-title">Daily Call Volume</div>
-        <div class="chart-card-sub">How many calls were made each day over the last 14 days, split by call type</div>
-        <div style="position:relative;height:220px"><canvas id="trendChart"></canvas></div>
+        <div class="card-title">Daily Call Volume</div>
+        <div class="card-sub">Calls per day over the last 14 days, split by type</div>
+        <div style="position:relative;height:220px"><canvas id="trendChart" aria-label="Daily call volume chart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Call Type Mix</div>
-        <div class="chart-card-sub">Proportion of New Leads, Follow-ups, Fee Collections &amp; Batch Info</div>
-        <div style="position:relative;height:180px"><canvas id="typeChart"></canvas></div>
+        <div class="card-title">Call Type Mix</div>
+        <div class="card-sub">New Leads · Follow-ups · Fee · Batch</div>
+        <div style="position:relative;height:190px"><canvas id="typeChart" aria-label="Call type distribution chart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Lead Quality (Intent)</div>
-        <div class="chart-card-sub">Hot = ready to buy · Warm = interested · Cold = unlikely</div>
-        <div style="position:relative;height:180px"><canvas id="intentChart"></canvas></div>
+        <div class="card-title">Lead Intent</div>
+        <div class="card-sub">Hot = ready to buy · Warm = deciding · Cold = unlikely</div>
+        <div style="position:relative;height:190px"><canvas id="intentChart" aria-label="Lead intent chart"></canvas></div>
       </div>
     </div>
-    <div class="charts-grid-2">
+    <div class="g2">
       <div class="chart-card">
-        <div class="chart-card-title">Weekly Volume &amp; Avg Score</div>
-        <div class="chart-card-sub">Bars = total calls per week · Red line = team's average quality score (out of 10)</div>
-        <div style="position:relative;height:200px"><canvas id="weeklyChart"></canvas></div>
+        <div class="card-title">Weekly Volume &amp; Score Trend</div>
+        <div class="card-sub">Bars = total calls per week · Line = team avg quality score (out of 10)</div>
+        <div style="position:relative;height:200px"><canvas id="weeklyChart" aria-label="Weekly volume and score chart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">🏆 This Week — Leaderboard</div>
-        <div class="chart-card-sub">Ranked by average call quality score · Click a name to view their breakdown</div>
-        <div class="leaderboard-list" id="leaderboardList"></div>
+        <div class="card-title">🏆 This Week — Leaderboard</div>
+        <div class="card-sub">Ranked by average call quality score · Click a name to view breakdown</div>
+        <div class="lb-list" id="leaderboardList" role="list"></div>
       </div>
     </div>
   </div>
 
-  <!-- ═══ ALL CALLS TAB ═══ -->
-  <div class="tab-panel" id="tab-calls">
+  <!-- ═══ ALL CALLS ═══ -->
+  <div class="tab-panel" id="tab-calls" role="tabpanel">
     <div class="section-intro">
-      <div class="section-intro-icon">📞</div>
+      <div class="section-intro-icon" aria-hidden="true">📞</div>
       <div class="section-intro-text">
         <strong>All Calls Log</strong>
-        <span>Every recorded call in one place. Use the filters below to search by salesperson, call type, lead quality, outcome, or priority. Click any row to expand and see the full call details.</span>
+        <span>Every recorded call. Filter by salesperson, type, intent, outcome, priority, or quality flag. Click any row to expand full details. Use Export CSV to download the filtered set.</span>
       </div>
     </div>
-
-    <!-- Legend -->
-    <div class="legend-box">
-      <span style="font-size:11px;font-weight:700;color:var(--black);margin-right:4px">Score:</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>8–10 = Excellent</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>5–7 = Average</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#D0261A"></span>1–4 = Needs Work</span>
-      <span style="margin-left:8px;font-size:11px;font-weight:700;color:var(--black)">Intent:</span>
-      <span class="legend-item"><span class="badge badge-hot" style="padding:1px 6px">Hot</span> = Very likely to buy</span>
-      <span class="legend-item"><span class="badge badge-warm" style="padding:1px 6px">Warm</span> = Still deciding</span>
-      <span class="legend-item"><span class="badge badge-cold" style="padding:1px 6px">Cold</span> = Low interest</span>
+    <div class="legend-box" role="note">
+      <span style="font-size:11px;font-weight:700;color:var(--ink);margin-right:4px">Score:</span>
+      <span class="legend-item"><span class="leg-dot" style="background:var(--green-lt)"></span>8–10 Excellent</span>
+      <span class="legend-item"><span class="leg-dot" style="background:var(--amber-lt)"></span>5–7 Average</span>
+      <span class="legend-item"><span class="leg-dot" style="background:var(--red)"></span>1–4 Needs Work</span>
+      <span style="margin-left:8px;font-size:11px;font-weight:700;color:var(--ink)">Intent:</span>
+      <span class="legend-item"><span class="badge badge-hot" style="padding:1px 6px">Hot</span> Very likely</span>
+      <span class="legend-item"><span class="badge badge-warm" style="padding:1px 6px">Warm</span> Deciding</span>
+      <span class="legend-item"><span class="badge badge-cold" style="padding:1px 6px">Cold</span> Low interest</span>
     </div>
-
-    <div class="filter-bar">
+    <div class="filter-bar" role="search">
       <div class="filter-group">
         <span class="filter-label">Type</span>
-        <select class="filter-select" id="fType" onchange="filterCalls()">
+        <select class="filter-select" id="fType" aria-label="Filter by call type" onchange="filterCalls()">
           <option value="">All Types</option>
           <option>New Lead</option><option>Follow-up</option>
           <option>Fee Collection</option><option>Batch Info</option>
         </select>
       </div>
       <div class="filter-group">
-        <span class="filter-label">Lead</span>
-        <select class="filter-select" id="fIntent" onchange="filterCalls()">
+        <span class="filter-label">Intent</span>
+        <select class="filter-select" id="fIntent" aria-label="Filter by lead intent" onchange="filterCalls()">
           <option value="">All Intent</option><option>Hot</option><option>Warm</option><option>Cold</option>
         </select>
       </div>
       <div class="filter-group">
         <span class="filter-label">Outcome</span>
-        <select class="filter-select" id="fOutcome" onchange="filterCalls()">
+        <select class="filter-select" id="fOutcome" aria-label="Filter by outcome" onchange="filterCalls()">
           <option value="">All Outcomes</option>
           <option>Interested</option><option>Needs Follow-up</option>
           <option>Not Interested</option><option>Call Disconnected</option><option>Information Only</option>
@@ -483,19 +532,19 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
       </div>
       <div class="filter-group">
         <span class="filter-label">Person</span>
-        <select class="filter-select" id="fSP" onchange="filterCalls()">
+        <select class="filter-select" id="fSP" aria-label="Filter by salesperson" onchange="filterCalls()">
           <option value="">All People</option>
         </select>
       </div>
       <div class="filter-group">
         <span class="filter-label">Priority</span>
-        <select class="filter-select" id="fPri" onchange="filterCalls()">
+        <select class="filter-select" id="fPri" aria-label="Filter by follow-up priority" onchange="filterCalls()">
           <option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option>
         </select>
       </div>
       <div class="filter-group">
         <span class="filter-label">Flag</span>
-        <select class="filter-select" id="fFlag" onchange="filterCalls()">
+        <select class="filter-select" id="fFlag" aria-label="Filter by quality flag" onchange="filterCalls()">
           <option value="">All Flags</option>
           <option value="URGENT_FOLLOWUP">Urgent</option>
           <option value="RETENTION_RISK">Retention Risk</option>
@@ -503,154 +552,163 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
           <option value="WEAK_CALL">Weak Call</option>
         </select>
       </div>
-      <input type="text" class="search-input" id="fSearch" placeholder="🔎 Search by name, summary, objection…" oninput="filterCalls()">
-      <button class="clear-filters-btn" onclick="clearFilters()">Clear All</button>
-      <span class="filter-count" id="callsCount">—</span>
-      <span class="filter-cap-notice" id="capNotice" title="KPIs and charts use the full dataset. The calls table shows the most recent 500 calls.">⚠ showing latest 500 of <span id="capTotal">—</span> total</span>
+      <div class="filter-group">
+        <span class="filter-label">Date From</span>
+        <input type="date" class="filter-select" id="fDateFrom" aria-label="Filter from date" onchange="filterCalls()" style="padding:5px 8px">
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">To</span>
+        <input type="date" class="filter-select" id="fDateTo" aria-label="Filter to date" onchange="filterCalls()" style="padding:5px 8px">
+      </div>
+      <input type="text" class="search-input" id="fSearch" placeholder="🔎 Search name, summary, objection…" aria-label="Search calls" oninput="filterCalls()">
+      <button class="clear-btn" onclick="clearFilters()">Clear All</button>
+      <button class="csv-btn" onclick="exportCSV()" title="Download filtered calls as CSV">⬇ Export CSV</button>
+      <span class="filter-count" id="callsCount" aria-live="polite">—</span>
+      <span class="cap-notice" id="capNotice">⚠ showing latest 500 of <span id="capTotal">—</span> total</span>
     </div>
-    <div class="table-wrap">
+    <div class="table-wrap" role="region" aria-label="Calls table">
       <div class="table-scroll">
         <table class="data-table" id="callsTable">
           <thead><tr>
-            <th>Date</th>
-            <th>Salesperson</th>
-            <th>Call Type<span class="th-hint">What was the purpose</span></th>
-            <th>Lead Intent<span class="th-hint">How interested is the student</span></th>
-            <th>Outcome<span class="th-hint">What happened at end</span></th>
-            <th>Follow-up Priority<span class="th-hint">How urgently to follow up</span></th>
-            <th>Score<span class="th-hint">Out of 10</span></th>
-            <th>Conv. Prob.<span class="th-hint">Chance of admission</span></th>
-            <th>Flag<span class="th-hint">AI-assigned quality tag</span></th>
-            <th>Fee Quoted</th>
-            <th></th>
+            <th scope="col">Date</th>
+            <th scope="col">Salesperson</th>
+            <th scope="col">Call Type<span class="th-sub">Purpose of call</span></th>
+            <th scope="col">Lead Intent<span class="th-sub">Student interest level</span></th>
+            <th scope="col">Outcome<span class="th-sub">End result</span></th>
+            <th scope="col">Follow-up Priority<span class="th-sub">Urgency</span></th>
+            <th scope="col">Score<span class="th-sub">Out of 10</span></th>
+            <th scope="col">Conv. Prob.<span class="th-sub">Admission likelihood</span></th>
+            <th scope="col">Flag<span class="th-sub">Quality tag</span></th>
+            <th scope="col">Fee Quoted</th>
+            <th scope="col" aria-label="Expand row"></th>
           </tr></thead>
           <tbody id="callsTbody"></tbody>
         </table>
       </div>
     </div>
-    <div class="pagination" id="callsPagination"></div>
+    <div class="pagination" id="callsPagination" role="navigation" aria-label="Calls table pagination"></div>
   </div>
 
-  <!-- ═══ TEAM TAB ═══ -->
-  <div class="tab-panel" id="tab-team">
+  <!-- ═══ TEAM ═══ -->
+  <div class="tab-panel" id="tab-team" role="tabpanel">
     <div class="section-intro">
-      <div class="section-intro-icon">👥</div>
+      <div class="section-intro-icon" aria-hidden="true">👥</div>
       <div class="section-intro-text">
         <strong>Team Performance</strong>
-        <span>Individual breakdowns for every salesperson. The score shown is their average call quality (out of 10). The bar chart at the bottom of each card shows daily call volume for the past 14 days — today's bar is in red. Click any card to see a detailed category breakdown below.</span>
+        <span>Individual breakdowns for each salesperson. Score = average call quality (out of 10). The bar chart shows daily call volume for the last 14 days — today's bar is red. Click a card for a detailed breakdown.</span>
       </div>
     </div>
-    <div class="sp-grid" id="spGrid"></div>
+    <div class="sp-grid" id="spGrid" role="list"></div>
     <div id="spChartWrap" style="display:none">
       <div class="chart-card" style="max-width:700px">
-        <div class="chart-card-title" id="spChartTitle">Salesperson breakdown</div>
-        <div class="chart-card-sub">Calls by category — showing New Leads, Follow-ups, Fee Collections, Interested, Hot, Warm, Cold</div>
-        <div style="position:relative;height:220px"><canvas id="spChart"></canvas></div>
+        <div class="card-title" id="spChartTitle">Salesperson breakdown</div>
+        <div class="card-sub">New Leads · Follow-ups · Fee Collections · Interested · Hot · Warm · Cold</div>
+        <div style="position:relative;height:220px"><canvas id="spChart" aria-label="Salesperson breakdown chart"></canvas></div>
       </div>
     </div>
   </div>
 
-  <!-- ═══ OBJECTIONS TAB ═══ -->
-  <div class="tab-panel" id="tab-objections">
+  <!-- ═══ OBJECTIONS ═══ -->
+  <div class="tab-panel" id="tab-objections" role="tabpanel">
     <div class="section-intro">
-      <div class="section-intro-icon">🔍</div>
+      <div class="section-intro-icon" aria-hidden="true">🔍</div>
       <div class="section-intro-text">
         <strong>Objections &amp; Outcomes</strong>
-        <span>Understand what's stopping students from converting. The top objections chart shows the most common reasons students hesitate. The heatmap at the bottom shows which objections each salesperson encounters most — darker red = more frequent.</span>
+        <span>What's stopping students from converting? The top objections chart ranks push-back reasons. The heatmap shows which objections each salesperson encounters — darker red = more frequent.</span>
       </div>
     </div>
-    <div class="charts-grid-2">
+    <div class="g2">
       <div class="chart-card">
-        <div class="chart-card-title">Top Objections (All Time)</div>
-        <div class="chart-card-sub">The most common reasons students push back — longer bar = heard more often</div>
-        <div style="position:relative;height:260px"><canvas id="objChart"></canvas></div>
+        <div class="card-title">Top Objections (All Time)</div>
+        <div class="card-sub">Most common reasons students hesitate — longer bar = heard more often</div>
+        <div style="position:relative;height:270px"><canvas id="objChart" aria-label="Top objections chart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Call Outcome Distribution</div>
-        <div class="chart-card-sub">What percentage of calls ended with the student Interested, Needing Follow-up, or Not Interested</div>
-        <div style="position:relative;height:180px"><canvas id="outcomeChart"></canvas></div>
-      </div>
-    </div>
-    <div class="charts-grid-2">
-      <div class="chart-card">
-        <div class="chart-card-title">Student Sentiment</div>
-        <div class="chart-card-sub">Overall mood detected across all calls — more green = healthier pipeline</div>
-        <div style="position:relative;height:160px"><canvas id="sentChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Conversion Probability</div>
-        <div class="chart-card-sub">AI's estimate of each student's likelihood to enrol, grouped by range</div>
-        <div style="position:relative;height:160px"><canvas id="convChart"></canvas></div>
+        <div class="card-title">Call Outcome Distribution</div>
+        <div class="card-sub">How calls ended — Interested, Needs Follow-up, Not Interested, etc.</div>
+        <div style="position:relative;height:190px"><canvas id="outcomeChart" aria-label="Outcome distribution chart"></canvas></div>
       </div>
     </div>
-    <div class="chart-card charts-full">
-      <div class="chart-card-title">Objection Heatmap — by Salesperson</div>
-      <div class="chart-card-sub">Each cell shows how many times that salesperson faced that objection. Darker red = more frequent. Blank = not encountered.</div>
-      <div id="objHeatmap" style="padding-top:8px;overflow-x:auto"></div>
+    <div class="g2">
+      <div class="chart-card">
+        <div class="card-title">Student Sentiment</div>
+        <div class="card-sub">Detected mood across all calls — more green = healthier pipeline</div>
+        <div style="position:relative;height:170px"><canvas id="sentChart" aria-label="Sentiment chart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-title">Conversion Probability</div>
+        <div class="card-sub">AI's enrolment likelihood estimate, grouped by range</div>
+        <div style="position:relative;height:170px"><canvas id="convChart" aria-label="Conversion probability chart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card gfull">
+      <div class="card-title">Objection Heatmap — by Salesperson</div>
+      <div class="card-sub">Each cell = how many times that salesperson faced that objection. Darker = more frequent.</div>
+      <div id="objHeatmap" style="padding-top:8px;overflow-x:auto" role="region" aria-label="Objection heatmap"></div>
     </div>
   </div>
 
-  <!-- ═══ ANALYTICS TAB ═══ -->
-  <div class="tab-panel" id="tab-analytics">
+  <!-- ═══ ANALYTICS ═══ -->
+  <div class="tab-panel" id="tab-analytics" role="tabpanel">
     <div class="section-intro">
-      <div class="section-intro-icon">📈</div>
+      <div class="section-intro-icon" aria-hidden="true">📈</div>
       <div class="section-intro-text">
         <strong>Deep Analytics</strong>
-        <span>Longer-term trends and performance patterns. Use this to identify who's improving, who needs coaching, which days are most productive, and how overall pipeline health has changed month-over-month.</span>
+        <span>Long-term trends and patterns. Identify who's improving, who needs coaching, which days are most productive, and how pipeline health has changed month-over-month.</span>
       </div>
     </div>
-    <div class="analytics-kpi-row" id="analyticsKPI"></div>
-    <div class="alert-summary-grid" id="alertSummary"></div>
-    <div class="charts-grid-2">
+    <div class="akpi-row" id="analyticsKPI" role="region" aria-label="Analytics KPIs"></div>
+    <div class="alert-grid" id="alertSummary" role="region" aria-label="Alert summary"></div>
+    <div class="g2">
       <div class="chart-card">
-        <div class="chart-card-title">Monthly Trend</div>
-        <div class="chart-card-sub" id="trendAnalyticsSub">Total calls per month (bars) vs. average score (green line)</div>
-        <div style="position:relative;height:200px"><canvas id="analyticsMonthChart"></canvas></div>
+        <div class="card-title">Monthly Trend</div>
+        <div class="card-sub" id="monthTrendSub">Total calls (bars) vs avg score (green line)</div>
+        <div style="position:relative;height:210px"><canvas id="monthChart" aria-label="Monthly trend chart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Best Day of the Week</div>
-        <div class="chart-card-sub">Average call quality score by weekday — tells you which days your team performs best</div>
-        <div id="dowChart" style="padding-top:4px"></div>
-      </div>
-    </div>
-    <div class="charts-grid-12">
-      <div class="chart-card">
-        <div class="chart-card-title">Salesperson Comparison</div>
-        <div class="chart-card-sub">Bar length = total calls · Colour = quality (green ≥7 · amber ≥5 · red &lt;5) · Number = avg score</div>
-        <div id="spCompareChart" style="padding-top:4px"></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Score Distribution</div>
-        <div class="chart-card-sub">How many calls fell into each score range — ideally most should be in green (8–10)</div>
-        <div style="position:relative;height:180px"><canvas id="scoreDistChart"></canvas></div>
-        <div id="scoreDistLegend" style="margin-top:8px"></div>
+        <div class="card-title">Best Day of the Week</div>
+        <div class="card-sub">Average call quality score by weekday — which days does the team peak?</div>
+        <div id="dowChart" style="padding-top:4px" role="img" aria-label="Day of week performance"></div>
       </div>
     </div>
-    <div class="charts-grid-2">
-      <div class="spotlight-wrap">
-        <div class="spotlight-head">
-          <span class="spotlight-head-title">🔥 Top Performers (Hot Lead Rate)</span>
-          <span class="spotlight-count" id="topBadge">—</span>
+    <div class="g12">
+      <div class="chart-card">
+        <div class="card-title">Salesperson Comparison</div>
+        <div class="card-sub">Bar length = total calls · Colour = quality (green ≥7 · amber ≥5 · red &lt;5) · Number = avg score</div>
+        <div id="spCompare" style="padding-top:4px" role="img" aria-label="Salesperson comparison"></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-title">Score Distribution</div>
+        <div class="card-sub">How many calls fell into each score range</div>
+        <div style="position:relative;height:190px"><canvas id="scoreDistChart" aria-label="Score distribution chart"></canvas></div>
+        <div id="scoreDistLeg" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="spot-wrap">
+        <div class="spot-head">
+          <span class="spot-head-title">🔥 Top Performers (Hot Lead Rate)</span>
+          <span class="spot-count" id="topBadge">—</span>
         </div>
-        <div style="padding:8px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--gray)">Ranked by % of their calls that are Hot leads. Only salespeople with 3+ calls shown.</div>
-        <div class="spotlight-list" id="topList"></div>
+        <div class="spot-desc">Ranked by % of calls that are Hot leads. Requires ≥3 calls.</div>
+        <div class="spot-list" id="topList" role="list"></div>
       </div>
-      <div class="spotlight-wrap">
-        <div class="spotlight-head">
-          <span class="spotlight-head-title">💡 Needs Coaching (Avg Score)</span>
-          <span class="spotlight-count" id="coachBadge">—</span>
+      <div class="spot-wrap">
+        <div class="spot-head">
+          <span class="spot-head-title">💡 Needs Coaching (Avg Score)</span>
+          <span class="spot-count" id="coachBadge">—</span>
         </div>
-        <div style="padding:8px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--gray)">Ranked by lowest average call quality score. Focus coaching efforts here first.</div>
-        <div class="spotlight-list" id="coachList"></div>
+        <div class="spot-desc">Ranked by lowest average call quality score. Prioritise coaching here.</div>
+        <div class="spot-list" id="coachList" role="list"></div>
       </div>
     </div>
   </div>
 
-</div><!-- end .page -->
+</main>
 
 <script>
 /* ═══════════════════════════════════════════════════════
-   CONFIG — paste your Web App URL here
+   CONFIG
 ═══════════════════════════════════════════════════════ */
 var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxwvkFnVpv7EdzJ05XOSoh1EtKSlRCFZRuUuRM0ERIi-2ae4SOyCiB2UzC4psXOi3RKdg/exec";
 
@@ -665,12 +723,23 @@ var PAGE_SIZE      = 25;
 var _expandedRow   = null;
 var _charts        = {};
 var _spChartInst   = null;
-var _isBusy        = false;
+var _isRefreshing  = false;
+var _jsonpSeq      = 0;
 
-// FIX: Sequential counter replaces Date.now()+random() for JSONP callback
-// names. This guarantees uniqueness even when two requests fire within the
-// same millisecond, eliminating the (rare) callback collision bug.
-var _jsonpSeq = 0;
+/* ═══════════════════════════════════════════════════════
+   TOAST SYSTEM
+═══════════════════════════════════════════════════════ */
+function toast(msg, type, duration) {
+  var stack = document.getElementById("toastStack");
+  var el    = document.createElement("div");
+  el.className = "toast" + (type ? " " + type : "");
+  el.textContent = msg;
+  stack.appendChild(el);
+  setTimeout(function() {
+    el.classList.add("removing");
+    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 260);
+  }, duration || 3500);
+}
 
 /* ═══════════════════════════════════════════════════════
    INIT
@@ -683,14 +752,11 @@ var _jsonpSeq = 0;
     fetchDashboard();
   }
 
-  // FIX: Attach click handlers to the calls table body using event delegation
-  // instead of inline onclick attributes in generated HTML. This eliminates
-  // the XSS risk where salesperson names containing single quotes (e.g.
-  // O'Brien) could break out of an onclick="..." JS string context.
+  // Delegated click: calls table body
   document.getElementById("callsTbody").addEventListener("click", function(e) {
     var row = e.target.closest("tr.data-row");
     if (row) {
-      var idx = parseInt(row.getAttribute("data-row-idx"), 10);
+      var idx = parseInt(row.getAttribute("data-idx"), 10);
       if (!isNaN(idx)) toggleExpand(idx);
     }
   });
@@ -700,16 +766,16 @@ var _jsonpSeq = 0;
    AUTH
 ═══════════════════════════════════════════════════════ */
 function doLogin() {
-  if (_isBusy) return;
   var pw = document.getElementById("pwInput").value.trim();
   if (!pw) { showLoginErr("Please enter the password."); return; }
-  _isBusy = true;
-  setLoginBtnState(true);
+  var btn = document.getElementById("loginBtn");
+  btn.disabled = true;
+  btn.querySelector("span").textContent = "Authenticating…";
   showLoading("Logging in…");
   document.getElementById("loginOverlay").style.display = "none";
   jsonp(WEB_APP_URL + "?action=login&password=" + encodeURIComponent(pw), function(data) {
-    _isBusy = false;
-    setLoginBtnState(false);
+    btn.disabled = false;
+    btn.querySelector("span").textContent = "Access Dashboard";
     hideLoading();
     if (!data || !data.success) {
       showLoginErr((data && data.error) || "Login failed. Check your password.");
@@ -721,24 +787,19 @@ function doLogin() {
   });
 }
 
-function setLoginBtnState(loading) {
-  var btn = document.getElementById("loginBtn");
-  btn.disabled = loading;
-  btn.querySelector("span").textContent = loading ? "Authenticating…" : "Access Dashboard";
-}
-
 function doLogout() {
   sessionStorage.removeItem("ag_tok");
   _token = ""; _dashData = null;
+  destroyAllCharts();
   document.getElementById("topbar").style.display   = "none";
   document.getElementById("dashPage").style.display = "none";
   document.getElementById("pwInput").value = "";
-  setLoginBtnState(false);
   document.getElementById("loginOverlay").style.display = "flex";
 }
 
 function showLoginErr(msg) {
   document.getElementById("loginOverlay").style.display = "flex";
+  hideLoading();
   var el = document.getElementById("loginErr");
   el.textContent = msg;
   el.classList.add("visible");
@@ -756,28 +817,39 @@ function fetchDashboard() {
       return;
     }
     if (data.expired || !data.success) {
-      sessionStorage.removeItem("ag_tok");
-      _token = "";
+      sessionStorage.removeItem("ag_tok"); _token = "";
       showLoginErr(data.error || "Session expired. Please log in again.");
       return;
     }
     _dashData = data.data;
-    if (!_dashData) {
-      showLoginErr("No data returned from server.");
-      return;
-    }
-    document.getElementById("topbar").style.display  = "flex";
+    if (!_dashData) { showLoginErr("No data returned from server."); return; }
+    document.getElementById("topbar").style.display   = "flex";
     document.getElementById("dashPage").style.display = "block";
     renderAll();
   });
 }
 
-// FIX: _isBusy is not set during a refresh (it was only ever set in doLogin).
-// refreshData() does not need a busy guard beyond what fetchDashboard already
-// provides — concurrent refreshes are harmless since each overwrites state.
 function refreshData() {
-  destroyAllCharts();
-  fetchDashboard();
+  if (_isRefreshing) return;
+  _isRefreshing = true;
+  var btn = document.getElementById("refreshBtn");
+  btn.classList.add("spinning");
+  jsonp(WEB_APP_URL + "?action=getDashboardData&token=" + encodeURIComponent(_token), function(data) {
+    _isRefreshing = false;
+    btn.classList.remove("spinning");
+    if (!data || !data.success) {
+      toast("Refresh failed — check connection", "error"); return;
+    }
+    if (data.expired) {
+      sessionStorage.removeItem("ag_tok"); _token = "";
+      showLoginErr("Session expired."); return;
+    }
+    _dashData = data.data;
+    if (!_dashData) { toast("No data returned", "warn"); return; }
+    destroyAllCharts();
+    renderAll();
+    toast("Dashboard refreshed" + (data.fromCache ? " (from cache)" : ""), "success");
+  });
 }
 
 function destroyAllCharts() {
@@ -790,12 +862,10 @@ function showLoading(msg) {
   document.getElementById("loadingLabel").textContent = msg || "Loading…";
   document.getElementById("fullLoading").style.display = "flex";
 }
-function hideLoading() {
-  document.getElementById("fullLoading").style.display = "none";
-}
+function hideLoading() { document.getElementById("fullLoading").style.display = "none"; }
 
 /* ═══════════════════════════════════════════════════════
-   RENDER — main entry point
+   RENDER — entry point
 ═══════════════════════════════════════════════════════ */
 function renderAll() {
   document.getElementById("genTs").textContent = "Updated " + ((_dashData && _dashData.generatedAt) || "—");
@@ -810,32 +880,33 @@ function renderAll() {
 
 function renderTopbarAlerts() {
   var k = _dashData.kpis || {}, html = "";
-  if ((k.urgentCount||0) > 0)    html += '<div class="alert-pill urgent" title="Calls needing same-day follow-up"><span class="alert-dot"></span>' + esc(String(k.urgentCount)) + ' Urgent Follow-ups</div>';
-  if ((k.retentionCount||0) > 0) html += '<div class="alert-pill retention" title="Students showing risk of dropping out"><span class="alert-dot"></span>' + esc(String(k.retentionCount)) + ' Students At Risk</div>';
-  if ((k.weakCount||0) > 0)      html += '<div class="alert-pill weak" title="Calls flagged as low quality"><span class="alert-dot"></span>' + esc(String(k.weakCount)) + ' Weak Calls</div>';
-  document.getElementById("topbarAlerts").innerHTML = html || '<span style="font-size:11px;color:rgba(255,255,255,.3)">✓ No urgent alerts</span>';
+  if ((k.urgentCount||0) > 0)    html += '<div class="alert-pill urgent"><span class="alert-dot"></span>' + (k.urgentCount) + ' Urgent Follow-ups</div>';
+  if ((k.retentionCount||0) > 0) html += '<div class="alert-pill retention"><span class="alert-dot"></span>' + (k.retentionCount) + ' Students At Risk</div>';
+  if ((k.weakCount||0) > 0)      html += '<div class="alert-pill weak"><span class="alert-dot"></span>' + (k.weakCount) + ' Weak Calls</div>';
+  document.getElementById("topbarAlerts").innerHTML = html ||
+    '<span style="font-size:11px;color:rgba(255,255,255,.28)">✓ No urgent alerts</span>';
 }
 
 function renderStatsRow() {
   var k = _dashData.kpis || {};
   document.getElementById("statsRow").innerHTML =
-    statCard(k.totalCalls||0,        "Total Calls",        "",       "All recorded calls") +
-    statCard(k.hotLeads||0,          "Hot Leads",          (k.hotLeads||0)>0?"red":"", "Ready to enrol") +
-    statCard((k.avgScore||0)+"/10",  "Team Avg Score",     (k.avgScore||0)>=7?"green":(k.avgScore||0)>=5?"amber":"red", "Call quality rating") +
-    statCard(k.interested||0,        "Expressed Interest", (k.interested||0)>0?"green":"", "Said yes / want more info") +
-    statCard(k.urgentCount||0,       "Urgent Follow-ups",  (k.urgentCount||0)>0?"red":"green", "Must call today") +
-    statCard(k.weakCount||0,         "Weak Calls",         (k.weakCount||0)>0?"amber":"green", "Low quality — need coaching");
+    statCard(k.totalCalls||0,       "Total Calls",        "",      "All recorded calls") +
+    statCard(k.hotLeads||0,         "Hot Leads",          (k.hotLeads||0)>0?"red":"",    "Ready to enrol") +
+    statCard((k.avgScore||0)+"/10", "Team Avg Score",     (k.avgScore||0)>=7?"green":(k.avgScore||0)>=5?"amber":"red", "Call quality rating") +
+    statCard(k.interested||0,       "Expressed Interest", (k.interested||0)>0?"green":"","Said yes or want info") +
+    statCard(k.urgentCount||0,      "Urgent Follow-ups",  (k.urgentCount||0)>0?"red":"green","Must call today") +
+    statCard(k.weakCount||0,        "Weak Calls",         (k.weakCount||0)>0?"amber":"green","Low quality — coaching needed");
 }
 
-function statCard(v, label, cls, hint) {
+function statCard(v, label, cls, sub) {
   return '<div class="stat-card">' +
-    '<div class="stat-val'+(cls?' '+cls:'')+'">'+esc(String(v))+'</div>' +
-    '<div class="stat-label">'+esc(label)+'</div>' +
-    (hint?'<div class="stat-hint">'+esc(hint)+'</div>':"") +
+    '<div class="stat-val' + (cls ? ' ' + esc(cls) : '') + '">' + esc(String(v)) + '</div>' +
+    '<div class="stat-label">' + esc(label) + '</div>' +
+    (sub ? '<div class="stat-sub">' + esc(sub) + '</div>' : '') +
     '</div>';
 }
 
-/* ── Overview ── */
+/* ── OVERVIEW ── */
 function renderOverview() {
   var trend = _dashData.dailyTrend || [];
   var wv    = _dashData.weeklyVolume || [];
@@ -850,20 +921,25 @@ function renderOverview() {
       data:{
         labels: last14.map(function(d){ return fmtDate(d.date); }),
         datasets:[
-          { label:"New Lead",    data:last14.map(function(d){return d.newLeads||0;}),       backgroundColor:"rgba(59,130,246,.75)",  borderRadius:3 },
-          { label:"Follow-up",   data:last14.map(function(d){return d.followUps||0;}),      backgroundColor:"rgba(139,92,246,.75)", borderRadius:3 },
-          { label:"Fee Collect", data:last14.map(function(d){return d.feeCollections||0;}), backgroundColor:"rgba(34,197,94,.75)",  borderRadius:3 },
-          { label:"Batch Info",  data:last14.map(function(d){return d.batchInfo||0;}),      backgroundColor:"rgba(6,182,212,.75)",  borderRadius:3 }
+          { label:"New Lead",    data:last14.map(function(d){return d.newLeads||0;}),       backgroundColor:"rgba(37,99,235,.7)",   borderRadius:3 },
+          { label:"Follow-up",   data:last14.map(function(d){return d.followUps||0;}),      backgroundColor:"rgba(124,58,237,.7)",  borderRadius:3 },
+          { label:"Fee Collect", data:last14.map(function(d){return d.feeCollections||0;}), backgroundColor:"rgba(22,163,74,.7)",   borderRadius:3 },
+          { label:"Batch Info",  data:last14.map(function(d){return d.batchInfo||0;}),      backgroundColor:"rgba(6,182,212,.7)",   borderRadius:3 }
         ]
       },
       options: barOpts(true)
     });
   }
 
-  if (ctb.length) {
-    mkDoughnut("typeChart", ctb.map(function(c){return c.type;}), ctb.map(function(c){return c.count||0;}), ["rgba(59,130,246,.85)","rgba(139,92,246,.85)","rgba(34,197,94,.85)","rgba(6,182,212,.85)"]);
-  }
-  mkDoughnut("intentChart", ["Hot","Warm","Cold"], [k.hotLeads||0, k.warmLeads||0, k.coldLeads||0], ["rgba(208,38,26,.85)","rgba(245,158,11,.85)","rgba(100,116,139,.85)"]);
+  mkDoughnut("typeChart",
+    ctb.map(function(c){return c.type;}),
+    ctb.map(function(c){return c.count||0;}),
+    ["rgba(37,99,235,.85)","rgba(124,58,237,.85)","rgba(22,163,74,.85)","rgba(6,182,212,.85)"]);
+
+  mkDoughnut("intentChart",
+    ["Hot","Warm","Cold"],
+    [k.hotLeads||0, k.warmLeads||0, k.coldLeads||0],
+    ["rgba(208,38,26,.85)","rgba(217,119,6,.85)","rgba(100,116,139,.85)"]);
 
   if (wv.length) {
     destroyChart("weeklyChart");
@@ -872,44 +948,40 @@ function renderOverview() {
       data:{
         labels: wv.map(function(w){return fmtDate(w.week);}),
         datasets:[
-          { type:"bar",  label:"Calls (left)",     data:wv.map(function(w){return w.calls||0;}),    backgroundColor:"rgba(208,38,26,.15)", borderRadius:3, yAxisID:"y" },
-          { type:"line", label:"Avg Score (right)", data:wv.map(function(w){return w.avgScore||0;}), borderColor:"#D0261A", tension:.4, pointRadius:4, fill:false, yAxisID:"y1", pointBackgroundColor:"#D0261A", borderWidth:2 }
+          { type:"bar",  label:"Calls",     data:wv.map(function(w){return w.calls||0;}),    backgroundColor:"rgba(208,38,26,.13)", borderRadius:3, yAxisID:"y" },
+          { type:"line", label:"Avg Score", data:wv.map(function(w){return w.avgScore||0;}), borderColor:"#D0261A", tension:.4, pointRadius:4, fill:false, yAxisID:"y1", pointBackgroundColor:"#D0261A", borderWidth:2 }
         ]
       },
       options:{
         responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ labels:{ color:"#999490", font:{size:11,family:"'Outfit',sans-serif"} } } },
+        plugins:{ legend:{ labels:{ color:"#888", font:{size:11,family:"'DM Sans',sans-serif"} } } },
         scales:{
-          y:  { ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} },
-          y1: { position:"right", min:0, max:10, ticks:{color:"#D0261A",font:{size:10}}, grid:{drawOnChartArea:false} },
-          x:  { ticks:{color:"#999490",font:{size:10}}, grid:{display:false} }
+          y: { ticks:{color:"#999",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} },
+          y1:{ position:"right", min:0, max:10, ticks:{color:"#D0261A",font:{size:10}}, grid:{drawOnChartArea:false} },
+          x: { ticks:{color:"#999",font:{size:10}}, grid:{display:false} }
         }
       }
     });
   }
 
-  // FIX: Leaderboard items use data-name attribute instead of inline onclick
-  // with string-concatenated salesperson names. The click handler is attached
-  // via event delegation on the container, reading data-name safely.
-  var lb = _dashData.weeklyLeaderboard || [];
+  var lb    = _dashData.weeklyLeaderboard || [];
   var ranks = ["gold","silver","bronze"];
-  var lbEl = document.getElementById("leaderboardList");
+  var lbEl  = document.getElementById("leaderboardList");
   if (!lb.length) {
-    lbEl.innerHTML = '<div style="text-align:center;padding:24px;font-size:13px;color:var(--gray)">No calls recorded this week yet</div>';
+    lbEl.innerHTML = '<div style="text-align:center;padding:28px;font-size:13px;color:var(--ink3)">No calls recorded this week yet.</div>';
   } else {
     lbEl.innerHTML = lb.map(function(p, i) {
       var sc = p.avgScore || 0;
-      return '<div class="lb-item" data-name="' + esc(p.name || "") + '" title="Click to see ' + esc(p.name || "") + '\'s breakdown">' +
-        '<div class="lb-rank ' + (ranks[i] || "") + '">' + (i + 1) + '</div>' +
+      return '<div class="lb-item" role="listitem" data-name="' + esc(p.name||"") + '">' +
+        '<div class="lb-rank ' + (ranks[i]||"") + '">' + (i+1) + '</div>' +
         '<div style="flex:1;min-width:0">' +
-          '<div class="lb-name">' + esc(p.name || "?") + '</div>' +
-          '<div class="lb-meta">' + (p.calls || 0) + ' calls · <span style="color:var(--red)">' + (p.hot || 0) + ' hot leads</span></div>' +
-          '<div class="lb-score-bar-bg" style="margin-top:5px"><div class="lb-score-bar-fill" style="width:' + Math.min(sc / 10 * 100, 100) + '%"></div></div>' +
+          '<div class="lb-name">' + esc(p.name||"?") + '</div>' +
+          '<div class="lb-meta">' + (p.calls||0) + ' calls · <span style="color:var(--red)">' + (p.hot||0) + ' hot</span></div>' +
+          '<div class="lb-bar-bg" style="margin-top:5px"><div class="lb-bar-fill" style="width:' + Math.min(sc/10*100,100) + '%"></div></div>' +
         '</div>' +
-        '<div style="text-align:right;flex-shrink:0"><div class="lb-score">' + (sc || "—") + '</div><div style="font-size:9px;color:var(--gray)">/ 10</div></div>' +
+        '<div style="text-align:right;flex-shrink:0"><div class="lb-score">' + (sc||"—") + '</div><div style="font-size:9px;color:var(--ink3)">/10</div></div>' +
       '</div>';
     }).join("");
-    // Delegated click handler on the leaderboard container
     lbEl.onclick = function(e) {
       var item = e.target.closest(".lb-item[data-name]");
       if (item) showSpDetail(item.getAttribute("data-name"));
@@ -917,47 +989,51 @@ function renderOverview() {
   }
 }
 
-/* ── Calls tab ── */
+/* ── CALLS TAB ── */
 function renderCalls() {
-  var kTotal   = (_dashData.kpis || {}).totalCalls || 0;
-  var arrLen   = (_dashData.allCalls || []).length;
-  var capEl    = document.getElementById("capNotice");
-  var capTotEl = document.getElementById("capTotal");
+  var kTotal = (_dashData.kpis||{}).totalCalls || 0;
+  var arrLen = (_dashData.allCalls||[]).length;
+  var capEl  = document.getElementById("capNotice");
   if (kTotal > arrLen && arrLen > 0) {
-    capTotEl.textContent = kTotal;
+    document.getElementById("capTotal").textContent = kTotal;
     capEl.classList.add("visible");
-  } else {
-    capEl.classList.remove("visible");
-  }
+  } else { capEl.classList.remove("visible"); }
 
   var sps = uniq((_dashData.allCalls||[]).map(function(c){return c.salesperson||"";})).filter(Boolean).sort();
   var sel = document.getElementById("fSP");
-  sel.innerHTML = '<option value="">All People</option>' + sps.map(function(s){return '<option>'+esc(s)+'</option>';}).join("");
+  sel.innerHTML = '<option value="">All People</option>' +
+    sps.map(function(s){ return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join("");
   filterCalls();
 }
 
 function clearFilters() {
   ["fType","fIntent","fOutcome","fSP","fPri","fFlag"].forEach(function(id){ document.getElementById(id).value=""; });
   document.getElementById("fSearch").value = "";
+  document.getElementById("fDateFrom").value = "";
+  document.getElementById("fDateTo").value = "";
   filterCalls();
 }
 
 function filterCalls() {
-  var ft=document.getElementById("fType").value,
-      fi=document.getElementById("fIntent").value,
-      fo=document.getElementById("fOutcome").value,
-      fs=document.getElementById("fSP").value,
-      fp=document.getElementById("fPri").value,
-      ff=document.getElementById("fFlag").value,
-      fq=document.getElementById("fSearch").value.toLowerCase().trim();
+  var ft = document.getElementById("fType").value;
+  var fi = document.getElementById("fIntent").value;
+  var fo = document.getElementById("fOutcome").value;
+  var fs = document.getElementById("fSP").value;
+  var fp = document.getElementById("fPri").value;
+  var ff = document.getElementById("fFlag").value;
+  var fd1 = document.getElementById("fDateFrom").value; // "YYYY-MM-DD"
+  var fd2 = document.getElementById("fDateTo").value;
+  var fq  = document.getElementById("fSearch").value.toLowerCase().trim();
 
   _filteredCalls = (_dashData.allCalls||[]).filter(function(c) {
-    if (ft && (c.callType||"")    !== ft) return false;
-    if (fi && (c.leadIntent||"")  !== fi) return false;
-    if (fo && (c.callOutcome||"") !== fo) return false;
-    if (fs && (c.salesperson||"") !== fs) return false;
-    if (fp && (c.followUpPri||"") !== fp) return false;
-    if (ff && (c.qualityFlag||"STANDARD") !== ff) return false;
+    if (ft  && (c.callType||"")    !== ft) return false;
+    if (fi  && (c.leadIntent||"")  !== fi) return false;
+    if (fo  && (c.callOutcome||"") !== fo) return false;
+    if (fs  && (c.salesperson||"") !== fs) return false;
+    if (fp  && (c.followUpPri||"") !== fp) return false;
+    if (ff  && (c.qualityFlag||"STANDARD") !== ff) return false;
+    if (fd1 && c.dateIso && c.dateIso < fd1) return false;
+    if (fd2 && c.dateIso && c.dateIso > fd2) return false;
     if (fq) {
       var hay = [c.salesperson,c.callType,c.primaryObj,c.summary,c.followUpAct,c.keyPoints,c.studentGoal,c.studentBg,c.spFeedback].join(" ").toLowerCase();
       if (hay.indexOf(fq) === -1) return false;
@@ -968,11 +1044,6 @@ function filterCalls() {
   renderCallsPage();
 }
 
-// FIX: Table rows are built with data-row-idx attributes instead of inline
-// onclick handlers. The single delegated listener (attached in init()) reads
-// data-row-idx and calls toggleExpand(). Salesperson names and other
-// user-controlled strings never appear in JS execution contexts — only in
-// text content (via textContent) or HTML attributes (via esc()).
 function renderCallsPage() {
   document.getElementById("callsCount").textContent = _filteredCalls.length + " calls";
   var start = (_page - 1) * PAGE_SIZE;
@@ -980,48 +1051,45 @@ function renderCallsPage() {
   var tbody = document.getElementById("callsTbody");
 
   if (!page.length) {
-    tbody.innerHTML = '<tr><td colspan="11" class="table-empty">No calls match the current filters. Try clearing some filters above.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11" class="table-empty">No calls match the current filters.</td></tr>';
     document.getElementById("callsPagination").innerHTML = "";
     return;
   }
 
-  // Build rows safely: user data goes into textContent or esc()-sanitised
-  // HTML attributes only — never into JS execution contexts.
   var rows = page.map(function(c, i) {
-    var abs = start + i;
-    var fee = (c.feeQuoted && c.feeQuoted !== "Not mentioned") ? c.feeQuoted : "—";
-    var feeShort = fee.length > 12 ? fee.slice(0, 12) + "…" : fee;
+    var abs    = start + i;
+    var fee    = (c.feeQuoted && c.feeQuoted !== "Not mentioned") ? c.feeQuoted : "—";
+    var feeShort = fee.length > 14 ? fee.slice(0,14)+"…" : fee;
 
-    // Build the expand detail content using DOM-safe helper
     var expandContent =
-      expItem("Call Summary",          c.summary) +
-      expItem("Follow-up Action",      c.followUpAct) +
-      expItem("Main Objection Raised", c.primaryObj) +
-      expItem("Secondary Objection",   c.secondaryObj && c.secondaryObj !== "Not mentioned" ? c.secondaryObj : null) +
-      expItem("Student Goal",          c.studentGoal  && c.studentGoal  !== "Not mentioned" ? c.studentGoal  : null) +
-      expItem("Student Background",    c.studentBg    && c.studentBg    !== "Not mentioned" ? c.studentBg    : null) +
-      expItem("Course Preference",     c.coursePref   && c.coursePref   !== "Not mentioned" ? c.coursePref   : null) +
-      expItem("Fee Quoted",            c.feeQuoted    && c.feeQuoted    !== "Not mentioned" ? c.feeQuoted    : null) +
-      (c.spFeedback ? '<div class="expand-item full feedback"><label>💬 Salesperson Coaching Feedback</label><p>' + esc(c.spFeedback) + '</p></div>' : "") +
-      expItem("Key Talking Points",    c.keyPoints, true);
+      expItem("Call Summary",       c.summary) +
+      expItem("Follow-up Action",   c.followUpAct) +
+      expItem("Main Objection",     c.primaryObj) +
+      expItem("Secondary Objection",c.secondaryObj && c.secondaryObj !== "Not mentioned" ? c.secondaryObj : null) +
+      expItem("Student Goal",       c.studentGoal  && c.studentGoal  !== "Not mentioned" ? c.studentGoal  : null) +
+      expItem("Student Background", c.studentBg    && c.studentBg    !== "Not mentioned" ? c.studentBg    : null) +
+      expItem("Course Preference",  c.coursePref   && c.coursePref   !== "Not mentioned" ? c.coursePref   : null) +
+      expItem("Fee Quoted",         c.feeQuoted    && c.feeQuoted    !== "Not mentioned" ? c.feeQuoted    : null) +
+      (c.spFeedback ? '<div class="expand-item full feedback"><label>💬 Coaching Feedback</label><p>' + esc(c.spFeedback) + '</p></div>' : "") +
+      expItem("Key Points",         c.keyPoints, true);
 
     return (
-      '<tr class="data-row" id="dr-' + abs + '" data-row-idx="' + abs + '" title="Click to expand full call details">' +
-        '<td class="td-muted">' + esc(c.dateDisp || "—") + '</td>' +
-        '<td><strong>' + esc(c.salesperson || "?") + '</strong></td>' +
+      '<tr class="data-row" id="dr-'+abs+'" data-idx="'+abs+'">' +
+        '<td class="td-muted">' + esc(c.dateDisp||"—") + '</td>' +
+        '<td><strong>' + esc(c.salesperson||"?") + '</strong></td>' +
         '<td>' + typeBadge(c.callType) + '</td>' +
         '<td>' + intentBadge(c.leadIntent) + '</td>' +
         '<td>' + outcomeBadge(c.callOutcome) + '</td>' +
         '<td>' + priBadge(c.followUpPri) + '</td>' +
         '<td>' + scorePill(c.spScore) + '</td>' +
-        '<td class="td-muted" style="font-size:11px">' + esc(c.convProb || "—") + '</td>' +
+        '<td class="td-muted" style="font-family:var(--font-mono);font-size:11px">' + esc(c.convProb||"—") + '</td>' +
         '<td>' + flagBadge(c.qualityFlag) + '</td>' +
-        '<td class="td-muted" style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(fee) + '">' + esc(feeShort) + '</td>' +
-        '<td><span class="expand-chevron">▸</span> <span class="expand-hint">details</span></td>' +
+        '<td class="td-muted" style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(fee) + '">' + esc(feeShort) + '</td>' +
+        '<td style="white-space:nowrap"><span class="expand-chevron" aria-hidden="true">▸</span><span class="expand-hint"> details</span></td>' +
       '</tr>' +
-      '<tr class="expand-row" id="row-' + abs + '">' +
+      '<tr class="expand-row" id="er-'+abs+'">' +
         '<td colspan="11" class="expand-cell">' +
-          '<div style="font-size:10px;color:var(--gray);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:600">📋 Full Call Details</div>' +
+          '<div style="font-size:9px;color:var(--ink3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:600">📋 Full Call Details</div>' +
           '<div class="expand-grid">' + expandContent + '</div>' +
         '</td>' +
       '</tr>'
@@ -1029,59 +1097,84 @@ function renderCallsPage() {
   });
 
   tbody.innerHTML = rows.join("");
+  _expandedRow = null;
   renderPagination();
 }
 
 function expItem(label, val, full) {
   if (!val) return "";
-  return '<div class="expand-item' + (full ? " full" : "") + '"><label>' + esc(label) + '</label><p>' + esc(val) + '</p></div>';
+  return '<div class="expand-item' + (full?" full":"") + '"><label>' + esc(label) + '</label><p>' + esc(val) + '</p></div>';
 }
 
 function toggleExpand(idx) {
-  var sid = "row-" + idx, dr = "dr-" + idx;
-  var el  = document.getElementById(sid), row = document.getElementById(dr);
-  if (!el || !row) return;
-  if (_expandedRow && _expandedRow !== sid) {
-    var prev    = document.getElementById(_expandedRow);
-    var prevRow = document.getElementById(_expandedRow.replace("row-", "dr-"));
-    if (prev)    prev.classList.remove("open");
-    if (prevRow) prevRow.classList.remove("expanded");
+  var er  = document.getElementById("er-" + idx);
+  var dr  = document.getElementById("dr-" + idx);
+  if (!er || !dr) return;
+  if (_expandedRow && _expandedRow !== idx) {
+    var pe  = document.getElementById("er-" + _expandedRow);
+    var pdr = document.getElementById("dr-" + _expandedRow);
+    if (pe)  pe.classList.remove("open");
+    if (pdr) pdr.classList.remove("expanded");
   }
-  var isOpen = el.classList.toggle("open");
-  row.classList.toggle("expanded", isOpen);
-  _expandedRow = isOpen ? sid : null;
+  var isOpen = er.classList.toggle("open");
+  dr.classList.toggle("expanded", isOpen);
+  _expandedRow = isOpen ? idx : null;
 }
 
 function renderPagination() {
   var total = Math.ceil(_filteredCalls.length / PAGE_SIZE);
   var el    = document.getElementById("callsPagination");
-  if (total <= 1) { el.innerHTML = '<span class="page-info">' + _filteredCalls.length + ' calls</span>'; return; }
+  if (total <= 1) {
+    el.innerHTML = '<span class="page-info">' + _filteredCalls.length + ' calls</span>';
+    return;
+  }
   var html = '<span class="page-info">' + _filteredCalls.length + ' calls</span>';
-  html += '<button class="page-btn" onclick="goPage(' + (_page - 1) + ')" ' + (_page === 1 ? "disabled" : "") + '>‹ Prev</button>';
-  var s = Math.max(1, _page - 2), e = Math.min(total, _page + 2);
-  if (s > 1) html += '<button class="page-btn" onclick="goPage(1)">1</button>' + (s > 2 ? '<span class="page-info">…</span>' : "");
-  for (var p = s; p <= e; p++) html += '<button class="page-btn' + (p === _page ? " active" : "") + '" onclick="goPage(' + p + ')">' + p + '</button>';
-  if (e < total) html += (e < total - 1 ? '<span class="page-info">…</span>' : "") + '<button class="page-btn" onclick="goPage(' + total + ')">' + total + '</button>';
-  html += '<button class="page-btn" onclick="goPage(' + (_page + 1) + ')" ' + (_page === total ? "disabled" : "") + '>Next ›</button>';
+  html += '<button class="page-btn" onclick="goPage(' + (_page-1) + ')" ' + (_page===1?"disabled":"") + ' aria-label="Previous page">‹ Prev</button>';
+  var s = Math.max(1, _page-2), e = Math.min(total, _page+2);
+  if (s > 1) html += '<button class="page-btn" onclick="goPage(1)">1</button>' + (s>2?'<span class="page-info">…</span>':"");
+  for (var p = s; p <= e; p++) html += '<button class="page-btn' + (p===_page?" active":"") + '" onclick="goPage('+p+')" aria-current="' + (p===_page?"page":"false") + '">' + p + '</button>';
+  if (e < total) html += (e<total-1?'<span class="page-info">…</span>':"") + '<button class="page-btn" onclick="goPage('+total+')">'+total+'</button>';
+  html += '<button class="page-btn" onclick="goPage(' + (_page+1) + ')" ' + (_page===total?"disabled":"") + ' aria-label="Next page">Next ›</button>';
   el.innerHTML = html;
 }
 
 function goPage(p) {
   var total = Math.ceil(_filteredCalls.length / PAGE_SIZE);
   if (p < 1 || p > total) return;
-  _page = p; _expandedRow = null; renderCallsPage();
-  document.getElementById("tab-calls").scrollIntoView({ behavior:"smooth", block:"start" });
+  _page = p;
+  _expandedRow = null;
+  renderCallsPage();
+  var panel = document.getElementById("tab-calls");
+  if (panel) panel.scrollIntoView({ behavior:"smooth", block:"start" });
 }
 
-/* ── Team tab ── */
-// FIX: sp-card and spotlight-row elements use data-name attributes instead
-// of inline onclick with string-concatenated names. Delegated handlers
-// attached below read data-name safely via getAttribute().
+/* ── EXPORT CSV ── */
+function exportCSV() {
+  if (!_filteredCalls.length) { toast("No calls to export", "warn"); return; }
+  var headers = ["Date","Salesperson","Call Type","Lead Intent","Outcome","Follow-up Priority","Score","Conv Prob","Flag","Fee Quoted","Primary Objection","Summary","Follow-up Action","Key Points"];
+  var rows = [headers.join(",")];
+  _filteredCalls.forEach(function(c) {
+    rows.push([
+      c.dateIso, c.salesperson, c.callType, c.leadIntent, c.callOutcome,
+      c.followUpPri, c.spScore, c.convProb, c.qualityFlag, c.feeQuoted,
+      c.primaryObj, c.summary, c.followUpAct, c.keyPoints
+    ].map(function(v){ return '"' + String(v||"").replace(/"/g,'""') + '"'; }).join(","));
+  });
+  var blob = new Blob([rows.join("\n")], { type:"text/csv;charset=utf-8;" });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a");
+  a.href = url; a.download = "acumen_calls_" + new Date().toISOString().slice(0,10) + ".csv";
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast("Exported " + _filteredCalls.length + " calls as CSV", "success");
+}
+
+/* ── TEAM TAB ── */
 function renderTeam() {
-  var sps = _dashData.salespersons || [];
+  var sps    = _dashData.salespersons || [];
   var spGrid = document.getElementById("spGrid");
   if (!sps.length) {
-    spGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray);font-size:13px">No salesperson data yet.</div>';
+    spGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--ink3)">No salesperson data yet.</div>';
     return;
   }
   var maxSpark = 1;
@@ -1090,35 +1183,34 @@ function renderTeam() {
   spGrid.innerHTML = sps.map(function(sp) {
     var sc    = sp.avgScore || 0;
     var scCls = sc >= 7 ? "green" : sc >= 5 ? "amber" : "red";
-    var sparks = (sp.sparkline || []).map(function(v, i) {
+    var sparks = (sp.sparkline||[]).map(function(v, i) {
       var h = maxSpark > 0 ? Math.round(v / maxSpark * 100) : 0;
-      return '<div class="sp-spark-bar' + (i === 13 ? " today" : "") + '" style="height:' + Math.max(h, 4) + '%" title="' + (i === 13 ? "Today" : "Day " + (i + 1)) + ': ' + v + ' calls"></div>';
+      return '<div class="sp-bar' + (i===13?" today":"") + '" style="height:' + Math.max(h,4) + '%" title="' + (i===13?"Today":"Day "+(i+1)) + ': ' + v + ' calls"></div>';
     }).join("");
-    return '<div class="sp-card" data-name="' + esc(sp.name || "") + '">' +
-      '<div class="sp-card-header">' +
-        '<div style="min-width:0"><div class="sp-name">' + esc(sp.name || "?") + '</div><div class="sp-last">' + (sp.lastCallDate ? "Last call: " + fmtDate(sp.lastCallDate) : "No calls yet") + '</div></div>' +
-        '<div><div class="sp-score-big ' + scCls + '">' + (sc || 0) + '</div><div class="sp-score-label">avg / 10</div></div>' +
+    return '<div class="sp-card" role="listitem" data-name="' + esc(sp.name||"") + '">' +
+      '<div class="sp-card-head">' +
+        '<div style="min-width:0"><div class="sp-name">' + esc(sp.name||"?") + '</div><div class="sp-last">' + (sp.lastCallDate?"Last: "+fmtDate(sp.lastCallDate):"No calls yet") + '</div></div>' +
+        '<div><div class="sp-score-big ' + scCls + '">' + (sc||0) + '</div><div class="sp-score-label">avg / 10</div></div>' +
       '</div>' +
       '<div class="sp-stats">' +
-        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.totalCalls || 0) + '</div><div class="sp-stat-label">Total Calls</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--red)">' + (sp.hot || 0) + '</div><div class="sp-stat-label">Hot Leads</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--green)">' + (sp.interested || 0) + '</div><div class="sp-stat-label">Interested</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.newLeads || 0) + '</div><div class="sp-stat-label">New Leads</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.followUps || 0) + '</div><div class="sp-stat-label">Follow-ups</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.feeCollections || 0) + '</div><div class="sp-stat-label">Fee Collect.</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.totalCalls||0) + '</div><div class="sp-stat-lbl">Calls</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--red)">' + (sp.hot||0) + '</div><div class="sp-stat-lbl">Hot</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--green)">' + (sp.interested||0) + '</div><div class="sp-stat-lbl">Interested</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.newLeads||0) + '</div><div class="sp-stat-lbl">New Leads</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.followUps||0) + '</div><div class="sp-stat-lbl">Follow-ups</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.feeCollections||0) + '</div><div class="sp-stat-lbl">Fee Coll.</div></div>' +
       '</div>' +
-      '<div class="sp-sparkline">' + sparks + '</div>' +
-      '<div class="sp-spark-label">← 14 days ago &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; today →</div>' +
+      '<div class="sp-spark">' + sparks + '</div>' +
+      '<div class="sp-spark-lbl">← 14 days ago &nbsp;&nbsp;&nbsp; today →</div>' +
       '<div class="sp-badges">' +
-        ((sp.strongCalls || 0) > 0 ? '<span class="badge badge-strong">' + sp.strongCalls + ' strong calls</span>' : "") +
-        ((sp.weakCalls || 0) > 0   ? '<span class="badge badge-weak">' + sp.weakCalls + ' weak calls</span>' : "") +
-        ((sp.highPriFollowups || 0) > 0 ? '<span class="badge badge-urgent">' + sp.highPriFollowups + ' urgent follow-ups</span>' : "") +
+        ((sp.strongCalls||0)>0 ? '<span class="badge badge-strong">'+sp.strongCalls+' strong</span>' : "") +
+        ((sp.weakCalls||0)>0   ? '<span class="badge badge-weak">'+sp.weakCalls+' weak</span>'   : "") +
+        ((sp.highPriFollowups||0)>0 ? '<span class="badge badge-urgent">'+sp.highPriFollowups+' urgent</span>' : "") +
       '</div>' +
-      '<div class="sp-click-hint">Click to see full breakdown ▸</div>' +
+      '<div class="sp-hint">Click for full breakdown ▸</div>' +
     '</div>';
   }).join("");
 
-  // Delegated click on the grid — reads data-name, never eval's it
   spGrid.onclick = function(e) {
     var card = e.target.closest(".sp-card[data-name]");
     if (card) showSpDetail(card.getAttribute("data-name"));
@@ -1126,13 +1218,14 @@ function renderTeam() {
 }
 
 function showSpDetail(name) {
-  switchTabById("team");
-  var sp = (_dashData.salespersons || []).find(function(s){ return (s.name || "").toLowerCase() === name.toLowerCase(); });
+  switchTabByName("team");
+  var sp = (_dashData.salespersons||[]).find(function(s){
+    return (s.name||"").toLowerCase() === name.toLowerCase();
+  });
   if (!sp) return;
   var wrap = document.getElementById("spChartWrap");
   wrap.style.display = "block";
-  // Use textContent to set the title — never innerHTML with user data
-  document.getElementById("spChartTitle").textContent = name + " — full call breakdown";
+  document.getElementById("spChartTitle").textContent = name + " — full breakdown";
   if (_spChartInst) { try{ _spChartInst.destroy(); }catch(e){} _spChartInst = null; }
   var canvas = document.getElementById("spChart");
   if (!canvas) return;
@@ -1141,43 +1234,43 @@ function showSpDetail(name) {
     data:{
       labels:["New Leads","Follow-ups","Fee Collections","Interested","Hot","Warm","Cold"],
       datasets:[{
-        data:[sp.newLeads||0, sp.followUps||0, sp.feeCollections||0, sp.interested||0, sp.hot||0, sp.warm||0, sp.cold||0],
-        backgroundColor:["rgba(59,130,246,.8)","rgba(139,92,246,.8)","rgba(34,197,94,.8)","rgba(34,197,94,.7)","rgba(208,38,26,.8)","rgba(245,158,11,.8)","rgba(100,116,139,.8)"],
+        data:[sp.newLeads||0,sp.followUps||0,sp.feeCollections||0,sp.interested||0,sp.hot||0,sp.warm||0,sp.cold||0],
+        backgroundColor:["rgba(37,99,235,.8)","rgba(124,58,237,.8)","rgba(22,163,74,.8)","rgba(22,163,74,.7)","rgba(208,38,26,.8)","rgba(217,119,6,.8)","rgba(100,116,139,.8)"],
         borderRadius:5
       }]
     },
     options:{
-      responsive:true, maintainAspectRatio:false,
+      responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false}},
       scales:{
-        x:{ticks:{color:"#999490",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},
-        y:{ticks:{color:"#999490",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}}
+        x:{ticks:{color:"#999",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},
+        y:{ticks:{color:"#999",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}}
       }
     }
   });
-  setTimeout(function(){ wrap.scrollIntoView({ behavior:"smooth", block:"nearest" }); }, 100);
+  setTimeout(function(){ wrap.scrollIntoView({ behavior:"smooth", block:"nearest" }); }, 80);
 }
 
-/* ── Objections tab ── */
+/* ── OBJECTIONS TAB ── */
 function renderObjections() {
   var objs  = _dashData.topObjections || [];
   var k     = _dashData.kpis || {};
-  var calls = _dashData.allCalls || [];
+  var cd    = _dashData.convDistribution || [];
 
   if (objs.length) {
     destroyChart("objChart");
     _charts.objChart = new Chart(document.getElementById("objChart").getContext("2d"), {
       type:"bar",
       data:{
-        labels: objs.map(function(o){ return o.objection || ""; }),
-        datasets:[{ data:objs.map(function(o){ return o.count || 0; }), backgroundColor:"rgba(208,38,26,.7)", borderRadius:4 }]
+        labels: objs.map(function(o){ return o.objection||""; }),
+        datasets:[{ data:objs.map(function(o){ return o.count||0; }), backgroundColor:"rgba(208,38,26,.7)", borderRadius:4 }]
       },
       options:{
-        responsive:true, maintainAspectRatio:false, indexAxis:"y",
+        responsive:true,maintainAspectRatio:false,indexAxis:"y",
         plugins:{legend:{display:false}},
         scales:{
-          x:{ticks:{color:"#999490",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}},
-          y:{ticks:{color:"#0a0a0a",font:{size:11}},grid:{display:false}}
+          x:{ticks:{color:"#999",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}},
+          y:{ticks:{color:"#333",font:{size:11}},grid:{display:false}}
         }
       }
     });
@@ -1185,63 +1278,68 @@ function renderObjections() {
 
   mkDoughnut("outcomeChart",
     ["Interested","Needs Follow-up","Not Interested","Disconnected","Info Only"],
-    [k.interested||0, k.needsFollowup||0, k.notInterested||0, countBy(calls,"callOutcome","Call Disconnected"), countBy(calls,"callOutcome","Information Only")],
-    ["rgba(34,197,94,.85)","rgba(245,158,11,.85)","rgba(208,38,26,.85)","rgba(100,116,139,.85)","rgba(59,130,246,.85)"]);
+    [k.interested||0,k.needsFollowup||0,k.notInterested||0,k.callDisconn||0,k.infoOnly||0],
+    ["rgba(22,163,74,.85)","rgba(217,119,6,.85)","rgba(208,38,26,.85)","rgba(100,116,139,.85)","rgba(37,99,235,.85)"]);
 
   mkDoughnut("sentChart",
     ["Positive","Neutral","Negative"],
-    [k.positiveSent||0, countBy(calls,"sentiment","Neutral"), k.negativeSent||0],
-    ["rgba(34,197,94,.85)","rgba(100,116,139,.85)","rgba(208,38,26,.85)"]);
+    [k.positiveSent||0,k.neutralSent||0,k.negativeSent||0],
+    ["rgba(22,163,74,.85)","rgba(100,116,139,.85)","rgba(208,38,26,.85)"]);
 
-  var convL = ["0-25%","25-50%","50-75%","75-100%"];
+  // Use pre-aggregated convDistribution from backend
+  var convLabels = ["0-25%","25-50%","50-75%","75-100%"];
+  var convCounts = convLabels.map(function(l) {
+    var found = cd.find(function(x){ return x.range === l; });
+    return found ? found.count : 0;
+  });
   destroyChart("convChart");
   _charts.convChart = new Chart(document.getElementById("convChart").getContext("2d"), {
     type:"bar",
     data:{
-      labels: convL,
+      labels:convLabels,
       datasets:[{
-        data: convL.map(function(l){ return countBy(calls, "convProb", l); }),
-        backgroundColor:["rgba(208,38,26,.75)","rgba(245,158,11,.75)","rgba(59,130,246,.75)","rgba(34,197,94,.75)"],
+        data:convCounts,
+        backgroundColor:["rgba(208,38,26,.75)","rgba(217,119,6,.75)","rgba(37,99,235,.75)","rgba(22,163,74,.75)"],
         borderRadius:4
       }]
     },
     options:{
-      responsive:true, maintainAspectRatio:false,
+      responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false}},
       scales:{
-        x:{ticks:{color:"#999490",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},
-        y:{ticks:{color:"#999490",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}}
+        x:{ticks:{color:"#999",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},
+        y:{ticks:{color:"#999",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}}
       }
     }
   });
 
   // Heatmap
-  var heat   = _dashData.objectionHeatmap || [];
+  var heat  = _dashData.objectionHeatmap || [];
   var heatEl = document.getElementById("objHeatmap");
   if (!heat.length) {
-    heatEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No objection data yet.</div>';
+    heatEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--ink3)">No objection data yet.</div>';
     return;
   }
-  var spNames  = uniq(heat.map(function(h){ return h.salesperson || ""; })).filter(Boolean).sort();
-  var maxCount = Math.max.apply(null, heat.map(function(h){ return h.count || 0; }).concat([1]));
+  var spNames  = uniq(heat.map(function(h){ return h.salesperson||""; })).filter(Boolean).sort();
+  var maxCount = Math.max.apply(null, heat.map(function(h){ return h.count||0; }).concat([1]));
   var byObj    = {};
   heat.forEach(function(h) {
     var obj = h.objection || "Other";
     if (!byObj[obj]) byObj[obj] = {};
-    byObj[obj][h.salesperson] = (byObj[obj][h.salesperson] || 0) + (h.count || 0);
+    byObj[obj][h.salesperson] = (byObj[obj][h.salesperson]||0) + (h.count||0);
   });
-  var html = '<table class="obj-heat-table"><thead><tr><th>Objection</th>';
+  var html = '<table class="heat-table"><thead><tr><th>Objection</th>';
   spNames.forEach(function(sp){ html += '<th>' + esc(sp) + '</th>'; });
   html += '</tr></thead><tbody>';
   Object.keys(byObj).sort().forEach(function(obj) {
-    var rowTotal = spNames.reduce(function(s, sp){ return s + (byObj[obj][sp] || 0); }, 0);
-    html += '<tr><td>' + esc(obj) + ' <span style="color:var(--gray);font-weight:400;font-size:10px">(total: ' + rowTotal + ')</span></td>';
+    var rowTotal = spNames.reduce(function(s,sp){ return s+(byObj[obj][sp]||0); },0);
+    html += '<tr><td>' + esc(obj) + ' <span style="color:var(--ink3);font-weight:400;font-size:10px">('+rowTotal+')</span></td>';
     spNames.forEach(function(sp) {
-      var cnt       = byObj[obj][sp] || 0;
-      var intensity = cnt > 0 ? Math.max(0.08, cnt / maxCount) : 0;
-      var bg        = cnt > 0 ? 'rgba(208,38,26,' + intensity.toFixed(2) + ')' : 'var(--off)';
-      var fc        = intensity > 0.45 ? '#fff' : (cnt > 0 ? 'var(--red-dk)' : 'var(--gray)');
-      html += '<td style="background:' + bg + ';color:' + fc + '">' + (cnt > 0 ? cnt : '') + '</td>';
+      var cnt = byObj[obj][sp]||0;
+      var intensity = cnt > 0 ? Math.max(0.07, cnt/maxCount) : 0;
+      var bg = cnt > 0 ? "rgba(208,38,26,"+intensity.toFixed(2)+")" : "var(--off)";
+      var fc = intensity > 0.45 ? "#fff" : (cnt>0?"#7f1d1d":"var(--border2)");
+      html += '<td style="background:'+bg+';color:'+fc+'">' + (cnt>0?cnt:"") + '</td>';
     });
     html += '</tr>';
   });
@@ -1249,159 +1347,149 @@ function renderObjections() {
   heatEl.innerHTML = html;
 }
 
-/* ── Analytics tab ── */
+/* ── ANALYTICS TAB ── */
 function renderAnalytics() {
   var k    = _dashData.kpis || {};
   var sps  = _dashData.salespersons || [];
-  var calls = _dashData.allCalls || [];
+  var mt   = _dashData.monthlyTrend || [];
+  var dow  = _dashData.dowStats || [];
+  var sd   = _dashData.scoreDistribution || [];
 
+  // KPI cards
   document.getElementById("analyticsKPI").innerHTML =
-    akpiCard("Hot Lead Rate",     (k.hotRate  || 0) + "%", (k.hotRate  || 0) >= 30 ? "good" : (k.hotRate  || 0) >= 15 ? "warn" : "bad", (k.hotLeads || 0) + " hot out of " + (k.totalCalls || 0) + " calls") +
-    akpiCard("Interest Rate",     (k.convRate || 0) + "%", (k.convRate || 0) >= 20 ? "good" : (k.convRate || 0) >= 10 ? "warn" : "bad", (k.interested || 0) + " students expressed interest") +
-    akpiCard("Avg Call Score",    (k.avgScore || 0) + "/10", (k.avgScore || 0) >= 7 ? "good" : (k.avgScore || 0) >= 5 ? "warn" : "bad", (k.strongCount || 0) + " strong calls recorded") +
-    akpiCard("Urgent Follow-ups", k.urgentCount || 0, (k.urgentCount || 0) > 0 ? "warn" : "good", "need same-day action");
+    akpiCard("Hot Lead Rate",     (k.hotRate||0)+"%",  (k.hotRate||0)>=30?"good":(k.hotRate||0)>=15?"warn":"bad",  (k.hotLeads||0)+" hot out of "+(k.totalCalls||0)+" calls") +
+    akpiCard("Interest Rate",     (k.convRate||0)+"%", (k.convRate||0)>=20?"good":(k.convRate||0)>=10?"warn":"bad", (k.interested||0)+" students expressed interest") +
+    akpiCard("Avg Call Score",    (k.avgScore||0)+"/10",(k.avgScore||0)>=7?"good":(k.avgScore||0)>=5?"warn":"bad",  (k.strongCount||0)+" strong calls recorded") +
+    akpiCard("Urgent Follow-ups", k.urgentCount||0,    (k.urgentCount||0)>0?"warn":"good",                          "need same-day action");
 
   document.getElementById("alertSummary").innerHTML =
-    alertSCard("Urgent Follow-ups", k.urgentCount   || 0, "danger", "Calls needing same-day action") +
-    alertSCard("Students At Risk",  k.retentionCount|| 0, "warn",   "Showing signs of dropping out") +
-    alertSCard("Strong Calls",      k.strongCount   || 0, "ok",     "High quality calls this period");
+    alertCard("Urgent Follow-ups", k.urgentCount||0,    "danger","Calls needing same-day action") +
+    alertCard("Students At Risk",  k.retentionCount||0, "warn",  "Showing signs of dropping out") +
+    alertCard("Strong Calls",      k.strongCount||0,    "ok",    "High quality calls this period");
 
-  // Monthly trend
-  var monthMap = {};
-  calls.forEach(function(c) {
-    if (!c.dateIso) return;
-    var mk = c.dateIso.slice(0, 7);
-    if (!monthMap[mk]) monthMap[mk] = { hot:0, total:0, scoreSum:0, scoreCnt:0, avgScore:0 };
-    monthMap[mk].total++;
-    if ((c.leadIntent || "") === "Hot") monthMap[mk].hot++;
-    if ((c.spScore || 0) > 0) { monthMap[mk].scoreSum += c.spScore; monthMap[mk].scoreCnt++; }
-    monthMap[mk].avgScore = monthMap[mk].scoreCnt ? parseFloat((monthMap[mk].scoreSum / monthMap[mk].scoreCnt).toFixed(1)) : 0;
+  // Monthly trend — use pre-aggregated backend data
+  var mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var mLabels = mt.map(function(m) {
+    var p = m.month.split("-"); return mNames[parseInt(p[1],10)-1]+" "+p[0].slice(2);
   });
-  var mKeys   = Object.keys(monthMap).sort();
-  var mNames  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  var mLabels = mKeys.map(function(k2){ var p = k2.split("-"); return mNames[parseInt(p[1], 10) - 1] + " " + p[0].slice(2); });
-  document.getElementById("trendAnalyticsSub").textContent = mLabels.length >= 2
-    ? "Total calls (bars) vs avg score (line) · " + mLabels[0] + " – " + mLabels[mLabels.length - 1]
-    : "Total calls (bars) vs average score (line)";
-
-  if (mKeys.length) {
-    destroyChart("analyticsMonthChart");
-    _charts.analyticsMonthChart = new Chart(document.getElementById("analyticsMonthChart").getContext("2d"), {
+  if (mLabels.length >= 2) {
+    document.getElementById("monthTrendSub").textContent =
+      "Total calls (bars) vs avg score (line) · " + mLabels[0] + " – " + mLabels[mLabels.length-1];
+  }
+  if (mt.length) {
+    destroyChart("monthChart");
+    _charts.monthChart = new Chart(document.getElementById("monthChart").getContext("2d"), {
       type:"line",
       data:{
         labels: mLabels,
         datasets:[
-          { label:"Calls",     data:mKeys.map(function(k2){ return monthMap[k2].total; }),    backgroundColor:"rgba(208,38,26,.08)", borderColor:"#D0261A", borderWidth:2, fill:true, tension:.35, yAxisID:"y" },
-          { label:"Avg Score", data:mKeys.map(function(k2){ return monthMap[k2].avgScore; }), borderColor:"rgba(34,197,94,.9)", borderWidth:2, fill:false, tension:.35, pointRadius:3, yAxisID:"y2" }
+          { label:"Calls",     data:mt.map(function(m){return m.total;}),    backgroundColor:"rgba(208,38,26,.07)", borderColor:"#D0261A",  borderWidth:2, fill:true, tension:.35, yAxisID:"y" },
+          { label:"Avg Score", data:mt.map(function(m){return m.avgScore;}), borderColor:"rgba(22,163,74,.85)",    borderWidth:2, fill:false, tension:.35, pointRadius:3, yAxisID:"y2" }
         ]
       },
       options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{labels:{color:"#999490",font:{size:11}}}},
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:"#999",font:{size:11}}}},
         scales:{
-          y:  { ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} },
-          y2: { position:"right", min:0, max:10, ticks:{color:"rgba(34,197,94,.7)",font:{size:10}}, grid:{drawOnChartArea:false} },
-          x:  { ticks:{color:"#999490",font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8}, grid:{display:false} }
+          y: {ticks:{color:"#999",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}},
+          y2:{position:"right",min:0,max:10,ticks:{color:"rgba(22,163,74,.7)",font:{size:10}},grid:{drawOnChartArea:false}},
+          x: {ticks:{color:"#999",font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8},grid:{display:false}}
         }
       }
     });
   }
 
-  // Day of Week
-  var dowMap = {0:{sum:0,cnt:0},1:{sum:0,cnt:0},2:{sum:0,cnt:0},3:{sum:0,cnt:0},4:{sum:0,cnt:0},5:{sum:0,cnt:0},6:{sum:0,cnt:0}};
-  calls.forEach(function(c) {
-    if (!c.dateIso || !(c.spScore > 0)) return;
-    try { var d = new Date(c.dateIso + "T12:00:00"); dowMap[d.getDay()].sum += c.spScore; dowMap[d.getDay()].cnt++; } catch(e) {}
-  });
-  var dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], maxAvg = 0;
-  for (var d = 0; d < 7; d++) { if (dowMap[d].cnt > 0) { var a = dowMap[d].sum / dowMap[d].cnt; if (a > maxAvg) maxAvg = a; } }
-  var dowHtml = "";
-  for (var d2 = 0; d2 < 7; d2++) {
-    var avg2 = dowMap[d2].cnt > 0 ? parseFloat((dowMap[d2].sum / dowMap[d2].cnt).toFixed(1)) : 0;
-    var bw   = dowMap[d2].cnt > 0 ? Math.round(avg2 / (maxAvg || 10) * 100) : 0;
-    var col  = avg2 >= 7 ? "#22c55e" : avg2 >= 5 ? "#f59e0b" : avg2 > 0 ? "#D0261A" : "#e8e4e0";
-    dowHtml += '<div class="dow-row"><div class="dow-label">' + dayNames[d2] + '</div><div class="dow-bar-bg"><div class="dow-bar-fill" style="width:' + bw + '%;background:' + col + '"></div></div><div class="dow-pct">' + (dowMap[d2].cnt > 0 ? avg2 + "/10" : "—") + '</div></div>';
-  }
-  document.getElementById("dowChart").innerHTML = dowHtml;
+  // DOW — use pre-aggregated backend data
+  var dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var maxAvg   = Math.max.apply(null, dow.map(function(d){return d.avgScore;}));
+  document.getElementById("dowChart").innerHTML = dow.map(function(d) {
+    var bw  = d.cnt > 0 ? Math.round(d.avgScore / (maxAvg||10) * 100) : 0;
+    var col = d.avgScore >= 7 ? "#22c55e" : d.avgScore >= 5 ? "#f59e0b" : d.avgScore > 0 ? "#D0261A" : "#e8e3dd";
+    return '<div class="dow-row">' +
+      '<div class="dow-label">' + esc(dayNames[d.day]) + '</div>' +
+      '<div class="dow-bg"><div class="dow-fill" style="width:'+bw+'%;background:'+col+'"></div></div>' +
+      '<div class="dow-pct">' + (d.cnt>0 ? d.avgScore+"/10" : "—") + '</div>' +
+    '</div>';
+  }).join("");
 
   // SP comparison
-  var maxCalls = Math.max.apply(null, sps.map(function(s){ return s.totalCalls || 0; }).concat([1]));
-  document.getElementById("spCompareChart").innerHTML = sps.map(function(sp) {
-    var bw  = Math.round((sp.totalCalls || 0) / maxCalls * 100);
-    var sc  = sp.avgScore || 0;
-    var cls = sc >= 7 ? "good" : sc >= 5 ? "warn" : "bad";
-    return '<div class="batch-compare-row">' +
-      '<div class="batch-compare-label" title="' + esc(sp.name || "") + '">' + esc(sp.name || "?") + '</div>' +
-      '<div class="batch-compare-bar-bg"><div class="batch-compare-bar-fill" style="width:' + bw + '%;background:' + (sc >= 7 ? "#22c55e" : sc >= 5 ? "#f59e0b" : "#D0261A") + '"></div></div>' +
-      '<div class="batch-compare-pct ' + cls + '">' + sc + '</div>' +
-      '<div class="batch-compare-cnt">' + (sp.totalCalls || 0) + ' calls</div>' +
+  var maxCalls = Math.max.apply(null, sps.map(function(s){return s.totalCalls||0;}).concat([1]));
+  document.getElementById("spCompare").innerHTML = sps.map(function(sp) {
+    var bw  = Math.round((sp.totalCalls||0) / maxCalls * 100);
+    var sc  = sp.avgScore||0;
+    var col = sc>=7?"#22c55e":sc>=5?"#f59e0b":"#D0261A";
+    var scCls = sc>=7?"good":sc>=5?"warn":"bad";
+    return '<div class="compare-row">' +
+      '<div class="compare-label" title="'+esc(sp.name||"")+'">'+esc(sp.name||"?")+' </div>' +
+      '<div class="compare-bg"><div class="compare-fill" style="width:'+bw+'%;background:'+col+'"></div></div>' +
+      '<div class="compare-score '+scCls+'">'+sc+'</div>' +
+      '<div class="compare-cnt">'+(sp.totalCalls||0)+' calls</div>' +
     '</div>';
-  }).join("") || '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No data yet</div>';
+  }).join("") || '<div style="text-align:center;padding:24px;color:var(--ink3)">No data yet</div>';
 
-  // Score distribution donut
-  var scoreRanges = [{label:"8–10 Excellent",lo:8,hi:11},{label:"6–7 Good",lo:6,hi:8},{label:"4–5 Average",lo:4,hi:6},{label:"1–3 Poor",lo:1,hi:4}];
-  var scoreCounts = scoreRanges.map(function(r){ return calls.filter(function(c){ return (c.spScore || 0) >= r.lo && (c.spScore || 0) < r.hi; }).length; });
-  mkDoughnut("scoreDistChart", scoreRanges.map(function(r){ return r.label; }), scoreCounts, ["rgba(34,197,94,.85)","rgba(59,130,246,.85)","rgba(245,158,11,.85)","rgba(208,38,26,.85)"]);
-  var scoreColors = ["#22c55e","#3b82f6","#f59e0b","#D0261A"];
-  document.getElementById("scoreDistLegend").innerHTML = scoreRanges.map(function(r, i) {
-    return '<div class="donut-legend-item"><div class="donut-legend-dot" style="background:' + scoreColors[i] + '"></div><span class="donut-legend-label">' + esc(r.label) + '</span><span class="donut-legend-val">' + scoreCounts[i] + '</span></div>';
+  // Score distribution — use pre-aggregated backend data
+  var sdColors = ["rgba(22,163,74,.85)","rgba(37,99,235,.85)","rgba(217,119,6,.85)","rgba(208,38,26,.85)"];
+  var sdHexes  = ["#22c55e","#3b82f6","#f59e0b","#D0261A"];
+  mkDoughnut("scoreDistChart",
+    sd.map(function(r){return r.range+" "+r.label;}),
+    sd.map(function(r){return r.count;}),
+    sdColors);
+  document.getElementById("scoreDistLeg").innerHTML = sd.map(function(r,i) {
+    return '<div class="donut-row"><div class="legend-dot" style="background:'+sdHexes[i]+'"></div><span class="donut-lbl">'+esc(r.range+" "+r.label)+'</span><span class="donut-val">'+r.count+'</span></div>';
   }).join("");
 
   // Spotlights
-  var eligible = sps.filter(function(s){ return (s.totalCalls || 0) >= 3; });
-  var byHot    = eligible.slice().sort(function(a, b){ return ((b.hot || 0) / Math.max(b.totalCalls || 1, 1)) - ((a.hot || 0) / Math.max(a.totalCalls || 1, 1)); }).slice(0, 8);
-  var byCoach  = eligible.slice().sort(function(a, b){ return (a.avgScore || 0) - (b.avgScore || 0); }).slice(0, 8);
+  var eligible = sps.filter(function(s){ return (s.totalCalls||0)>=3; });
+  var byHot    = eligible.slice().sort(function(a,b){return ((b.hot||0)/Math.max(b.totalCalls||1,1))-((a.hot||0)/Math.max(a.totalCalls||1,1));}).slice(0,8);
+  var byCoach  = eligible.slice().sort(function(a,b){return (a.avgScore||0)-(b.avgScore||0);}).slice(0,8);
   document.getElementById("topBadge").textContent   = eligible.length + " salespeople";
   document.getElementById("coachBadge").textContent = byCoach.length + " to coach";
-  renderSpotlight("topList",   byHot,   function(s){ return parseFloat(((s.hot || 0) / Math.max(s.totalCalls || 1, 1) * 100).toFixed(1)) + "%"; });
-  renderSpotlight("coachList", byCoach, function(s){ return (s.avgScore || 0) + "/10"; });
+  renderSpotlight("topList",   byHot,   function(s){ return parseFloat(((s.hot||0)/Math.max(s.totalCalls||1,1)*100).toFixed(1))+"%"; });
+  renderSpotlight("coachList", byCoach, function(s){ return (s.avgScore||0)+"/10"; });
 }
 
-// FIX: spotlight rows use data-name attribute; delegated handler below.
 function renderSpotlight(elId, data, valFn) {
   var el = document.getElementById(elId);
   if (!data.length) {
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px">No data yet (need ≥3 calls per person)</div>';
-    el.onclick = null;
-    return;
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--ink3)">No data (need ≥3 calls per person)</div>';
+    el.onclick = null; return;
   }
-  el.innerHTML = data.map(function(sp, i) {
+  el.innerHTML = data.map(function(sp,i) {
     var val = valFn(sp), num = parseFloat(val);
-    var cls = num >= 70 || num >= 7 ? "good" : num >= 40 || num >= 5 ? "warn" : "bad";
-    return '<div class="spotlight-row" data-name="' + esc(sp.name || "") + '">' +
-      '<div class="spotlight-rank">' + (i + 1) + '</div>' +
-      '<div style="flex:1;min-width:0"><div class="spotlight-name">' + esc(sp.name || "?") + '</div><div class="spotlight-meta">' + (sp.totalCalls || 0) + ' total calls</div></div>' +
-      '<div class="spotlight-bar"><div class="spotlight-bar-fill ' + cls + '" style="width:' + Math.min(num, 100) + '%"></div></div>' +
-      '<div class="spotlight-pct ' + cls + '">' + val + '</div>' +
+    var cls = num>=70||num>=7 ? "good" : num>=40||num>=5 ? "warn" : "bad";
+    return '<div class="spot-row" role="listitem" data-name="'+esc(sp.name||"")+'">'+
+      '<div class="spot-rank">'+(i+1)+'</div>'+
+      '<div style="flex:1;min-width:0"><div class="spot-name">'+esc(sp.name||"?")+'</div><div class="spot-meta">'+(sp.totalCalls||0)+' calls</div></div>'+
+      '<div class="spot-bar"><div class="spot-bar-fill '+cls+'" style="width:'+Math.min(num,100)+'%"></div></div>'+
+      '<div class="spot-val '+cls+'">'+esc(val)+'</div>'+
     '</div>';
   }).join("");
   el.onclick = function(e) {
-    var row = e.target.closest(".spotlight-row[data-name]");
+    var row = e.target.closest(".spot-row[data-name]");
     if (row) showSpDetail(row.getAttribute("data-name"));
   };
 }
 
 /* ═══════════════════════════════════════════════════════
    TAB SWITCHING
+   FIX: use data-tab attribute instead of fragile onclick
+   string-matching.
 ═══════════════════════════════════════════════════════ */
-function switchTabById(id) {
-  var btn = null;
-  document.querySelectorAll(".tab-btn").forEach(function(b) {
-    if (b.getAttribute("onclick") && b.getAttribute("onclick").indexOf("'" + id + "'") !== -1) btn = b;
-  });
+function switchTabByName(id) {
+  var btn = document.querySelector('.tab-btn[data-tab="' + id + '"]');
   switchTab(id, btn);
 }
 
 function switchTab(id, btn) {
-  document.querySelectorAll(".tab-panel").forEach(function(p){ p.className = "tab-panel"; });
-  document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("active"); });
-  var panel = document.getElementById("tab-" + id);
-  if (panel) panel.className = "tab-panel active";
-  if (btn) btn.classList.add("active");
-  else document.querySelectorAll(".tab-btn").forEach(function(b) {
-    if (b.getAttribute("onclick") && b.getAttribute("onclick").indexOf("'" + id + "'") !== -1) b.classList.add("active");
+  document.querySelectorAll(".tab-panel").forEach(function(p){ p.className="tab-panel"; });
+  document.querySelectorAll(".tab-btn").forEach(function(b){
+    b.classList.remove("active");
+    b.setAttribute("aria-selected","false");
   });
-  setTimeout(function() {
+  var panel = document.getElementById("tab-"+id);
+  if (panel) panel.className = "tab-panel active";
+  if (btn) { btn.classList.add("active"); btn.setAttribute("aria-selected","true"); }
+  setTimeout(function(){
     Object.values(_charts).forEach(function(c){ try{ c.resize(); }catch(e){} });
     if (_spChartInst) try{ _spChartInst.resize(); }catch(e){}
   }, 50);
@@ -1413,10 +1501,10 @@ function switchTab(id, btn) {
 function barOpts(stacked) {
   return {
     responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ labels:{ color:"#999490", boxWidth:10, font:{size:11} } } },
+    plugins:{ legend:{ labels:{ color:"#888", boxWidth:10, font:{size:11,family:"'DM Sans',sans-serif"} } } },
     scales:{
-      x:{ stacked:!!stacked, ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} },
-      y:{ stacked:!!stacked, ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} }
+      x:{ stacked:!!stacked, ticks:{color:"#999",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} },
+      y:{ stacked:!!stacked, ticks:{color:"#999",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} }
     }
   };
 }
@@ -1424,15 +1512,15 @@ function barOpts(stacked) {
 function mkDoughnut(id, labels, data, colors) {
   destroyChart(id);
   var el = document.getElementById(id);
-  if (!el) return;
+  if (!el) { console.warn("mkDoughnut: canvas #"+id+" not found"); return; }
   var f = { labels:[], data:[], colors:[] };
-  labels.forEach(function(l, i){ if (data[i] > 0) { f.labels.push(l); f.data.push(data[i]); f.colors.push(colors[i]); } });
+  labels.forEach(function(l,i){ if ((data[i]||0)>0){ f.labels.push(l); f.data.push(data[i]); f.colors.push(colors[i]); } });
   if (!f.data.length) f = { labels:labels, data:data, colors:colors };
   _charts[id] = new Chart(el.getContext("2d"), {
     type:"doughnut",
-    data:{ labels:f.labels, datasets:[{ data:f.data, backgroundColor:f.colors, borderWidth:2, borderColor:"#ffffff", hoverOffset:5 }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:"65%",
-      plugins:{ legend:{ position:"right", labels:{ color:"#999490", boxWidth:10, font:{size:11} } } }
+    data:{ labels:f.labels, datasets:[{ data:f.data, backgroundColor:f.colors, borderWidth:2, borderColor:"#fff", hoverOffset:5 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:"66%",
+      plugins:{ legend:{ position:"right", labels:{ color:"#888", boxWidth:10, font:{size:11,family:"'DM Sans',sans-serif"} } } }
     }
   });
 }
@@ -1442,81 +1530,90 @@ function destroyChart(id) {
 }
 
 function akpiCard(label, val, cls, sub) {
-  return '<div class="akpi-card"><div class="akpi-label">' + esc(label) + '</div><div class="akpi-val' + (cls ? ' ' + cls : '') + '">' + esc(String(val || 0)) + '</div><div class="akpi-sub">' + esc(sub || "") + '</div></div>';
+  return '<div class="akpi-card"><div class="akpi-label">'+esc(label)+'</div><div class="akpi-val'+(cls?" "+cls:"")+'">'+esc(String(val||0))+'</div><div class="akpi-sub">'+esc(sub||"")+'</div></div>';
 }
-function alertSCard(label, val, type, sub) {
-  return '<div class="alert-sum-card ' + type + '"><div class="alert-sum-num">' + val + '</div><div class="alert-sum-label">' + esc(label) + '</div><div class="alert-sum-sub">' + esc(sub || "") + '</div></div>';
+function alertCard(label, val, type, sub) {
+  return '<div class="alert-card '+type+'"><div class="alert-num">'+val+'</div><div class="alert-lbl">'+esc(label)+'</div><div class="alert-sub">'+esc(sub||"")+'</div></div>';
 }
 
 /* ═══════════════════════════════════════════════════════
    BADGE HELPERS
 ═══════════════════════════════════════════════════════ */
 function typeBadge(v) {
-  var m = {"New Lead":"new","Follow-up":"follow","Fee Collection":"fee","Batch Info":"batch"};
-  return v ? '<span class="badge badge-' + (m[v] || "std") + '">' + esc(v) + '</span>' : '<span class="badge badge-std">—</span>';
+  var m={"New Lead":"new","Follow-up":"follow","Fee Collection":"fee","Batch Info":"batch"};
+  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
 }
 function intentBadge(v) {
-  var m = {"Hot":"hot","Warm":"warm","Cold":"cold"};
-  return v ? '<span class="badge badge-' + (m[v] || "std") + '">' + esc(v) + '</span>' : '<span class="badge badge-std">—</span>';
+  var m={"Hot":"hot","Warm":"warm","Cold":"cold"};
+  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
 }
 function outcomeBadge(v) {
-  var m = {"Interested":"int","Needs Follow-up":"nfu","Not Interested":"nint","Call Disconnected":"disc","Information Only":"std"};
-  return v ? '<span class="badge badge-' + (m[v] || "std") + '">' + esc(v) + '</span>' : '<span class="badge badge-std">—</span>';
+  var m={"Interested":"int","Needs Follow-up":"nfu","Not Interested":"nint","Call Disconnected":"disc","Information Only":"std"};
+  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
 }
 function priBadge(v) {
-  var m = {"High":"urgent","Medium":"nfu","Low":"disc"};
-  return v ? '<span class="badge badge-' + (m[v] || "std") + '">' + esc(v) + '</span>' : '<span class="badge badge-std">—</span>';
+  var m={"High":"urgent","Medium":"nfu","Low":"disc"};
+  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
 }
 function flagBadge(v) {
-  if (!v || v === "STANDARD") return '<span class="badge badge-std">Standard</span>';
-  var mc = {URGENT_FOLLOWUP:"urgent",RETENTION_RISK:"ret",STRONG_CALL:"strong",WEAK_CALL:"weak"};
-  var ml = {URGENT_FOLLOWUP:"Urgent",RETENTION_RISK:"At Risk",STRONG_CALL:"Strong",WEAK_CALL:"Weak"};
-  return '<span class="badge badge-' + (mc[v] || "std") + '">' + (ml[v] || "Standard") + '</span>';
+  if (!v||v==="STANDARD") return '<span class="badge badge-std">Standard</span>';
+  var mc={URGENT_FOLLOWUP:"urgent",RETENTION_RISK:"ret",STRONG_CALL:"strong",WEAK_CALL:"weak"};
+  var ml={URGENT_FOLLOWUP:"Urgent",RETENTION_RISK:"At Risk",STRONG_CALL:"Strong",WEAK_CALL:"Weak"};
+  return '<span class="badge badge-'+(mc[v]||"std")+'">'+(ml[v]||"Standard")+'</span>';
 }
 function scorePill(s) {
-  var n = parseFloat(s) || 0;
-  if (n <= 0) return '<span class="score-pill score-na">—</span>';
-  var cls = n >= 7 ? "score-hi" : n >= 5 ? "score-mid" : "score-lo";
-  return '<span class="score-pill ' + cls + '">' + n + '</span>';
+  var n = parseFloat(s)||0;
+  if (n<=0) return '<span class="score-pill score-na">—</span>';
+  var cls = n>=7?"score-hi":n>=5?"score-mid":"score-lo";
+  return '<span class="score-pill '+cls+'" title="Score: '+n+'/10">'+n+'</span>';
 }
-function fmtDate(iso) {
-  if (!iso) return "—";
-  try { var d = new Date(iso + "T12:00:00"); return d.toLocaleDateString("en-IN", {day:"numeric", month:"short"}); } catch(e) { return iso; }
-}
-function countBy(arr, key, val) { return (arr || []).filter(function(c){ return (c[key] || "") === (val || ""); }).length; }
-function uniq(arr) { var s = {}; return (arr || []).filter(function(v){ if (s[v]) return false; s[v] = true; return true; }); }
-function esc(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 /* ═══════════════════════════════════════════════════════
-   JSONP — 30s timeout with fired guard
-   FIX: Uses a sequential counter (_jsonpSeq) instead of
-   Date.now()+random() to guarantee unique callback names
-   even when two requests fire within the same millisecond.
+   UTILS
+═══════════════════════════════════════════════════════ */
+function fmtDate(iso) {
+  if (!iso) return "—";
+  try { var d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("en-IN",{day:"numeric",month:"short"}); }
+  catch(e){ return iso; }
+}
+function uniq(arr) {
+  var s={}; return (arr||[]).filter(function(v){ if(s[v])return false; s[v]=true; return true; });
+}
+// FIX: esc() now also encodes single-quotes for maximum robustness
+function esc(s) {
+  return String(s==null?"":s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+/* ═══════════════════════════════════════════════════════
+   JSONP
+   Sequential counter guarantees unique callback names.
+   30s timeout. Fired-guard prevents double-invoke.
 ═══════════════════════════════════════════════════════ */
 function jsonp(url, cb) {
-  var id    = "cb_" + (++_jsonpSeq);
+  var id    = "jcb_" + (++_jsonpSeq);
   var t     = null;
   var fired = false;
 
   function cleanup() {
     if (t) { clearTimeout(t); t = null; }
     var s = document.getElementById(id);
-    if (s) { try { document.body.removeChild(s); } catch(e) {} }
-    try { delete window[id]; } catch(e) { window[id] = undefined; }
+    if (s) { try{ document.body.removeChild(s); }catch(e){} }
+    try{ delete window[id]; }catch(e){ window[id]=undefined; }
   }
 
   window[id] = function(data) {
     if (fired) return;
-    fired = true;
-    cleanup();
-    cb(data);
+    fired = true; cleanup(); cb(data);
   };
 
   t = setTimeout(function() {
     if (fired) return;
-    fired = true;
-    cleanup();
-    cb(null);
+    fired = true; cleanup(); cb(null);
   }, 30000);
 
   var s  = document.createElement("script");
@@ -1524,9 +1621,7 @@ function jsonp(url, cb) {
   s.src  = url + "&callback=" + id;
   s.onerror = function() {
     if (fired) return;
-    fired = true;
-    cleanup();
-    cb(null);
+    fired = true; cleanup(); cb(null);
   };
   document.body.appendChild(s);
 }
