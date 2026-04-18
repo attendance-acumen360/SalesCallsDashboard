@@ -61,8 +61,7 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 .topbar-subtitle { font-size:9px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.3); }
 .topbar-divider { width:1px; height:24px; background:rgba(255,255,255,.1); flex-shrink:0; }
 .topbar-alerts { display:flex; gap:6px; align-items:center; flex:1; min-width:0; overflow:hidden; }
-.alert-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:.03em; white-space:nowrap; cursor:pointer; transition:opacity .15s,transform .1s; flex-shrink:0; }
-.alert-pill:hover { opacity:.8; transform:scale(.97); }
+.alert-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:.03em; white-space:nowrap; cursor:default; flex-shrink:0; }
 .alert-pill.urgent { background:rgba(208,38,26,.18); border:1px solid rgba(208,38,26,.35); color:#ff6b6b; }
 .alert-pill.retention { background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.3); color:var(--amber); }
 .alert-pill.weak { background:rgba(100,116,139,.15); border:1px solid rgba(100,116,139,.3); color:#94a3b8; }
@@ -86,22 +85,30 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 /* ══ PAGE ══ */
 .page { max-width:1240px; margin:0 auto; padding:20px 20px 60px; }
 
+/* ══ SECTION INTRO — helps non-technical users understand each section ══ */
+.section-intro { background:var(--white); border-radius:12px; border:1px solid var(--border); border-left:3px solid var(--red); padding:12px 16px; margin-bottom:14px; display:flex; align-items:flex-start; gap:10px; }
+.section-intro-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.section-intro-text strong { font-size:13px; font-weight:700; color:var(--black); display:block; margin-bottom:2px; }
+.section-intro-text span { font-size:12px; color:var(--gray); line-height:1.5; }
+
 /* ══ STATS ROW ══ */
 .stats-row { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:16px; }
-.stat-card { background:var(--white); border-radius:12px; padding:16px 12px; box-shadow:var(--card-sh); border:1px solid var(--border); text-align:center; transition:transform .15s,box-shadow .15s; cursor:default; }
+.stat-card { background:var(--white); border-radius:12px; padding:16px 12px; box-shadow:var(--card-sh); border:1px solid var(--border); text-align:center; transition:transform .15s,box-shadow .15s; cursor:default; position:relative; }
 .stat-card:hover { transform:translateY(-2px); box-shadow:var(--card-sh-hover); }
 .stat-val { font-family:'Bebas Neue',sans-serif; font-size:34px; letter-spacing:.02em; line-height:1; margin-bottom:4px; color:var(--black); }
 .stat-val.red { color:var(--red); }
 .stat-val.green { color:var(--green); }
 .stat-val.amber { color:var(--amber); }
 .stat-label { font-size:9px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--gray); }
+.stat-hint { font-size:10px; color:var(--gray); margin-top:4px; font-style:italic; }
 
 /* ══ TABS ══ */
 .tab-nav { display:flex; gap:4px; background:var(--white); border-radius:12px; padding:4px; box-shadow:var(--card-sh); border:1px solid var(--border); margin-bottom:16px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
 .tab-nav::-webkit-scrollbar { height:0; }
-.tab-btn { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--gray); background:none; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; transition:all .15s; white-space:nowrap; flex-shrink:0; }
+.tab-btn { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--gray); background:none; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; transition:all .15s; white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:5px; }
 .tab-btn.active { background:var(--black); color:var(--white); }
 .tab-btn:not(.active):hover { background:var(--off); color:var(--black); }
+.tab-icon { font-size:13px; }
 .tab-panel { display:none; animation:fadeUp .3s cubic-bezier(.22,1,.36,1) both; }
 .tab-panel.active { display:block; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
@@ -121,6 +128,7 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 .data-table { width:100%; border-collapse:collapse; }
 .data-table thead tr { background:var(--black); }
 .data-table thead th { padding:10px 12px; font-size:9px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.5); text-align:left; white-space:nowrap; }
+.data-table thead th .th-hint { font-size:8px; font-weight:400; letter-spacing:0; text-transform:none; color:rgba(255,255,255,.3); display:block; margin-top:1px; }
 .data-table tbody tr.data-row { border-bottom:1px solid var(--border); transition:background .1s; cursor:pointer; }
 .data-table tbody tr.data-row:last-of-type { border-bottom:none; }
 .data-table tbody tr.data-row:hover { background:#fdf4f3; }
@@ -138,11 +146,13 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 .expand-item.full { grid-column:1/-1; }
 .expand-item.feedback p { color:var(--red-dk); font-style:italic; background:rgba(208,38,26,.04); border-left:2px solid var(--red); padding:6px 10px; border-radius:0 6px 6px 0; }
 .expand-chevron { display:inline-block; transition:transform .2s; font-size:10px; color:var(--gray); }
+.expand-hint { font-size:10px; color:rgba(208,38,26,.6); margin-left:4px; }
 .data-row.expanded .expand-chevron { transform:rotate(90deg); }
 
 /* ══ FILTER BAR ══ */
 .filter-bar { background:var(--white); border-radius:12px; padding:10px 14px; box-shadow:var(--card-sh); border:1px solid var(--border); display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:12px; }
-.filter-label { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--gray); }
+.filter-group { display:flex; align-items:center; gap:5px; }
+.filter-label { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--gray); white-space:nowrap; }
 .filter-select { padding:5px 10px; border:1.5px solid var(--border); border-radius:8px; font-family:'Outfit',sans-serif; font-size:12px; font-weight:500; color:var(--black); background:var(--off); cursor:pointer; transition:border-color .15s; }
 .filter-select:focus { border-color:var(--red); }
 .search-input { flex:1; min-width:140px; padding:5px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:'Outfit',sans-serif; font-size:12px; color:var(--black); background:var(--off); }
@@ -198,29 +208,9 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 .sp-sparkline { display:flex; align-items:flex-end; gap:2px; height:28px; margin-top:12px; padding-top:4px; border-top:1px solid var(--border); }
 .sp-spark-bar { flex:1; background:rgba(208,38,26,.2); border-radius:2px 2px 0 0; min-height:2px; }
 .sp-spark-bar.today { background:var(--red); }
+.sp-spark-label { font-size:9px; color:var(--gray); margin-top:5px; text-align:center; letter-spacing:.05em; }
 .sp-badges { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
-
-/* ══ ACTION QUEUE ══ */
-.alert-section { margin-bottom:24px; }
-.alert-section-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:.04em; color:var(--black); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-.alert-section-title .dot { width:8px; height:8px; border-radius:50%; background:currentColor; flex-shrink:0; }
-.alert-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
-.alert-section-count { font-size:11px; font-weight:600; background:var(--off); border:1px solid var(--border); border-radius:20px; padding:2px 8px; color:var(--gray); font-family:'Outfit',sans-serif; letter-spacing:0; flex-shrink:0; }
-.alert-cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
-.alert-card { background:var(--white); border-radius:12px; padding:14px 16px; box-shadow:var(--card-sh); border:1px solid var(--border); border-left:3px solid transparent; transition:transform .15s,box-shadow .15s; }
-.alert-card:hover { transform:translateY(-1px); box-shadow:var(--card-sh-hover); }
-.alert-card.urgent-card { border-left-color:var(--red); }
-.alert-card.ret-card    { border-left-color:var(--amber); }
-.alert-card.fee-card    { border-left-color:var(--green); }
-.alert-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; gap:8px; }
-.alert-card-name { font-weight:700; font-size:13px; }
-.alert-card-date { font-size:10px; color:var(--gray); white-space:nowrap; flex-shrink:0; }
-.alert-card-type { font-size:10px; color:var(--gray); margin-bottom:5px; }
-.alert-card-action { font-size:12px; color:var(--blue); line-height:1.5; margin-bottom:6px; font-weight:500; }
-.alert-card-summary { font-size:11px; color:var(--gray); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.empty-state { text-align:center; padding:32px 20px; background:var(--white); border-radius:12px; border:1px solid var(--border); }
-.empty-state-icon { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--green); margin-bottom:4px; }
-.empty-state p { font-size:12px; color:var(--gray); }
+.sp-click-hint { font-size:10px; color:rgba(208,38,26,.5); text-align:center; margin-top:8px; letter-spacing:.02em; }
 
 /* ══ LEADERBOARD ══ */
 .leaderboard-list { display:flex; flex-direction:column; gap:7px; }
@@ -301,6 +291,11 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 .obj-heat-table td:first-child { text-align:left; font-weight:600; color:var(--black); border:none; border-bottom:1px solid var(--border); background:var(--white); white-space:nowrap; }
 .obj-heat-table tr:last-child td { border-bottom:none; }
 
+/* ══ LEGEND BOX ══ */
+.legend-box { background:rgba(208,38,26,.04); border:1px solid rgba(208,38,26,.12); border-radius:8px; padding:10px 14px; margin-bottom:12px; display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; }
+.legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--gray); }
+.legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
 /* ══ RESPONSIVE ══ */
 @media (max-width:1024px) { .charts-grid-3 { grid-template-columns:1fr 1fr; } .charts-grid-12 { grid-template-columns:1fr; } }
 @media (max-width:900px) {
@@ -312,7 +307,7 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 }
 @media (max-width:640px) {
   .stats-row,.analytics-kpi-row { grid-template-columns:repeat(2,1fr); }
-  .alert-summary-grid,.alert-cards-grid { grid-template-columns:1fr; }
+  .alert-summary-grid { grid-template-columns:1fr; }
   .page { padding:12px 12px 48px; }
   .tab-btn { font-size:10px; padding:7px 10px; }
   .topbar { padding:0 12px; gap:8px; }
@@ -386,95 +381,145 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 
 <!-- DASHBOARD -->
 <div class="page" id="dashPage" style="display:none">
+
+  <!-- Summary KPI cards at the very top -->
   <div class="stats-row" id="statsRow"></div>
 
+  <!-- Tab Navigation -->
   <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
-    <button class="tab-btn"        onclick="switchTab('calls',this)">All Calls</button>
-    <button class="tab-btn"        onclick="switchTab('team',this)">Team</button>
-    <button class="tab-btn"        onclick="switchTab('actions',this)">Action Queue</button>
-    <button class="tab-btn"        onclick="switchTab('objections',this)">Objections</button>
-    <button class="tab-btn"        onclick="switchTab('analytics',this)">Analytics</button>
+    <button class="tab-btn active" onclick="switchTab('overview',this)"><span class="tab-icon">📊</span> Overview</button>
+    <button class="tab-btn"        onclick="switchTab('calls',this)"><span class="tab-icon">📞</span> All Calls</button>
+    <button class="tab-btn"        onclick="switchTab('team',this)"><span class="tab-icon">👥</span> Team</button>
+    <button class="tab-btn"        onclick="switchTab('objections',this)"><span class="tab-icon">🔍</span> Objections</button>
+    <button class="tab-btn"        onclick="switchTab('analytics',this)"><span class="tab-icon">📈</span> Analytics</button>
   </div>
 
-  <!-- OVERVIEW -->
+  <!-- ═══ OVERVIEW TAB ═══ -->
   <div class="tab-panel active" id="tab-overview">
+    <div class="section-intro">
+      <div class="section-intro-icon">📊</div>
+      <div class="section-intro-text">
+        <strong>Dashboard Overview</strong>
+        <span>A quick snapshot of how your team is performing — call volume trends, lead quality breakdown, and this week's top performers. All data is updated automatically.</span>
+      </div>
+    </div>
     <div class="charts-grid-3">
       <div class="chart-card">
         <div class="chart-card-title">Daily Call Volume</div>
-        <div class="chart-card-sub">Last 14 days</div>
+        <div class="chart-card-sub">How many calls were made each day over the last 14 days, split by call type</div>
         <div style="position:relative;height:220px"><canvas id="trendChart"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Call Type Mix</div>
-        <div class="chart-card-sub">All time</div>
+        <div class="chart-card-sub">Proportion of New Leads, Follow-ups, Fee Collections &amp; Batch Info</div>
         <div style="position:relative;height:180px"><canvas id="typeChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Lead Intent Split</div>
-        <div class="chart-card-sub">All time</div>
+        <div class="chart-card-title">Lead Quality (Intent)</div>
+        <div class="chart-card-sub">Hot = ready to buy · Warm = interested · Cold = unlikely</div>
         <div style="position:relative;height:180px"><canvas id="intentChart"></canvas></div>
       </div>
     </div>
     <div class="charts-grid-2">
       <div class="chart-card">
         <div class="chart-card-title">Weekly Volume &amp; Avg Score</div>
-        <div class="chart-card-sub">Last 8 weeks</div>
+        <div class="chart-card-sub">Bars = total calls per week · Red line = team's average quality score (out of 10)</div>
         <div style="position:relative;height:200px"><canvas id="weeklyChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">This Week — Leaderboard</div>
-        <div class="chart-card-sub">Mon–Sun, ranked by avg score</div>
+        <div class="chart-card-title">🏆 This Week — Leaderboard</div>
+        <div class="chart-card-sub">Ranked by average call quality score · Click a name to view their breakdown</div>
         <div class="leaderboard-list" id="leaderboardList"></div>
       </div>
     </div>
   </div>
 
-  <!-- ALL CALLS -->
+  <!-- ═══ ALL CALLS TAB ═══ -->
   <div class="tab-panel" id="tab-calls">
+    <div class="section-intro">
+      <div class="section-intro-icon">📞</div>
+      <div class="section-intro-text">
+        <strong>All Calls Log</strong>
+        <span>Every recorded call in one place. Use the filters below to search by salesperson, call type, lead quality, outcome, or priority. Click any row to expand and see the full call details.</span>
+      </div>
+    </div>
+
+    <!-- Legend to help understand badges -->
+    <div class="legend-box">
+      <span style="font-size:11px;font-weight:700;color:var(--black);margin-right:4px">Score:</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>8–10 = Excellent</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>5–7 = Average</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#D0261A"></span>1–4 = Needs Work</span>
+      <span style="margin-left:8px;font-size:11px;font-weight:700;color:var(--black)">Intent:</span>
+      <span class="legend-item"><span class="badge badge-hot" style="padding:1px 6px">Hot</span> = Very likely to buy</span>
+      <span class="legend-item"><span class="badge badge-warm" style="padding:1px 6px">Warm</span> = Still deciding</span>
+      <span class="legend-item"><span class="badge badge-cold" style="padding:1px 6px">Cold</span> = Low interest</span>
+    </div>
+
     <div class="filter-bar">
-      <span class="filter-label">Type</span>
-      <select class="filter-select" id="fType" onchange="filterCalls()">
-        <option value="">All Types</option>
-        <option>New Lead</option><option>Follow-up</option>
-        <option>Fee Collection</option><option>Batch Info</option>
-      </select>
-      <span class="filter-label">Intent</span>
-      <select class="filter-select" id="fIntent" onchange="filterCalls()">
-        <option value="">All Intent</option><option>Hot</option><option>Warm</option><option>Cold</option>
-      </select>
-      <span class="filter-label">Outcome</span>
-      <select class="filter-select" id="fOutcome" onchange="filterCalls()">
-        <option value="">All Outcomes</option>
-        <option>Interested</option><option>Needs Follow-up</option>
-        <option>Not Interested</option><option>Call Disconnected</option><option>Information Only</option>
-      </select>
-      <span class="filter-label">Person</span>
-      <select class="filter-select" id="fSP" onchange="filterCalls()">
-        <option value="">All People</option>
-      </select>
-      <span class="filter-label">Priority</span>
-      <select class="filter-select" id="fPri" onchange="filterCalls()">
-        <option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option>
-      </select>
-      <span class="filter-label">Flag</span>
-      <select class="filter-select" id="fFlag" onchange="filterCalls()">
-        <option value="">All Flags</option>
-        <option value="URGENT_FOLLOWUP">Urgent</option>
-        <option value="RETENTION_RISK">Retention Risk</option>
-        <option value="STRONG_CALL">Strong Call</option>
-        <option value="WEAK_CALL">Weak Call</option>
-      </select>
-      <input type="text" class="search-input" id="fSearch" placeholder="Search name, summary, objection…" oninput="filterCalls()">
-      <button class="clear-filters-btn" onclick="clearFilters()">Clear</button>
+      <div class="filter-group">
+        <span class="filter-label">Type</span>
+        <select class="filter-select" id="fType" onchange="filterCalls()">
+          <option value="">All Types</option>
+          <option>New Lead</option><option>Follow-up</option>
+          <option>Fee Collection</option><option>Batch Info</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Lead</span>
+        <select class="filter-select" id="fIntent" onchange="filterCalls()">
+          <option value="">All Intent</option><option>Hot</option><option>Warm</option><option>Cold</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Outcome</span>
+        <select class="filter-select" id="fOutcome" onchange="filterCalls()">
+          <option value="">All Outcomes</option>
+          <option>Interested</option><option>Needs Follow-up</option>
+          <option>Not Interested</option><option>Call Disconnected</option><option>Information Only</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Person</span>
+        <select class="filter-select" id="fSP" onchange="filterCalls()">
+          <option value="">All People</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Priority</span>
+        <select class="filter-select" id="fPri" onchange="filterCalls()">
+          <option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Flag</span>
+        <select class="filter-select" id="fFlag" onchange="filterCalls()">
+          <option value="">All Flags</option>
+          <option value="URGENT_FOLLOWUP">Urgent</option>
+          <option value="RETENTION_RISK">Retention Risk</option>
+          <option value="STRONG_CALL">Strong Call</option>
+          <option value="WEAK_CALL">Weak Call</option>
+        </select>
+      </div>
+      <input type="text" class="search-input" id="fSearch" placeholder="🔎 Search by name, summary, objection…" oninput="filterCalls()">
+      <button class="clear-filters-btn" onclick="clearFilters()">Clear All</button>
       <span class="filter-count" id="callsCount">—</span>
     </div>
     <div class="table-wrap">
       <div class="table-scroll">
         <table class="data-table">
           <thead><tr>
-            <th>Date</th><th>Salesperson</th><th>Type</th><th>Intent</th>
-            <th>Outcome</th><th>Priority</th><th>Score</th><th>Conv%</th><th>Flag</th><th>Fee</th><th></th>
+            <th>Date</th>
+            <th>Salesperson</th>
+            <th>Call Type<span class="th-hint">What was the purpose</span></th>
+            <th>Lead Intent<span class="th-hint">How interested is the student</span></th>
+            <th>Outcome<span class="th-hint">What happened at end</span></th>
+            <th>Follow-up Priority<span class="th-hint">How urgently to follow up</span></th>
+            <th>Score<span class="th-hint">Out of 10</span></th>
+            <th>Conv. Prob.<span class="th-hint">Chance of admission</span></th>
+            <th>Flag<span class="th-hint">AI-assigned quality tag</span></th>
+            <th>Fee Quoted</th>
+            <th></th>
           </tr></thead>
           <tbody id="callsTbody"></tbody>
         </table>
@@ -483,104 +528,97 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
     <div class="pagination" id="callsPagination"></div>
   </div>
 
-  <!-- TEAM -->
+  <!-- ═══ TEAM TAB ═══ -->
   <div class="tab-panel" id="tab-team">
+    <div class="section-intro">
+      <div class="section-intro-icon">👥</div>
+      <div class="section-intro-text">
+        <strong>Team Performance</strong>
+        <span>Individual breakdowns for every salesperson. The score shown is their average call quality (out of 10). The bar chart at the bottom of each card shows daily call volume for the past 14 days — today's bar is in red. Click any card to see a detailed category breakdown below.</span>
+      </div>
+    </div>
     <div class="sp-grid" id="spGrid"></div>
     <div id="spChartWrap" style="display:none">
       <div class="chart-card" style="max-width:700px">
         <div class="chart-card-title" id="spChartTitle">Salesperson breakdown</div>
-        <div class="chart-card-sub">Calls by category</div>
+        <div class="chart-card-sub">Calls by category — showing New Leads, Follow-ups, Fee Collections, Interested, Hot, Warm, Cold</div>
         <div style="position:relative;height:220px"><canvas id="spChart"></canvas></div>
       </div>
     </div>
   </div>
 
-  <!-- ACTION QUEUE -->
-  <div class="tab-panel" id="tab-actions">
-    <div class="alert-section">
-      <div class="alert-section-title" style="color:var(--red)">
-        <span class="dot"></span>Urgent Follow-ups
-        <span class="alert-section-count" id="urgentCount">0</span>
-        <span style="flex:1;height:1px;background:var(--border);display:block"></span>
-      </div>
-      <div class="alert-cards-grid" id="urgentCards"></div>
-    </div>
-    <div class="alert-section">
-      <div class="alert-section-title" style="color:var(--amber)">
-        <span class="dot"></span>Retention Risks
-        <span class="alert-section-count" id="retentionCount">0</span>
-        <span style="flex:1;height:1px;background:var(--border);display:block"></span>
-      </div>
-      <div class="alert-cards-grid" id="retentionCards"></div>
-    </div>
-    <div class="alert-section">
-      <div class="alert-section-title" style="color:var(--green)">
-        <span class="dot"></span>Fee Collection Follow-ups
-        <span class="alert-section-count" id="feeCount">0</span>
-        <span style="flex:1;height:1px;background:var(--border);display:block"></span>
-      </div>
-      <div class="alert-cards-grid" id="feeCards"></div>
-    </div>
-  </div>
-
-  <!-- OBJECTIONS -->
+  <!-- ═══ OBJECTIONS TAB ═══ -->
   <div class="tab-panel" id="tab-objections">
+    <div class="section-intro">
+      <div class="section-intro-icon">🔍</div>
+      <div class="section-intro-text">
+        <strong>Objections &amp; Outcomes</strong>
+        <span>Understand what's stopping students from converting. The top objections chart shows the most common reasons students hesitate. The heatmap at the bottom shows which objections each salesperson encounters most — darker red = more frequent.</span>
+      </div>
+    </div>
     <div class="charts-grid-2">
       <div class="chart-card">
         <div class="chart-card-title">Top Objections (All Time)</div>
-        <div class="chart-card-sub">Primary objection frequency</div>
+        <div class="chart-card-sub">The most common reasons students push back — longer bar = heard more often</div>
         <div style="position:relative;height:260px"><canvas id="objChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Outcome Distribution</div>
-        <div class="chart-card-sub">All calls</div>
+        <div class="chart-card-title">Call Outcome Distribution</div>
+        <div class="chart-card-sub">What percentage of calls ended with the student Interested, Needing Follow-up, or Not Interested</div>
         <div style="position:relative;height:180px"><canvas id="outcomeChart"></canvas></div>
       </div>
     </div>
     <div class="charts-grid-2">
       <div class="chart-card">
-        <div class="chart-card-title">Sentiment Breakdown</div>
-        <div class="chart-card-sub">All calls</div>
+        <div class="chart-card-title">Student Sentiment</div>
+        <div class="chart-card-sub">Overall mood detected across all calls — more green = healthier pipeline</div>
         <div style="position:relative;height:160px"><canvas id="sentChart"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Conversion Probability</div>
-        <div class="chart-card-sub">All calls</div>
+        <div class="chart-card-sub">AI's estimate of each student's likelihood to enrol, grouped by range</div>
         <div style="position:relative;height:160px"><canvas id="convChart"></canvas></div>
       </div>
     </div>
     <div class="chart-card charts-full">
       <div class="chart-card-title">Objection Heatmap — by Salesperson</div>
-      <div class="chart-card-sub">Darker = more frequent</div>
+      <div class="chart-card-sub">Each cell shows how many times that salesperson faced that objection. Darker red = more frequent. Blank = not encountered.</div>
       <div id="objHeatmap" style="padding-top:8px;overflow-x:auto"></div>
     </div>
   </div>
 
-  <!-- ANALYTICS -->
+  <!-- ═══ ANALYTICS TAB ═══ -->
   <div class="tab-panel" id="tab-analytics">
+    <div class="section-intro">
+      <div class="section-intro-icon">📈</div>
+      <div class="section-intro-text">
+        <strong>Deep Analytics</strong>
+        <span>Longer-term trends and performance patterns. Use this to identify who's improving, who needs coaching, which days are most productive, and how overall pipeline health has changed month-over-month.</span>
+      </div>
+    </div>
     <div class="analytics-kpi-row" id="analyticsKPI"></div>
     <div class="alert-summary-grid" id="alertSummary"></div>
     <div class="charts-grid-2">
       <div class="chart-card">
         <div class="chart-card-title">Monthly Trend</div>
-        <div class="chart-card-sub" id="trendAnalyticsSub">All-time monthly performance</div>
+        <div class="chart-card-sub" id="trendAnalyticsSub">Total calls per month (bars) vs. average score (green line)</div>
         <div style="position:relative;height:200px"><canvas id="analyticsMonthChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">Day-of-Week Pattern</div>
-        <div class="chart-card-sub">Average score per weekday</div>
+        <div class="chart-card-title">Best Day of the Week</div>
+        <div class="chart-card-sub">Average call quality score by weekday — tells you which days your team performs best</div>
         <div id="dowChart" style="padding-top:4px"></div>
       </div>
     </div>
     <div class="charts-grid-12">
       <div class="chart-card">
         <div class="chart-card-title">Salesperson Comparison</div>
-        <div class="chart-card-sub">All time calls + avg score</div>
+        <div class="chart-card-sub">Bar length = total calls · Colour = quality (green ≥7 · amber ≥5 · red &lt;5) · Number = avg score</div>
         <div id="spCompareChart" style="padding-top:4px"></div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Score Distribution</div>
-        <div class="chart-card-sub">All scored calls</div>
+        <div class="chart-card-sub">How many calls fell into each score range — ideally most should be in green (8–10)</div>
         <div style="position:relative;height:180px"><canvas id="scoreDistChart"></canvas></div>
         <div id="scoreDistLegend" style="margin-top:8px"></div>
       </div>
@@ -588,21 +626,24 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
     <div class="charts-grid-2">
       <div class="spotlight-wrap">
         <div class="spotlight-head">
-          <span class="spotlight-head-title">Top Performers (Hot Rate)</span>
+          <span class="spotlight-head-title">🔥 Top Performers (Hot Lead Rate)</span>
           <span class="spotlight-count" id="topBadge">—</span>
         </div>
+        <div style="padding:8px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--gray)">Ranked by % of their calls that are Hot leads. Only salespeople with 3+ calls shown.</div>
         <div class="spotlight-list" id="topList"></div>
       </div>
       <div class="spotlight-wrap">
         <div class="spotlight-head">
-          <span class="spotlight-head-title">Needs Coaching (Avg Score)</span>
+          <span class="spotlight-head-title">💡 Needs Coaching (Avg Score)</span>
           <span class="spotlight-count" id="coachBadge">—</span>
         </div>
+        <div style="padding:8px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--gray)">Ranked by lowest average call quality score. Focus coaching efforts here first.</div>
         <div class="spotlight-list" id="coachList"></div>
       </div>
     </div>
   </div>
-</div>
+
+</div><!-- end .page -->
 
 <script>
 /* ═══════════════════════════════════════════════════════
@@ -624,9 +665,7 @@ var _spChartInst   = null;
 var _isBusy        = false;
 
 /* ═══════════════════════════════════════════════════════
-   INIT — mirrors working portal pattern exactly
-   Uses sessionStorage (not localStorage) so expired tokens
-   don't persist across browser restarts
+   INIT
 ═══════════════════════════════════════════════════════ */
 (function init() {
   var saved = sessionStorage.getItem("ag_tok");
@@ -686,19 +725,17 @@ function showLoginErr(msg) {
 }
 
 /* ═══════════════════════════════════════════════════════
-   DATA FETCH — clean session handling, no alert() on expire
+   DATA FETCH
 ═══════════════════════════════════════════════════════ */
 function fetchDashboard() {
   showLoading("Loading dashboard…");
   jsonp(WEB_APP_URL + "?action=getDashboardData&token=" + encodeURIComponent(_token), function(data) {
     hideLoading();
     if (!data) {
-      // Connection failed — go back to login quietly
       showLoginErr("Connection failed. Check network or redeploy the Apps Script.");
       return;
     }
     if (data.expired || !data.success) {
-      // Session expired or error — clear token, show login
       sessionStorage.removeItem("ag_tok");
       _token = "";
       showLoginErr(data.error || "Session expired. Please log in again.");
@@ -736,7 +773,7 @@ function hideLoading() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   RENDER
+   RENDER — main entry point
 ═══════════════════════════════════════════════════════ */
 function renderAll() {
   document.getElementById("genTs").textContent = "Updated " + ((_dashData && _dashData.generatedAt) || "—");
@@ -745,34 +782,38 @@ function renderAll() {
   renderOverview();
   renderCalls();
   renderTeam();
-  renderAlerts();
   renderObjections();
   renderAnalytics();
 }
 
 function renderTopbarAlerts() {
   var k = _dashData.kpis || {}, html = "";
-  if ((k.urgentCount||0) > 0)    html += '<div class="alert-pill urgent" onclick="switchTabById(\'actions\')" title="Urgent follow-ups"><span class="alert-dot"></span>' + k.urgentCount + ' Urgent</div>';
-  if ((k.retentionCount||0) > 0) html += '<div class="alert-pill retention" onclick="switchTabById(\'actions\')" title="Students at risk"><span class="alert-dot"></span>' + k.retentionCount + ' At Risk</div>';
-  if ((k.weakCount||0) > 0)      html += '<div class="alert-pill weak" onclick="switchTabById(\'calls\')" title="Weak calls"><span class="alert-dot"></span>' + k.weakCount + ' Weak</div>';
-  document.getElementById("topbarAlerts").innerHTML = html || '<span style="font-size:11px;color:rgba(255,255,255,.3)">All clear today</span>';
+  if ((k.urgentCount||0) > 0)    html += '<div class="alert-pill urgent" title="Calls needing same-day follow-up"><span class="alert-dot"></span>' + k.urgentCount + ' Urgent Follow-ups</div>';
+  if ((k.retentionCount||0) > 0) html += '<div class="alert-pill retention" title="Students showing risk of dropping out"><span class="alert-dot"></span>' + k.retentionCount + ' Students At Risk</div>';
+  if ((k.weakCount||0) > 0)      html += '<div class="alert-pill weak" title="Calls flagged as low quality"><span class="alert-dot"></span>' + k.weakCount + ' Weak Calls</div>';
+  document.getElementById("topbarAlerts").innerHTML = html || '<span style="font-size:11px;color:rgba(255,255,255,.3)">✓ No urgent alerts</span>';
 }
 
 function renderStatsRow() {
   var k = _dashData.kpis || {};
-  var actionItems = (k.urgentCount||0) + (k.retentionCount||0);
   document.getElementById("statsRow").innerHTML =
-    statCard(k.totalCalls||0,            "Total Calls",   "") +
-    statCard(k.hotLeads||0,              "Hot Leads",     (k.hotLeads||0)>0?"red":"") +
-    statCard((k.avgScore||0)+"/10",      "Avg Score",     (k.avgScore||0)>=7?"green":(k.avgScore||0)>=5?"amber":"red") +
-    statCard(k.interested||0,            "Expressed Interest",     (k.interested||0)>0?"green":"") +
-    statCard(actionItems,                "Action Items",  actionItems>0?"red":"green") +
-    statCard(k.weakCount||0,             "Weak Calls",    (k.weakCount||0)>0?"amber":"green");
-}
-function statCard(v, label, cls) {
-  return '<div class="stat-card"><div class="stat-val'+(cls?' '+cls:'')+'">'+esc(String(v))+'</div><div class="stat-label">'+esc(label)+'</div></div>';
+    statCard(k.totalCalls||0,        "Total Calls",        "",       "All recorded calls") +
+    statCard(k.hotLeads||0,          "Hot Leads",          (k.hotLeads||0)>0?"red":"", "Ready to enrol") +
+    statCard((k.avgScore||0)+"/10",  "Team Avg Score",     (k.avgScore||0)>=7?"green":(k.avgScore||0)>=5?"amber":"red", "Call quality rating") +
+    statCard(k.interested||0,        "Expressed Interest", (k.interested||0)>0?"green":"", "Said yes / want more info") +
+    statCard(k.urgentCount||0,       "Urgent Follow-ups",  (k.urgentCount||0)>0?"red":"green", "Must call today") +
+    statCard(k.weakCount||0,         "Weak Calls",         (k.weakCount||0)>0?"amber":"green", "Low quality — need coaching");
 }
 
+function statCard(v, label, cls, hint) {
+  return '<div class="stat-card">' +
+    '<div class="stat-val'+(cls?' '+cls:'')+'">'+esc(String(v))+'</div>' +
+    '<div class="stat-label">'+esc(label)+'</div>' +
+    (hint?'<div class="stat-hint">'+esc(hint)+'</div>':"") +
+    '</div>';
+}
+
+/* ── Overview ── */
 function renderOverview() {
   var trend = _dashData.dailyTrend || [];
   var wv    = _dashData.weeklyVolume || [];
@@ -784,9 +825,10 @@ function renderOverview() {
     destroyChart("trendChart");
     _charts.trendChart = new Chart(document.getElementById("trendChart").getContext("2d"), {
       type:"bar",
-      data:{ labels:last14.map(function(d){ return fmtDate(d.date); }),
+      data:{
+        labels: last14.map(function(d){ return fmtDate(d.date); }),
         datasets:[
-          { label:"New Leads",   data:last14.map(function(d){return d.newLeads||0;}),       backgroundColor:"rgba(59,130,246,.75)",  borderRadius:3 },
+          { label:"New Lead",    data:last14.map(function(d){return d.newLeads||0;}),       backgroundColor:"rgba(59,130,246,.75)",  borderRadius:3 },
           { label:"Follow-up",   data:last14.map(function(d){return d.followUps||0;}),      backgroundColor:"rgba(139,92,246,.75)", borderRadius:3 },
           { label:"Fee Collect", data:last14.map(function(d){return d.feeCollections||0;}), backgroundColor:"rgba(34,197,94,.75)",  borderRadius:3 },
           { label:"Batch Info",  data:last14.map(function(d){return d.batchInfo||0;}),      backgroundColor:"rgba(6,182,212,.75)",  borderRadius:3 }
@@ -796,20 +838,24 @@ function renderOverview() {
     });
   }
 
-  if (ctb.length) mkDoughnut("typeChart", ctb.map(function(c){return c.type;}), ctb.map(function(c){return c.count||0;}), ["rgba(59,130,246,.85)","rgba(139,92,246,.85)","rgba(34,197,94,.85)","rgba(6,182,212,.85)"]);
+  if (ctb.length) {
+    mkDoughnut("typeChart", ctb.map(function(c){return c.type;}), ctb.map(function(c){return c.count||0;}), ["rgba(59,130,246,.85)","rgba(139,92,246,.85)","rgba(34,197,94,.85)","rgba(6,182,212,.85)"]);
+  }
   mkDoughnut("intentChart", ["Hot","Warm","Cold"], [k.hotLeads||0, k.warmLeads||0, k.coldLeads||0], ["rgba(208,38,26,.85)","rgba(245,158,11,.85)","rgba(100,116,139,.85)"]);
 
   if (wv.length) {
     destroyChart("weeklyChart");
     _charts.weeklyChart = new Chart(document.getElementById("weeklyChart").getContext("2d"), {
       type:"bar",
-      data:{ labels:wv.map(function(w){return fmtDate(w.week);}),
+      data:{
+        labels: wv.map(function(w){return fmtDate(w.week);}),
         datasets:[
-          { type:"bar",  label:"Calls",     data:wv.map(function(w){return w.calls||0;}),    backgroundColor:"rgba(208,38,26,.15)", borderRadius:3, yAxisID:"y" },
-          { type:"line", label:"Avg Score", data:wv.map(function(w){return w.avgScore||0;}), borderColor:"#D0261A", tension:.4, pointRadius:4, fill:false, yAxisID:"y1", pointBackgroundColor:"#D0261A", borderWidth:2 }
+          { type:"bar",  label:"Calls (left)",   data:wv.map(function(w){return w.calls||0;}),    backgroundColor:"rgba(208,38,26,.15)", borderRadius:3, yAxisID:"y" },
+          { type:"line", label:"Avg Score (right)", data:wv.map(function(w){return w.avgScore||0;}), borderColor:"#D0261A", tension:.4, pointRadius:4, fill:false, yAxisID:"y1", pointBackgroundColor:"#D0261A", borderWidth:2 }
         ]
       },
-      options:{ responsive:true, maintainAspectRatio:false,
+      options:{
+        responsive:true, maintainAspectRatio:false,
         plugins:{ legend:{ labels:{ color:"#999490", font:{size:11,family:"'Outfit',sans-serif"} } } },
         scales:{
           y:  { ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} },
@@ -825,17 +871,17 @@ function renderOverview() {
   document.getElementById("leaderboardList").innerHTML = lb.length
     ? lb.map(function(p,i){
         var sc = p.avgScore||0;
-        return '<div class="lb-item" onclick="showSpDetail(\''+esc((p.name||"").replace(/'/g,"\\'"))+'\')">' +
-          '<div class="lb-rank '+(ranks[i]||"")+'">'+( i+1)+'</div>' +
+        return '<div class="lb-item" onclick="showSpDetail(\''+esc((p.name||"").replace(/'/g,"\\'"))+'\')" title="Click to see '+esc(p.name||"")+'\'s breakdown">' +
+          '<div class="lb-rank '+(ranks[i]||"")+'">'+(i+1)+'</div>' +
           '<div style="flex:1;min-width:0">' +
             '<div class="lb-name">'+esc(p.name||"?")+'</div>' +
-            '<div class="lb-meta">'+(p.calls||0)+' calls · <span style="color:var(--red)">'+(p.hot||0)+' hot</span></div>' +
+            '<div class="lb-meta">'+(p.calls||0)+' calls · <span style="color:var(--red)">'+(p.hot||0)+' hot leads</span></div>' +
             '<div class="lb-score-bar-bg" style="margin-top:5px"><div class="lb-score-bar-fill" style="width:'+Math.min(sc/10*100,100)+'%"></div></div>' +
           '</div>' +
           '<div style="text-align:right;flex-shrink:0"><div class="lb-score">'+(sc||"—")+'</div><div style="font-size:9px;color:var(--gray)">/ 10</div></div>' +
         '</div>';
       }).join("")
-    : '<div style="text-align:center;padding:24px;font-size:13px;color:var(--gray)">No calls this week yet</div>';
+    : '<div style="text-align:center;padding:24px;font-size:13px;color:var(--gray)">No calls recorded this week yet</div>';
 }
 
 /* ── Calls tab ── */
@@ -853,10 +899,14 @@ function clearFilters() {
 }
 
 function filterCalls() {
-  var ft=document.getElementById("fType").value, fi=document.getElementById("fIntent").value,
-      fo=document.getElementById("fOutcome").value, fs=document.getElementById("fSP").value,
-      fp=document.getElementById("fPri").value, ff=document.getElementById("fFlag").value,
+  var ft=document.getElementById("fType").value,
+      fi=document.getElementById("fIntent").value,
+      fo=document.getElementById("fOutcome").value,
+      fs=document.getElementById("fSP").value,
+      fp=document.getElementById("fPri").value,
+      ff=document.getElementById("fFlag").value,
       fq=document.getElementById("fSearch").value.toLowerCase().trim();
+
   _filteredCalls = (_dashData.allCalls||[]).filter(function(c) {
     if (ft && (c.callType||"")    !== ft) return false;
     if (fi && (c.leadIntent||"")  !== fi) return false;
@@ -878,15 +928,17 @@ function renderCallsPage() {
   document.getElementById("callsCount").textContent = _filteredCalls.length + " calls";
   var start = (_page-1)*PAGE_SIZE, page = _filteredCalls.slice(start, start+PAGE_SIZE);
   var tbody = document.getElementById("callsTbody");
+
   if (!page.length) {
-    tbody.innerHTML = '<tr><td colspan="11" class="table-empty">No calls match the current filters.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11" class="table-empty">No calls match the current filters. Try clearing some filters above.</td></tr>';
     document.getElementById("callsPagination").innerHTML = "";
     return;
   }
+
   tbody.innerHTML = page.map(function(c,i) {
-    var abs=start+i, sid="row-"+abs;
-    var fee=(c.feeQuoted && c.feeQuoted!=="Not mentioned")?c.feeQuoted:"—";
-    return '<tr class="data-row" id="dr-'+abs+'" onclick="toggleExpand('+abs+')">' +
+    var abs = start+i, sid = "row-"+abs;
+    var fee = (c.feeQuoted && c.feeQuoted!=="Not mentioned") ? c.feeQuoted : "—";
+    return '<tr class="data-row" id="dr-'+abs+'" onclick="toggleExpand('+abs+')" title="Click to expand full call details">' +
       '<td class="td-muted">'+esc(c.dateDisp||"—")+'</td>' +
       '<td><strong>'+esc(c.salesperson||"?")+'</strong></td>' +
       '<td>'+typeBadge(c.callType)+'</td>' +
@@ -897,21 +949,22 @@ function renderCallsPage() {
       '<td class="td-muted" style="font-size:11px">'+esc(c.convProb||"—")+'</td>' +
       '<td>'+flagBadge(c.qualityFlag)+'</td>' +
       '<td class="td-muted" style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(fee)+'">'+esc(fee.length>12?fee.slice(0,12)+"…":fee)+'</td>' +
-      '<td><span class="expand-chevron">▸</span></td>' +
+      '<td><span class="expand-chevron">▸</span> <span class="expand-hint">details</span></td>' +
     '</tr>' +
     '<tr class="expand-row" id="'+sid+'">' +
       '<td colspan="11" class="expand-cell">' +
+        '<div style="font-size:10px;color:var(--gray);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:600">📋 Full Call Details</div>' +
         '<div class="expand-grid">' +
-          expItem("Summary",             c.summary) +
-          expItem("Follow-up Action",    c.followUpAct) +
-          expItem("Primary Objection",   c.primaryObj) +
-          expItem("Secondary Objection", c.secondaryObj && c.secondaryObj!=="Not mentioned"?c.secondaryObj:null) +
-          expItem("Student Goal",        c.studentGoal && c.studentGoal!=="Not mentioned"?c.studentGoal:null) +
-          expItem("Student Background",  c.studentBg && c.studentBg!=="Not mentioned"?c.studentBg:null) +
-          expItem("Course Preference",   c.coursePref && c.coursePref!=="Not mentioned"?c.coursePref:null) +
-          expItem("Fee Quoted",          c.feeQuoted && c.feeQuoted!=="Not mentioned"?c.feeQuoted:null) +
-          (c.spFeedback?'<div class="expand-item full feedback"><label>Salesperson Feedback</label><p>'+esc(c.spFeedback)+'</p></div>':"") +
-          expItem("Key Points", c.keyPoints, true) +
+          expItem("Call Summary",          c.summary) +
+          expItem("Follow-up Action",      c.followUpAct) +
+          expItem("Main Objection Raised", c.primaryObj) +
+          expItem("Secondary Objection",   c.secondaryObj && c.secondaryObj!=="Not mentioned" ? c.secondaryObj : null) +
+          expItem("Student Goal",          c.studentGoal && c.studentGoal!=="Not mentioned" ? c.studentGoal : null) +
+          expItem("Student Background",    c.studentBg && c.studentBg!=="Not mentioned" ? c.studentBg : null) +
+          expItem("Course Preference",     c.coursePref && c.coursePref!=="Not mentioned" ? c.coursePref : null) +
+          expItem("Fee Quoted",            c.feeQuoted && c.feeQuoted!=="Not mentioned" ? c.feeQuoted : null) +
+          (c.spFeedback ? '<div class="expand-item full feedback"><label>💬 Salesperson Coaching Feedback</label><p>'+esc(c.spFeedback)+'</p></div>' : "") +
+          expItem("Key Talking Points", c.keyPoints, true) +
         '</div>' +
       '</td>' +
     '</tr>';
@@ -945,7 +998,7 @@ function renderPagination() {
   html+='<button class="page-btn" onclick="goPage('+(_page-1)+')" '+(_page===1?"disabled":"")+'>‹ Prev</button>';
   var s=Math.max(1,_page-2), e=Math.min(total,_page+2);
   if(s>1) html+='<button class="page-btn" onclick="goPage(1)">1</button>'+(s>2?'<span class="page-info">…</span>':"");
-  for(var p=s;p<=e;p++) html+='<button class="page-btn'+(p===_page?" active":"") + '" onclick="goPage('+p+')">' + p + '</button>';
+  for(var p=s;p<=e;p++) html+='<button class="page-btn'+(p===_page?" active":"")+('" onclick="goPage('+p+')">')+p+'</button>';
   if(e<total) html+=(e<total-1?'<span class="page-info">…</span>':"")+'<button class="page-btn" onclick="goPage('+total+')">'+total+'</button>';
   html+='<button class="page-btn" onclick="goPage('+(_page+1)+')" '+(_page===total?"disabled":"")+'>Next ›</button>';
   el.innerHTML=html;
@@ -961,133 +1014,149 @@ function goPage(p) {
 /* ── Team tab ── */
 function renderTeam() {
   var sps=_dashData.salespersons||[];
-  if(!sps.length){ document.getElementById("spGrid").innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray);font-size:13px">No salesperson data yet.</div>'; return; }
+  if(!sps.length){
+    document.getElementById("spGrid").innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray);font-size:13px">No salesperson data yet.</div>';
+    return;
+  }
   var maxSpark=1;
   sps.forEach(function(sp){ (sp.sparkline||[]).forEach(function(v){if(v>maxSpark)maxSpark=v;}); });
-  document.getElementById("spGrid").innerHTML=sps.map(function(sp){
+
+  document.getElementById("spGrid").innerHTML = sps.map(function(sp){
     var sc=sp.avgScore||0, scCls=sc>=7?"green":sc>=5?"amber":"red";
     var sparks=(sp.sparkline||[]).map(function(v,i){
       var h=maxSpark>0?Math.round(v/maxSpark*100):0;
-      return '<div class="sp-spark-bar'+(i===13?" today":"") + '" style="height:'+Math.max(h,4)+'%"></div>';
+      return '<div class="sp-spark-bar'+(i===13?" today":"") + '" style="height:'+Math.max(h,4)+'%" title="'+(i===13?"Today":"Day "+(i+1))+': '+v+' calls"></div>';
     }).join("");
     return '<div class="sp-card" onclick="showSpDetail(\''+esc((sp.name||"").replace(/'/g,"\\'"))+'\')">' +
       '<div class="sp-card-header">' +
-        '<div style="min-width:0"><div class="sp-name">'+esc(sp.name||"?")+'</div><div class="sp-last">'+(sp.lastCallDate?"Last: "+fmtDate(sp.lastCallDate):"No calls yet")+'</div></div>' +
-        '<div><div class="sp-score-big '+scCls+'">'+(sc||0)+'</div><div class="sp-score-label">/ 10</div></div>' +
+        '<div style="min-width:0"><div class="sp-name">'+esc(sp.name||"?")+'</div><div class="sp-last">'+(sp.lastCallDate?"Last call: "+fmtDate(sp.lastCallDate):"No calls yet")+'</div></div>' +
+        '<div><div class="sp-score-big '+scCls+'">'+(sc||0)+'</div><div class="sp-score-label">avg / 10</div></div>' +
       '</div>' +
       '<div class="sp-stats">' +
-        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.totalCalls||0)+'</div><div class="sp-stat-label">Calls</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--red)">'+(sp.hot||0)+'</div><div class="sp-stat-label">Hot</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--green)">'+(sp.interested||0)+'</div><div class="sp-stat-label">Conv.</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.newLeads||0)+'</div><div class="sp-stat-label">New</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.followUps||0)+'</div><div class="sp-stat-label">Follow</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.feeCollections||0)+'</div><div class="sp-stat-label">Fee</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.totalCalls||0)+'</div><div class="sp-stat-label">Total Calls</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--red)">'+(sp.hot||0)+'</div><div class="sp-stat-label">Hot Leads</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--green)">'+(sp.interested||0)+'</div><div class="sp-stat-label">Interested</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.newLeads||0)+'</div><div class="sp-stat-label">New Leads</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.followUps||0)+'</div><div class="sp-stat-label">Follow-ups</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.feeCollections||0)+'</div><div class="sp-stat-label">Fee Collect.</div></div>' +
       '</div>' +
       '<div class="sp-sparkline">'+sparks+'</div>' +
+      '<div class="sp-spark-label">← 14 days ago &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; today →</div>' +
       '<div class="sp-badges">' +
-        ((sp.strongCalls||0)>0?'<span class="badge badge-strong">'+sp.strongCalls+' strong</span>':"") +
-        ((sp.weakCalls||0)>0?'<span class="badge badge-weak">'+sp.weakCalls+' weak</span>':"") +
-        ((sp.highPriFollowups||0)>0?'<span class="badge badge-urgent">'+sp.highPriFollowups+' urgent FU</span>':"") +
+        ((sp.strongCalls||0)>0 ? '<span class="badge badge-strong">'+sp.strongCalls+' strong calls</span>' : "") +
+        ((sp.weakCalls||0)>0   ? '<span class="badge badge-weak">'+sp.weakCalls+' weak calls</span>' : "") +
+        ((sp.highPriFollowups||0)>0 ? '<span class="badge badge-urgent">'+sp.highPriFollowups+' urgent follow-ups</span>' : "") +
       '</div>' +
+      '<div class="sp-click-hint">Click to see full breakdown ▸</div>' +
     '</div>';
   }).join("");
 }
 
 function showSpDetail(name) {
   switchTabById("team");
-  var sp=(_dashData.salespersons||[]).find(function(s){return (s.name||"").toLowerCase()===name.toLowerCase();});
-  if(!sp) return;
-  var wrap=document.getElementById("spChartWrap"); wrap.style.display="block";
-  document.getElementById("spChartTitle").textContent=name+" — call breakdown";
-  if(_spChartInst){try{_spChartInst.destroy();}catch(e){} _spChartInst=null;}
+  var sp = (_dashData.salespersons||[]).find(function(s){ return (s.name||"").toLowerCase()===name.toLowerCase(); });
+  if (!sp) return;
+  var wrap=document.getElementById("spChartWrap");
+  wrap.style.display="block";
+  document.getElementById("spChartTitle").textContent = name + " — full call breakdown";
+  if (_spChartInst){ try{_spChartInst.destroy();}catch(e){} _spChartInst=null; }
   _spChartInst=new Chart(document.getElementById("spChart").getContext("2d"),{
     type:"bar",
-    data:{ labels:["New Leads","Follow-ups","Fee Collections","Interested","Hot","Warm","Cold"],
-      datasets:[{ data:[sp.newLeads||0,sp.followUps||0,sp.feeCollections||0,sp.interested||0,sp.hot||0,sp.warm||0,sp.cold||0],
+    data:{
+      labels:["New Leads","Follow-ups","Fee Collections","Interested","Hot","Warm","Cold"],
+      datasets:[{
+        data:[sp.newLeads||0, sp.followUps||0, sp.feeCollections||0, sp.interested||0, sp.hot||0, sp.warm||0, sp.cold||0],
         backgroundColor:["rgba(59,130,246,.8)","rgba(139,92,246,.8)","rgba(34,197,94,.8)","rgba(34,197,94,.7)","rgba(208,38,26,.8)","rgba(245,158,11,.8)","rgba(100,116,139,.8)"],
-        borderRadius:5 }]
+        borderRadius:5
+      }]
     },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:"#999490",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},y:{ticks:{color:"#999490",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}}} }
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:"#999490",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},
+        y:{ticks:{color:"#999490",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}}
+      }
+    }
   });
   setTimeout(function(){ wrap.scrollIntoView({behavior:"smooth",block:"nearest"}); }, 100);
 }
 
-/* ── Action Queue ── */
-function renderAlerts() {
-  var urgent=_dashData.urgentFollowups||[], retention=_dashData.retentionRisks||[], fee=_dashData.feeFollowups||[];
-  document.getElementById("urgentCount").textContent    = urgent.length;
-  document.getElementById("retentionCount").textContent = retention.length;
-  document.getElementById("feeCount").textContent       = fee.length;
-
-  renderAlertSection("urgentCards", urgent, function(c){
-    return '<div class="alert-card urgent-card">' +
-      '<div class="alert-card-header"><div><div class="alert-card-name">'+esc(c.salesperson||"?")+' '+intentBadge(c.leadIntent)+'</div></div><div class="alert-card-date">'+esc(c.dateDisp||"")+'</div></div>' +
-      '<div class="alert-card-type">'+esc(c.callType||"")+'</div>' +
-      '<div class="alert-card-action">'+esc(c.followUpAct||"—")+'</div>' +
-      '<div class="alert-card-summary">'+esc(c.summary||"")+'</div></div>';
-  });
-  renderAlertSection("retentionCards", retention, function(c){
-    return '<div class="alert-card ret-card">' +
-      '<div class="alert-card-header"><div class="alert-card-name">'+esc(c.salesperson||"?")+'</div><div class="alert-card-date">'+esc(c.dateDisp||"")+'</div></div>' +
-      '<div class="alert-card-action">'+esc(c.followUpAct||"—")+'</div>' +
-      '<div class="alert-card-summary">'+esc(c.summary||"")+'</div></div>';
-  });
-  renderAlertSection("feeCards", fee, function(c){
-    return '<div class="alert-card fee-card">' +
-      '<div class="alert-card-header"><div><div class="alert-card-name">'+esc(c.salesperson||"?")+'</div><div class="alert-card-type" style="color:var(--green)">'+(c.convProb||"")+'</div></div><div class="alert-card-date">'+esc(c.dateDisp||"")+'</div></div>' +
-      '<div class="alert-card-action">'+esc(c.followUpAct||"—")+'</div>' +
-      '<div class="alert-card-summary">'+esc(c.summary||"")+'</div></div>';
-  });
-}
-
-function renderAlertSection(elId, data, fn) {
-  var el=document.getElementById(elId);
-  if(!data||!data.length){ el.innerHTML='<div class="empty-state"><div class="empty-state-icon">✓ All Clear</div><p>Nothing here right now.</p></div>'; return; }
-  el.innerHTML=data.map(fn).join("");
-}
-
-/* ── Objections ── */
+/* ── Objections tab ── */
 function renderObjections() {
   var objs=_dashData.topObjections||[], k=_dashData.kpis||{}, calls=_dashData.allCalls||[];
-  if(objs.length){
+
+  if (objs.length) {
     destroyChart("objChart");
     _charts.objChart=new Chart(document.getElementById("objChart").getContext("2d"),{
       type:"bar",
-      data:{ labels:objs.map(function(o){return o.objection||"";}), datasets:[{ data:objs.map(function(o){return o.count||0;}), backgroundColor:"rgba(208,38,26,.7)", borderRadius:4 }] },
-      options:{ responsive:true, maintainAspectRatio:false, indexAxis:"y",
+      data:{
+        labels:objs.map(function(o){return o.objection||"";}),
+        datasets:[{ data:objs.map(function(o){return o.count||0;}), backgroundColor:"rgba(208,38,26,.7)", borderRadius:4 }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, indexAxis:"y",
         plugins:{legend:{display:false}},
-        scales:{x:{ticks:{color:"#999490",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}},y:{ticks:{color:"#0a0a0a",font:{size:11}},grid:{display:false}}} }
+        scales:{
+          x:{ticks:{color:"#999490",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}},
+          y:{ticks:{color:"#0a0a0a",font:{size:11}},grid:{display:false}}
+        }
+      }
     });
   }
-  mkDoughnut("outcomeChart",["Interested","Needs Follow-up","Not Interested","Disconnected","Info Only"],
-    [k.interested||0,k.needsFollowup||0,k.notInterested||0,countBy(calls,"callOutcome","Call Disconnected"),countBy(calls,"callOutcome","Information Only")],
+
+  mkDoughnut("outcomeChart",
+    ["Interested","Needs Follow-up","Not Interested","Disconnected","Info Only"],
+    [k.interested||0, k.needsFollowup||0, k.notInterested||0, countBy(calls,"callOutcome","Call Disconnected"), countBy(calls,"callOutcome","Information Only")],
     ["rgba(34,197,94,.85)","rgba(245,158,11,.85)","rgba(208,38,26,.85)","rgba(100,116,139,.85)","rgba(59,130,246,.85)"]);
-  mkDoughnut("sentChart",["Positive","Neutral","Negative"],
-    [k.positiveSent||0,countBy(calls,"sentiment","Neutral"),k.negativeSent||0],
+
+  mkDoughnut("sentChart",
+    ["Positive","Neutral","Negative"],
+    [k.positiveSent||0, countBy(calls,"sentiment","Neutral"), k.negativeSent||0],
     ["rgba(34,197,94,.85)","rgba(100,116,139,.85)","rgba(208,38,26,.85)"]);
+
   var convL=["0-25%","25-50%","50-75%","75-100%"];
   destroyChart("convChart");
   _charts.convChart=new Chart(document.getElementById("convChart").getContext("2d"),{
     type:"bar",
-    data:{ labels:convL, datasets:[{ data:convL.map(function(l){return countBy(calls,"convProb",l);}),
-      backgroundColor:["rgba(208,38,26,.75)","rgba(245,158,11,.75)","rgba(59,130,246,.75)","rgba(34,197,94,.75)"], borderRadius:4 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:"#999490",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},y:{ticks:{color:"#999490",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}}} }
+    data:{
+      labels:convL,
+      datasets:[{
+        data:convL.map(function(l){return countBy(calls,"convProb",l);}),
+        backgroundColor:["rgba(208,38,26,.75)","rgba(245,158,11,.75)","rgba(59,130,246,.75)","rgba(34,197,94,.75)"],
+        borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:"#999490",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},
+        y:{ticks:{color:"#999490",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}}
+      }
+    }
   });
+
   // Heatmap
   var heat=_dashData.objectionHeatmap||[], heatEl=document.getElementById("objHeatmap");
-  if(!heat.length){ heatEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No objection data yet.</div>'; return; }
+  if(!heat.length){
+    heatEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No objection data yet.</div>';
+    return;
+  }
   var spNames=uniq(heat.map(function(h){return h.salesperson||"";})).filter(Boolean).sort();
   var maxCount=Math.max.apply(null,heat.map(function(h){return h.count||0;}).concat([1]));
   var byObj={};
-  heat.forEach(function(h){ var obj=h.objection||"Other"; if(!byObj[obj])byObj[obj]={}; byObj[obj][h.salesperson]=(byObj[obj][h.salesperson]||0)+(h.count||0); });
+  heat.forEach(function(h){
+    var obj=h.objection||"Other";
+    if(!byObj[obj]) byObj[obj]={};
+    byObj[obj][h.salesperson]=(byObj[obj][h.salesperson]||0)+(h.count||0);
+  });
   var html='<table class="obj-heat-table"><thead><tr><th>Objection</th>';
   spNames.forEach(function(sp){ html+='<th>'+esc(sp)+'</th>'; });
   html+='</tr></thead><tbody>';
   Object.keys(byObj).sort().forEach(function(obj){
     var rowTotal=spNames.reduce(function(s,sp){return s+(byObj[obj][sp]||0);},0);
-    html+='<tr><td>'+esc(obj)+' <span style="color:var(--gray);font-weight:400;font-size:10px">('+rowTotal+')</span></td>';
+    html+='<tr><td>'+esc(obj)+' <span style="color:var(--gray);font-weight:400;font-size:10px">(total: '+rowTotal+')</span></td>';
     spNames.forEach(function(sp){
       var cnt=byObj[obj][sp]||0, intensity=cnt>0?Math.max(0.08,cnt/maxCount):0;
       var bg=cnt>0?'rgba(208,38,26,'+intensity.toFixed(2)+')':'var(--off)';
@@ -1100,18 +1169,20 @@ function renderObjections() {
   heatEl.innerHTML=html;
 }
 
-/* ── Analytics ── */
+/* ── Analytics tab ── */
 function renderAnalytics() {
   var k=_dashData.kpis||{}, sps=_dashData.salespersons||[], calls=_dashData.allCalls||[];
-  document.getElementById("analyticsKPI").innerHTML=
-    akpiCard("Hot Rate",(k.hotRate||0)+"%",(k.hotRate||0)>=30?"good":(k.hotRate||0)>=15?"warn":"bad",(k.hotLeads||0)+" hot leads")+
-    akpiCard("Interest Rate",(k.convRate||0)+"%",(k.convRate||0)>=20?"good":(k.convRate||0)>=10?"warn":"bad",(k.interested||0)+" expressed interest")+
-    akpiCard("Avg Score",(k.avgScore||0)+"/10",(k.avgScore||0)>=7?"good":(k.avgScore||0)>=5?"warn":"bad",(k.strongCount||0)+" strong calls")+
-    akpiCard("High Priority",k.highPriFU||0,(k.highPriFU||0)>0?"warn":"","follow-ups pending");
-  document.getElementById("alertSummary").innerHTML=
-    alertSCard("Urgent Followups",k.urgentCount||0,"danger","Need same-day action")+
-    alertSCard("Retention Risk",k.retentionCount||0,"warn","Students at risk")+
-    alertSCard("Strong Calls",k.strongCount||0,"ok","High quality calls");
+
+  document.getElementById("analyticsKPI").innerHTML =
+    akpiCard("Hot Lead Rate",    (k.hotRate||0)+"%",  (k.hotRate||0)>=30?"good":(k.hotRate||0)>=15?"warn":"bad",  (k.hotLeads||0)+" hot out of "+(k.totalCalls||0)+" calls") +
+    akpiCard("Interest Rate",   (k.convRate||0)+"%",  (k.convRate||0)>=20?"good":(k.convRate||0)>=10?"warn":"bad", (k.interested||0)+" students expressed interest") +
+    akpiCard("Avg Call Score",  (k.avgScore||0)+"/10",(k.avgScore||0)>=7?"good":(k.avgScore||0)>=5?"warn":"bad",   (k.strongCount||0)+" strong calls recorded") +
+    akpiCard("Urgent Follow-ups", k.urgentCount||0,   (k.urgentCount||0)>0?"warn":"good", "need same-day action");
+
+  document.getElementById("alertSummary").innerHTML =
+    alertSCard("Urgent Follow-ups",  k.urgentCount||0,    "danger", "Calls needing same-day action") +
+    alertSCard("Students At Risk",   k.retentionCount||0, "warn",   "Showing signs of dropping out") +
+    alertSCard("Strong Calls",       k.strongCount||0,    "ok",     "High quality calls this period");
 
   // Monthly trend
   var monthMap={};
@@ -1121,89 +1192,93 @@ function renderAnalytics() {
     if(!monthMap[mk]) monthMap[mk]={hot:0,total:0,scoreSum:0,scoreCnt:0,avgScore:0};
     monthMap[mk].total++;
     if((c.leadIntent||"")==="Hot") monthMap[mk].hot++;
-    if((c.spScore||0)>0){monthMap[mk].scoreSum+=c.spScore; monthMap[mk].scoreCnt++;}
-    monthMap[mk].avgScore=monthMap[mk].scoreCnt?parseFloat((monthMap[mk].scoreSum/monthMap[mk].scoreCnt).toFixed(1)):0;
+    if((c.spScore||0)>0){ monthMap[mk].scoreSum+=c.spScore; monthMap[mk].scoreCnt++; }
+    monthMap[mk].avgScore=monthMap[mk].scoreCnt ? parseFloat((monthMap[mk].scoreSum/monthMap[mk].scoreCnt).toFixed(1)) : 0;
   });
   var mKeys=Object.keys(monthMap).sort();
   var mNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  var mLabels=mKeys.map(function(k2){var p=k2.split("-"); return mNames[parseInt(p[1],10)-1]+" "+p[0].slice(2);});
-  document.getElementById("trendAnalyticsSub").textContent=mLabels.length>=2?mLabels[0]+" – "+mLabels[mLabels.length-1]:"All time";
+  var mLabels=mKeys.map(function(k2){ var p=k2.split("-"); return mNames[parseInt(p[1],10)-1]+" "+p[0].slice(2); });
+  document.getElementById("trendAnalyticsSub").textContent = mLabels.length>=2 ? "Total calls (bars) vs avg score (line) · "+mLabels[0]+" – "+mLabels[mLabels.length-1] : "Total calls (bars) vs average score (line)";
+
   if(mKeys.length){
     destroyChart("analyticsMonthChart");
     _charts.analyticsMonthChart=new Chart(document.getElementById("analyticsMonthChart").getContext("2d"),{
       type:"line",
-      data:{ labels:mLabels,
+      data:{
+        labels:mLabels,
         datasets:[
           { label:"Calls",     data:mKeys.map(function(k2){return monthMap[k2].total;}),    backgroundColor:"rgba(208,38,26,.08)", borderColor:"#D0261A", borderWidth:2, fill:true, tension:.35, yAxisID:"y" },
           { label:"Avg Score", data:mKeys.map(function(k2){return monthMap[k2].avgScore;}), borderColor:"rgba(34,197,94,.9)", borderWidth:2, fill:false, tension:.35, pointRadius:3, yAxisID:"y2" }
         ]
       },
-      options:{ responsive:true, maintainAspectRatio:false,
+      options:{
+        responsive:true, maintainAspectRatio:false,
         plugins:{legend:{labels:{color:"#999490",font:{size:11}}}},
         scales:{
-          y:{ticks:{color:"#999490",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}},
-          y2:{position:"right",min:0,max:10,ticks:{color:"rgba(34,197,94,.7)",font:{size:10}},grid:{drawOnChartArea:false}},
-          x:{ticks:{color:"#999490",font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8},grid:{display:false}}
+          y:  { ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} },
+          y2: { position:"right", min:0, max:10, ticks:{color:"rgba(34,197,94,.7)",font:{size:10}}, grid:{drawOnChartArea:false} },
+          x:  { ticks:{color:"#999490",font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8}, grid:{display:false} }
         }
       }
     });
   }
 
-  // DoW
+  // Day of Week
   var dowMap={0:{sum:0,cnt:0},1:{sum:0,cnt:0},2:{sum:0,cnt:0},3:{sum:0,cnt:0},4:{sum:0,cnt:0},5:{sum:0,cnt:0},6:{sum:0,cnt:0}};
   calls.forEach(function(c){
     if(!c.dateIso||!(c.spScore>0)) return;
-    try{var d=new Date(c.dateIso+"T12:00:00"); dowMap[d.getDay()].sum+=c.spScore; dowMap[d.getDay()].cnt++;}catch(e){}
+    try{ var d=new Date(c.dateIso+"T12:00:00"); dowMap[d.getDay()].sum+=c.spScore; dowMap[d.getDay()].cnt++; }catch(e){}
   });
   var dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], maxAvg=0;
-  for(var d=0;d<7;d++){if(dowMap[d].cnt>0){var a=dowMap[d].sum/dowMap[d].cnt; if(a>maxAvg)maxAvg=a;}}
+  for(var d=0;d<7;d++){ if(dowMap[d].cnt>0){ var a=dowMap[d].sum/dowMap[d].cnt; if(a>maxAvg)maxAvg=a; } }
   var dowHtml="";
   for(var d2=0;d2<7;d2++){
-    var avg2=dowMap[d2].cnt>0?parseFloat((dowMap[d2].sum/dowMap[d2].cnt).toFixed(1)):0;
-    var bw=dowMap[d2].cnt>0?Math.round(avg2/(maxAvg||10)*100):0;
+    var avg2=dowMap[d2].cnt>0 ? parseFloat((dowMap[d2].sum/dowMap[d2].cnt).toFixed(1)) : 0;
+    var bw=dowMap[d2].cnt>0 ? Math.round(avg2/(maxAvg||10)*100) : 0;
     var col=avg2>=7?"#22c55e":avg2>=5?"#f59e0b":avg2>0?"#D0261A":"#e8e4e0";
     dowHtml+='<div class="dow-row"><div class="dow-label">'+dayNames[d2]+'</div><div class="dow-bar-bg"><div class="dow-bar-fill" style="width:'+bw+'%;background:'+col+'"></div></div><div class="dow-pct">'+(dowMap[d2].cnt>0?avg2+"/10":"—")+'</div></div>';
   }
   document.getElementById("dowChart").innerHTML=dowHtml;
 
   // SP comparison
-  var maxCalls=Math.max.apply(null,sps.map(function(s){return s.totalCalls||0;}).concat([1]));
-  document.getElementById("spCompareChart").innerHTML=sps.map(function(sp){
+  var maxCalls=Math.max.apply(null, sps.map(function(s){return s.totalCalls||0;}).concat([1]));
+  document.getElementById("spCompareChart").innerHTML = sps.map(function(sp){
     var bw=Math.round((sp.totalCalls||0)/maxCalls*100), sc=sp.avgScore||0, cls=sc>=7?"good":sc>=5?"warn":"bad";
     return '<div class="batch-compare-row">' +
       '<div class="batch-compare-label" title="'+esc(sp.name||"")+'">'+esc(sp.name||"?")+'</div>' +
       '<div class="batch-compare-bar-bg"><div class="batch-compare-bar-fill" style="width:'+bw+'%;background:'+(sc>=7?"#22c55e":sc>=5?"#f59e0b":"#D0261A")+'"></div></div>' +
-      '<div class="batch-compare-pct '+cls+'">'+sc+'</div><div class="batch-compare-cnt">'+(sp.totalCalls||0)+' calls</div>' +
+      '<div class="batch-compare-pct '+cls+'">'+sc+'</div>' +
+      '<div class="batch-compare-cnt">'+(sp.totalCalls||0)+' calls</div>' +
     '</div>';
-  }).join("")||'<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No data yet</div>';
+  }).join("") || '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No data yet</div>';
 
-  // Score donut
-  var scoreRanges=[{label:"8–10",lo:8,hi:11},{label:"6–7",lo:6,hi:8},{label:"4–5",lo:4,hi:6},{label:"1–3",lo:1,hi:4}];
-  var scoreCounts=scoreRanges.map(function(r){return calls.filter(function(c){return (c.spScore||0)>=r.lo&&(c.spScore||0)<r.hi;}).length;});
-  mkDoughnut("scoreDistChart",scoreRanges.map(function(r){return r.label;}),scoreCounts,["rgba(34,197,94,.85)","rgba(59,130,246,.85)","rgba(245,158,11,.85)","rgba(208,38,26,.85)"]);
-  var colors=["#22c55e","#3b82f6","#f59e0b","#D0261A"];
+  // Score distribution donut
+  var scoreRanges=[{label:"8–10 Excellent",lo:8,hi:11},{label:"6–7 Good",lo:6,hi:8},{label:"4–5 Average",lo:4,hi:6},{label:"1–3 Poor",lo:1,hi:4}];
+  var scoreCounts=scoreRanges.map(function(r){ return calls.filter(function(c){ return (c.spScore||0)>=r.lo&&(c.spScore||0)<r.hi; }).length; });
+  mkDoughnut("scoreDistChart", scoreRanges.map(function(r){return r.label;}), scoreCounts, ["rgba(34,197,94,.85)","rgba(59,130,246,.85)","rgba(245,158,11,.85)","rgba(208,38,26,.85)"]);
+  var scoreColors=["#22c55e","#3b82f6","#f59e0b","#D0261A"];
   document.getElementById("scoreDistLegend").innerHTML=scoreRanges.map(function(r,i){
-    return '<div class="donut-legend-item"><div class="donut-legend-dot" style="background:'+colors[i]+'"></div><span class="donut-legend-label">'+esc(r.label)+'</span><span class="donut-legend-val">'+scoreCounts[i]+'</span></div>';
+    return '<div class="donut-legend-item"><div class="donut-legend-dot" style="background:'+scoreColors[i]+'"></div><span class="donut-legend-label">'+esc(r.label)+'</span><span class="donut-legend-val">'+scoreCounts[i]+'</span></div>';
   }).join("");
 
   // Spotlights
-  var eligible=sps.filter(function(s){return (s.totalCalls||0)>=3;});
-  var byHot=eligible.slice().sort(function(a,b){return ((b.hot||0)/Math.max(b.totalCalls||1,1))-((a.hot||0)/Math.max(a.totalCalls||1,1));}).slice(0,8);
-  var byCoach=eligible.slice().sort(function(a,b){return (a.avgScore||0)-(b.avgScore||0);}).slice(0,8);
+  var eligible=sps.filter(function(s){ return (s.totalCalls||0)>=3; });
+  var byHot=eligible.slice().sort(function(a,b){ return ((b.hot||0)/Math.max(b.totalCalls||1,1))-((a.hot||0)/Math.max(a.totalCalls||1,1)); }).slice(0,8);
+  var byCoach=eligible.slice().sort(function(a,b){ return (a.avgScore||0)-(b.avgScore||0); }).slice(0,8);
   document.getElementById("topBadge").textContent=eligible.length+" salespeople";
   document.getElementById("coachBadge").textContent=byCoach.length+" to coach";
-  renderSpotlight("topList",   byHot,   function(s){return parseFloat(((s.hot||0)/Math.max(s.totalCalls||1,1)*100).toFixed(1))+"%";});
-  renderSpotlight("coachList", byCoach, function(s){return (s.avgScore||0)+"/10";});
+  renderSpotlight("topList",   byHot,   function(s){ return parseFloat(((s.hot||0)/Math.max(s.totalCalls||1,1)*100).toFixed(1))+"%"; });
+  renderSpotlight("coachList", byCoach, function(s){ return (s.avgScore||0)+"/10"; });
 }
 
 function renderSpotlight(elId, data, valFn) {
   var el=document.getElementById(elId);
-  if(!data.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px">No data yet</div>'; return;}
+  if(!data.length){ el.innerHTML='<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px">No data yet (need ≥3 calls per person)</div>'; return; }
   el.innerHTML=data.map(function(sp,i){
     var val=valFn(sp), num=parseFloat(val), cls=num>=70||num>=7?"good":num>=40||num>=5?"warn":"bad";
     return '<div class="spotlight-row" onclick="showSpDetail(\''+esc((sp.name||"").replace(/'/g,"\\'"))+'\')">' +
       '<div class="spotlight-rank">'+(i+1)+'</div>' +
-      '<div style="flex:1;min-width:0"><div class="spotlight-name">'+esc(sp.name||"?")+'</div><div class="spotlight-meta">'+(sp.totalCalls||0)+' calls</div></div>' +
+      '<div style="flex:1;min-width:0"><div class="spotlight-name">'+esc(sp.name||"?")+'</div><div class="spotlight-meta">'+(sp.totalCalls||0)+' total calls</div></div>' +
       '<div class="spotlight-bar"><div class="spotlight-bar-fill '+cls+'" style="width:'+Math.min(num,100)+'%"></div></div>' +
       '<div class="spotlight-pct '+cls+'">'+val+'</div>' +
     '</div>';
@@ -1240,31 +1315,34 @@ function switchTab(id, btn) {
    CHART HELPERS
 ═══════════════════════════════════════════════════════ */
 function barOpts(stacked) {
-  return { responsive:true, maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:"#999490",boxWidth:10,font:{size:11}}}},
+  return {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ labels:{ color:"#999490", boxWidth:10, font:{size:11} } } },
     scales:{
-      x:{stacked:!!stacked, ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"}},
-      y:{stacked:!!stacked, ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"}}
+      x:{ stacked:!!stacked, ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} },
+      y:{ stacked:!!stacked, ticks:{color:"#999490",font:{size:10}}, grid:{color:"rgba(0,0,0,.04)"} }
     }
   };
 }
 
 function mkDoughnut(id, labels, data, colors) {
   destroyChart(id);
-  var el=document.getElementById(id); if(!el) return;
+  var el=document.getElementById(id);
+  if(!el) return;
   var f={labels:[],data:[],colors:[]};
-  labels.forEach(function(l,i){ if(data[i]>0){f.labels.push(l);f.data.push(data[i]);f.colors.push(colors[i]);} });
+  labels.forEach(function(l,i){ if(data[i]>0){ f.labels.push(l); f.data.push(data[i]); f.colors.push(colors[i]); } });
   if(!f.data.length) f={labels:labels,data:data,colors:colors};
   _charts[id]=new Chart(el.getContext("2d"),{
     type:"doughnut",
-    data:{labels:f.labels,datasets:[{data:f.data,backgroundColor:f.colors,borderWidth:2,borderColor:"#ffffff",hoverOffset:5}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:"65%",
-      plugins:{legend:{position:"right",labels:{color:"#999490",boxWidth:10,font:{size:11}}}}}
+    data:{ labels:f.labels, datasets:[{ data:f.data, backgroundColor:f.colors, borderWidth:2, borderColor:"#ffffff", hoverOffset:5 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:"65%",
+      plugins:{ legend:{ position:"right", labels:{ color:"#999490", boxWidth:10, font:{size:11} } } }
+    }
   });
 }
 
 function destroyChart(id) {
-  if(_charts[id]){try{_charts[id].destroy();}catch(e){} delete _charts[id];}
+  if(_charts[id]){ try{_charts[id].destroy();}catch(e){} delete _charts[id]; }
 }
 
 function akpiCard(label, val, cls, sub) {
@@ -1279,19 +1357,19 @@ function alertSCard(label, val, type, sub) {
 ═══════════════════════════════════════════════════════ */
 function typeBadge(v) {
   var m={"New Lead":"new","Follow-up":"follow","Fee Collection":"fee","Batch Info":"batch"};
-  return v?'<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>':'<span class="badge badge-std">—</span>';
+  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
 }
 function intentBadge(v) {
   var m={"Hot":"hot","Warm":"warm","Cold":"cold"};
-  return v?'<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>':'<span class="badge badge-std">—</span>';
+  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
 }
 function outcomeBadge(v) {
   var m={"Interested":"int","Needs Follow-up":"nfu","Not Interested":"nint","Call Disconnected":"disc","Information Only":"std"};
-  return v?'<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>':'<span class="badge badge-std">—</span>';
+  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
 }
 function priBadge(v) {
   var m={"High":"urgent","Medium":"nfu","Low":"disc"};
-  return v?'<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>':'<span class="badge badge-std">—</span>';
+  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
 }
 function flagBadge(v) {
   if(!v||v==="STANDARD") return '<span class="badge badge-std">Standard</span>';
@@ -1307,25 +1385,27 @@ function scorePill(s) {
 }
 function fmtDate(iso) {
   if(!iso) return "—";
-  try{var d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("en-IN",{day:"numeric",month:"short"});}catch(e){return iso;}
+  try{ var d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("en-IN",{day:"numeric",month:"short"}); }catch(e){ return iso; }
 }
-function countBy(arr,key,val){ return (arr||[]).filter(function(c){return (c[key]||"")===(val||"");}).length; }
-function uniq(arr){ var s={}; return (arr||[]).filter(function(v){if(s[v])return false; s[v]=true; return true;}); }
+function countBy(arr,key,val){ return (arr||[]).filter(function(c){ return (c[key]||"")===(val||""); }).length; }
+function uniq(arr){ var s={}; return (arr||[]).filter(function(v){ if(s[v]) return false; s[v]=true; return true; }); }
 function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 /* ═══════════════════════════════════════════════════════
-   JSONP — with 30s timeout and fired guard
+   JSONP — 30s timeout with fired guard
 ═══════════════════════════════════════════════════════ */
 function jsonp(url, cb) {
   var id="cb_"+Date.now()+"_"+Math.floor(Math.random()*99999), t=null, fired=false;
   function cleanup(){
     if(t){clearTimeout(t);t=null;}
-    var s=document.getElementById(id); if(s){try{document.body.removeChild(s);}catch(e){}}
+    var s=document.getElementById(id);
+    if(s){ try{document.body.removeChild(s);}catch(e){} }
     try{delete window[id];}catch(e){window[id]=undefined;}
   }
   window[id]=function(data){ if(fired)return; fired=true; cleanup(); cb(data); };
   t=setTimeout(function(){ if(fired)return; fired=true; cleanup(); cb(null); }, 30000);
-  var s=document.createElement("script"); s.id=id;
+  var s=document.createElement("script");
+  s.id=id;
   s.src=url+"&callback="+id;
   s.onerror=function(){ if(fired)return; fired=true; cleanup(); cb(null); };
   document.body.appendChild(s);
