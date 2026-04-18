@@ -85,7 +85,7 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 /* ══ PAGE ══ */
 .page { max-width:1240px; margin:0 auto; padding:20px 20px 60px; }
 
-/* ══ SECTION INTRO — helps non-technical users understand each section ══ */
+/* ══ SECTION INTRO ══ */
 .section-intro { background:var(--white); border-radius:12px; border:1px solid var(--border); border-left:3px solid var(--red); padding:12px 16px; margin-bottom:14px; display:flex; align-items:flex-start; gap:10px; }
 .section-intro-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
 .section-intro-text strong { font-size:13px; font-weight:700; color:var(--black); display:block; margin-bottom:2px; }
@@ -158,6 +158,8 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 .search-input { flex:1; min-width:140px; padding:5px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:'Outfit',sans-serif; font-size:12px; color:var(--black); background:var(--off); }
 .search-input:focus { border-color:var(--red); }
 .filter-count { font-size:11px; font-weight:500; letter-spacing:.05em; color:var(--gray); background:var(--off); border:1px solid var(--border); border-radius:20px; padding:3px 10px; white-space:nowrap; }
+.filter-cap-notice { font-size:10px; color:var(--amber); background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); border-radius:20px; padding:3px 10px; white-space:nowrap; display:none; }
+.filter-cap-notice.visible { display:inline-block; }
 .clear-filters-btn { font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--red); background:none; border:none; padding:2px 0; opacity:.7; transition:opacity .15s; }
 .clear-filters-btn:hover { opacity:1; }
 .pagination { display:flex; gap:5px; align-items:center; justify-content:flex-end; margin-top:10px; flex-wrap:wrap; }
@@ -382,7 +384,7 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
 <!-- DASHBOARD -->
 <div class="page" id="dashPage" style="display:none">
 
-  <!-- Summary KPI cards at the very top -->
+  <!-- Summary KPI cards -->
   <div class="stats-row" id="statsRow"></div>
 
   <!-- Tab Navigation -->
@@ -444,7 +446,7 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
       </div>
     </div>
 
-    <!-- Legend to help understand badges -->
+    <!-- Legend -->
     <div class="legend-box">
       <span style="font-size:11px;font-weight:700;color:var(--black);margin-right:4px">Score:</span>
       <span class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>8–10 = Excellent</span>
@@ -504,6 +506,8 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
       <input type="text" class="search-input" id="fSearch" placeholder="🔎 Search by name, summary, objection…" oninput="filterCalls()">
       <button class="clear-filters-btn" onclick="clearFilters()">Clear All</button>
       <span class="filter-count" id="callsCount">—</span>
+      <!-- shown only when dataset exceeds 500-row cap -->
+      <span class="filter-cap-notice" id="capNotice" title="KPIs and charts use the full dataset. The calls table shows the most recent 500 calls.">⚠ showing latest 500 of <span id="capTotal">—</span> total</span>
     </div>
     <div class="table-wrap">
       <div class="table-scroll">
@@ -850,7 +854,7 @@ function renderOverview() {
       data:{
         labels: wv.map(function(w){return fmtDate(w.week);}),
         datasets:[
-          { type:"bar",  label:"Calls (left)",   data:wv.map(function(w){return w.calls||0;}),    backgroundColor:"rgba(208,38,26,.15)", borderRadius:3, yAxisID:"y" },
+          { type:"bar",  label:"Calls (left)",     data:wv.map(function(w){return w.calls||0;}),    backgroundColor:"rgba(208,38,26,.15)", borderRadius:3, yAxisID:"y" },
           { type:"line", label:"Avg Score (right)", data:wv.map(function(w){return w.avgScore||0;}), borderColor:"#D0261A", tension:.4, pointRadius:4, fill:false, yAxisID:"y1", pointBackgroundColor:"#D0261A", borderWidth:2 }
         ]
       },
@@ -886,6 +890,18 @@ function renderOverview() {
 
 /* ── Calls tab ── */
 function renderCalls() {
+  // Show cap notice if backend sent fewer rows than total calls
+  var kTotal  = (_dashData.kpis || {}).totalCalls || 0;
+  var arrLen  = (_dashData.allCalls || []).length;
+  var capEl   = document.getElementById("capNotice");
+  var capTotEl = document.getElementById("capTotal");
+  if (kTotal > arrLen && arrLen > 0) {
+    capTotEl.textContent = kTotal;
+    capEl.classList.add("visible");
+  } else {
+    capEl.classList.remove("visible");
+  }
+
   var sps = uniq((_dashData.allCalls||[]).map(function(c){return c.salesperson||"";})).filter(Boolean).sort();
   var sel = document.getElementById("fSP");
   sel.innerHTML = '<option value="">All People</option>' + sps.map(function(s){return '<option>'+esc(s)+'</option>';}).join("");
@@ -1184,7 +1200,7 @@ function renderAnalytics() {
     alertSCard("Students At Risk",   k.retentionCount||0, "warn",   "Showing signs of dropping out") +
     alertSCard("Strong Calls",       k.strongCount||0,    "ok",     "High quality calls this period");
 
-  // Monthly trend
+  // Monthly trend — uses allCalls (capped at 500, enough for trends)
   var monthMap={};
   calls.forEach(function(c){
     if(!c.dateIso) return;
@@ -1240,7 +1256,7 @@ function renderAnalytics() {
   }
   document.getElementById("dowChart").innerHTML=dowHtml;
 
-  // SP comparison
+  // SP comparison — uses KPI sheet data (full, not capped)
   var maxCalls=Math.max.apply(null, sps.map(function(s){return s.totalCalls||0;}).concat([1]));
   document.getElementById("spCompareChart").innerHTML = sps.map(function(sp){
     var bw=Math.round((sp.totalCalls||0)/maxCalls*100), sc=sp.avgScore||0, cls=sc>=7?"good":sc>=5?"warn":"bad";
@@ -1252,7 +1268,7 @@ function renderAnalytics() {
     '</div>';
   }).join("") || '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No data yet</div>';
 
-  // Score distribution donut
+  // Score distribution donut — uses allCalls (capped but good enough)
   var scoreRanges=[{label:"8–10 Excellent",lo:8,hi:11},{label:"6–7 Good",lo:6,hi:8},{label:"4–5 Average",lo:4,hi:6},{label:"1–3 Poor",lo:1,hi:4}];
   var scoreCounts=scoreRanges.map(function(r){ return calls.filter(function(c){ return (c.spScore||0)>=r.lo&&(c.spScore||0)<r.hi; }).length; });
   mkDoughnut("scoreDistChart", scoreRanges.map(function(r){return r.label;}), scoreCounts, ["rgba(34,197,94,.85)","rgba(59,130,246,.85)","rgba(245,158,11,.85)","rgba(208,38,26,.85)"]);
@@ -1261,7 +1277,7 @@ function renderAnalytics() {
     return '<div class="donut-legend-item"><div class="donut-legend-dot" style="background:'+scoreColors[i]+'"></div><span class="donut-legend-label">'+esc(r.label)+'</span><span class="donut-legend-val">'+scoreCounts[i]+'</span></div>';
   }).join("");
 
-  // Spotlights
+  // Spotlights — use KPI sheet data (full totals)
   var eligible=sps.filter(function(s){ return (s.totalCalls||0)>=3; });
   var byHot=eligible.slice().sort(function(a,b){ return ((b.hot||0)/Math.max(b.totalCalls||1,1))-((a.hot||0)/Math.max(a.totalCalls||1,1)); }).slice(0,8);
   var byCoach=eligible.slice().sort(function(a,b){ return (a.avgScore||0)-(b.avgScore||0); }).slice(0,8);
