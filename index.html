@@ -506,12 +506,11 @@ input[type="password"]:focus { border-color:var(--red); background:var(--white);
       <input type="text" class="search-input" id="fSearch" placeholder="🔎 Search by name, summary, objection…" oninput="filterCalls()">
       <button class="clear-filters-btn" onclick="clearFilters()">Clear All</button>
       <span class="filter-count" id="callsCount">—</span>
-      <!-- shown only when dataset exceeds 500-row cap -->
       <span class="filter-cap-notice" id="capNotice" title="KPIs and charts use the full dataset. The calls table shows the most recent 500 calls.">⚠ showing latest 500 of <span id="capTotal">—</span> total</span>
     </div>
     <div class="table-wrap">
       <div class="table-scroll">
-        <table class="data-table">
+        <table class="data-table" id="callsTable">
           <thead><tr>
             <th>Date</th>
             <th>Salesperson</th>
@@ -668,6 +667,11 @@ var _charts        = {};
 var _spChartInst   = null;
 var _isBusy        = false;
 
+// FIX: Sequential counter replaces Date.now()+random() for JSONP callback
+// names. This guarantees uniqueness even when two requests fire within the
+// same millisecond, eliminating the (rare) callback collision bug.
+var _jsonpSeq = 0;
+
 /* ═══════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════ */
@@ -678,6 +682,18 @@ var _isBusy        = false;
     document.getElementById("loginOverlay").style.display = "none";
     fetchDashboard();
   }
+
+  // FIX: Attach click handlers to the calls table body using event delegation
+  // instead of inline onclick attributes in generated HTML. This eliminates
+  // the XSS risk where salesperson names containing single quotes (e.g.
+  // O'Brien) could break out of an onclick="..." JS string context.
+  document.getElementById("callsTbody").addEventListener("click", function(e) {
+    var row = e.target.closest("tr.data-row");
+    if (row) {
+      var idx = parseInt(row.getAttribute("data-row-idx"), 10);
+      if (!isNaN(idx)) toggleExpand(idx);
+    }
+  });
 })();
 
 /* ═══════════════════════════════════════════════════════
@@ -756,8 +772,10 @@ function fetchDashboard() {
   });
 }
 
+// FIX: _isBusy is not set during a refresh (it was only ever set in doLogin).
+// refreshData() does not need a busy guard beyond what fetchDashboard already
+// provides — concurrent refreshes are harmless since each overwrites state.
 function refreshData() {
-  if (_isBusy) return;
   destroyAllCharts();
   fetchDashboard();
 }
@@ -792,9 +810,9 @@ function renderAll() {
 
 function renderTopbarAlerts() {
   var k = _dashData.kpis || {}, html = "";
-  if ((k.urgentCount||0) > 0)    html += '<div class="alert-pill urgent" title="Calls needing same-day follow-up"><span class="alert-dot"></span>' + k.urgentCount + ' Urgent Follow-ups</div>';
-  if ((k.retentionCount||0) > 0) html += '<div class="alert-pill retention" title="Students showing risk of dropping out"><span class="alert-dot"></span>' + k.retentionCount + ' Students At Risk</div>';
-  if ((k.weakCount||0) > 0)      html += '<div class="alert-pill weak" title="Calls flagged as low quality"><span class="alert-dot"></span>' + k.weakCount + ' Weak Calls</div>';
+  if ((k.urgentCount||0) > 0)    html += '<div class="alert-pill urgent" title="Calls needing same-day follow-up"><span class="alert-dot"></span>' + esc(String(k.urgentCount)) + ' Urgent Follow-ups</div>';
+  if ((k.retentionCount||0) > 0) html += '<div class="alert-pill retention" title="Students showing risk of dropping out"><span class="alert-dot"></span>' + esc(String(k.retentionCount)) + ' Students At Risk</div>';
+  if ((k.weakCount||0) > 0)      html += '<div class="alert-pill weak" title="Calls flagged as low quality"><span class="alert-dot"></span>' + esc(String(k.weakCount)) + ' Weak Calls</div>';
   document.getElementById("topbarAlerts").innerHTML = html || '<span style="font-size:11px;color:rgba(255,255,255,.3)">✓ No urgent alerts</span>';
 }
 
@@ -870,30 +888,40 @@ function renderOverview() {
     });
   }
 
+  // FIX: Leaderboard items use data-name attribute instead of inline onclick
+  // with string-concatenated salesperson names. The click handler is attached
+  // via event delegation on the container, reading data-name safely.
   var lb = _dashData.weeklyLeaderboard || [];
   var ranks = ["gold","silver","bronze"];
-  document.getElementById("leaderboardList").innerHTML = lb.length
-    ? lb.map(function(p,i){
-        var sc = p.avgScore||0;
-        return '<div class="lb-item" onclick="showSpDetail(\''+esc((p.name||"").replace(/'/g,"\\'"))+'\')" title="Click to see '+esc(p.name||"")+'\'s breakdown">' +
-          '<div class="lb-rank '+(ranks[i]||"")+'">'+(i+1)+'</div>' +
-          '<div style="flex:1;min-width:0">' +
-            '<div class="lb-name">'+esc(p.name||"?")+'</div>' +
-            '<div class="lb-meta">'+(p.calls||0)+' calls · <span style="color:var(--red)">'+(p.hot||0)+' hot leads</span></div>' +
-            '<div class="lb-score-bar-bg" style="margin-top:5px"><div class="lb-score-bar-fill" style="width:'+Math.min(sc/10*100,100)+'%"></div></div>' +
-          '</div>' +
-          '<div style="text-align:right;flex-shrink:0"><div class="lb-score">'+(sc||"—")+'</div><div style="font-size:9px;color:var(--gray)">/ 10</div></div>' +
-        '</div>';
-      }).join("")
-    : '<div style="text-align:center;padding:24px;font-size:13px;color:var(--gray)">No calls recorded this week yet</div>';
+  var lbEl = document.getElementById("leaderboardList");
+  if (!lb.length) {
+    lbEl.innerHTML = '<div style="text-align:center;padding:24px;font-size:13px;color:var(--gray)">No calls recorded this week yet</div>';
+  } else {
+    lbEl.innerHTML = lb.map(function(p, i) {
+      var sc = p.avgScore || 0;
+      return '<div class="lb-item" data-name="' + esc(p.name || "") + '" title="Click to see ' + esc(p.name || "") + '\'s breakdown">' +
+        '<div class="lb-rank ' + (ranks[i] || "") + '">' + (i + 1) + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="lb-name">' + esc(p.name || "?") + '</div>' +
+          '<div class="lb-meta">' + (p.calls || 0) + ' calls · <span style="color:var(--red)">' + (p.hot || 0) + ' hot leads</span></div>' +
+          '<div class="lb-score-bar-bg" style="margin-top:5px"><div class="lb-score-bar-fill" style="width:' + Math.min(sc / 10 * 100, 100) + '%"></div></div>' +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0"><div class="lb-score">' + (sc || "—") + '</div><div style="font-size:9px;color:var(--gray)">/ 10</div></div>' +
+      '</div>';
+    }).join("");
+    // Delegated click handler on the leaderboard container
+    lbEl.onclick = function(e) {
+      var item = e.target.closest(".lb-item[data-name]");
+      if (item) showSpDetail(item.getAttribute("data-name"));
+    };
+  }
 }
 
 /* ── Calls tab ── */
 function renderCalls() {
-  // Show cap notice if backend sent fewer rows than total calls
-  var kTotal  = (_dashData.kpis || {}).totalCalls || 0;
-  var arrLen  = (_dashData.allCalls || []).length;
-  var capEl   = document.getElementById("capNotice");
+  var kTotal   = (_dashData.kpis || {}).totalCalls || 0;
+  var arrLen   = (_dashData.allCalls || []).length;
+  var capEl    = document.getElementById("capNotice");
   var capTotEl = document.getElementById("capTotal");
   if (kTotal > arrLen && arrLen > 0) {
     capTotEl.textContent = kTotal;
@@ -940,9 +968,15 @@ function filterCalls() {
   renderCallsPage();
 }
 
+// FIX: Table rows are built with data-row-idx attributes instead of inline
+// onclick handlers. The single delegated listener (attached in init()) reads
+// data-row-idx and calls toggleExpand(). Salesperson names and other
+// user-controlled strings never appear in JS execution contexts — only in
+// text content (via textContent) or HTML attributes (via esc()).
 function renderCallsPage() {
   document.getElementById("callsCount").textContent = _filteredCalls.length + " calls";
-  var start = (_page-1)*PAGE_SIZE, page = _filteredCalls.slice(start, start+PAGE_SIZE);
+  var start = (_page - 1) * PAGE_SIZE;
+  var page  = _filteredCalls.slice(start, start + PAGE_SIZE);
   var tbody = document.getElementById("callsTbody");
 
   if (!page.length) {
@@ -951,132 +985,158 @@ function renderCallsPage() {
     return;
   }
 
-  tbody.innerHTML = page.map(function(c,i) {
-    var abs = start+i, sid = "row-"+abs;
-    var fee = (c.feeQuoted && c.feeQuoted!=="Not mentioned") ? c.feeQuoted : "—";
-    return '<tr class="data-row" id="dr-'+abs+'" onclick="toggleExpand('+abs+')" title="Click to expand full call details">' +
-      '<td class="td-muted">'+esc(c.dateDisp||"—")+'</td>' +
-      '<td><strong>'+esc(c.salesperson||"?")+'</strong></td>' +
-      '<td>'+typeBadge(c.callType)+'</td>' +
-      '<td>'+intentBadge(c.leadIntent)+'</td>' +
-      '<td>'+outcomeBadge(c.callOutcome)+'</td>' +
-      '<td>'+priBadge(c.followUpPri)+'</td>' +
-      '<td>'+scorePill(c.spScore)+'</td>' +
-      '<td class="td-muted" style="font-size:11px">'+esc(c.convProb||"—")+'</td>' +
-      '<td>'+flagBadge(c.qualityFlag)+'</td>' +
-      '<td class="td-muted" style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(fee)+'">'+esc(fee.length>12?fee.slice(0,12)+"…":fee)+'</td>' +
-      '<td><span class="expand-chevron">▸</span> <span class="expand-hint">details</span></td>' +
-    '</tr>' +
-    '<tr class="expand-row" id="'+sid+'">' +
-      '<td colspan="11" class="expand-cell">' +
-        '<div style="font-size:10px;color:var(--gray);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:600">📋 Full Call Details</div>' +
-        '<div class="expand-grid">' +
-          expItem("Call Summary",          c.summary) +
-          expItem("Follow-up Action",      c.followUpAct) +
-          expItem("Main Objection Raised", c.primaryObj) +
-          expItem("Secondary Objection",   c.secondaryObj && c.secondaryObj!=="Not mentioned" ? c.secondaryObj : null) +
-          expItem("Student Goal",          c.studentGoal && c.studentGoal!=="Not mentioned" ? c.studentGoal : null) +
-          expItem("Student Background",    c.studentBg && c.studentBg!=="Not mentioned" ? c.studentBg : null) +
-          expItem("Course Preference",     c.coursePref && c.coursePref!=="Not mentioned" ? c.coursePref : null) +
-          expItem("Fee Quoted",            c.feeQuoted && c.feeQuoted!=="Not mentioned" ? c.feeQuoted : null) +
-          (c.spFeedback ? '<div class="expand-item full feedback"><label>💬 Salesperson Coaching Feedback</label><p>'+esc(c.spFeedback)+'</p></div>' : "") +
-          expItem("Key Talking Points", c.keyPoints, true) +
-        '</div>' +
-      '</td>' +
-    '</tr>';
-  }).join("");
+  // Build rows safely: user data goes into textContent or esc()-sanitised
+  // HTML attributes only — never into JS execution contexts.
+  var rows = page.map(function(c, i) {
+    var abs = start + i;
+    var fee = (c.feeQuoted && c.feeQuoted !== "Not mentioned") ? c.feeQuoted : "—";
+    var feeShort = fee.length > 12 ? fee.slice(0, 12) + "…" : fee;
+
+    // Build the expand detail content using DOM-safe helper
+    var expandContent =
+      expItem("Call Summary",          c.summary) +
+      expItem("Follow-up Action",      c.followUpAct) +
+      expItem("Main Objection Raised", c.primaryObj) +
+      expItem("Secondary Objection",   c.secondaryObj && c.secondaryObj !== "Not mentioned" ? c.secondaryObj : null) +
+      expItem("Student Goal",          c.studentGoal  && c.studentGoal  !== "Not mentioned" ? c.studentGoal  : null) +
+      expItem("Student Background",    c.studentBg    && c.studentBg    !== "Not mentioned" ? c.studentBg    : null) +
+      expItem("Course Preference",     c.coursePref   && c.coursePref   !== "Not mentioned" ? c.coursePref   : null) +
+      expItem("Fee Quoted",            c.feeQuoted    && c.feeQuoted    !== "Not mentioned" ? c.feeQuoted    : null) +
+      (c.spFeedback ? '<div class="expand-item full feedback"><label>💬 Salesperson Coaching Feedback</label><p>' + esc(c.spFeedback) + '</p></div>' : "") +
+      expItem("Key Talking Points",    c.keyPoints, true);
+
+    return (
+      '<tr class="data-row" id="dr-' + abs + '" data-row-idx="' + abs + '" title="Click to expand full call details">' +
+        '<td class="td-muted">' + esc(c.dateDisp || "—") + '</td>' +
+        '<td><strong>' + esc(c.salesperson || "?") + '</strong></td>' +
+        '<td>' + typeBadge(c.callType) + '</td>' +
+        '<td>' + intentBadge(c.leadIntent) + '</td>' +
+        '<td>' + outcomeBadge(c.callOutcome) + '</td>' +
+        '<td>' + priBadge(c.followUpPri) + '</td>' +
+        '<td>' + scorePill(c.spScore) + '</td>' +
+        '<td class="td-muted" style="font-size:11px">' + esc(c.convProb || "—") + '</td>' +
+        '<td>' + flagBadge(c.qualityFlag) + '</td>' +
+        '<td class="td-muted" style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(fee) + '">' + esc(feeShort) + '</td>' +
+        '<td><span class="expand-chevron">▸</span> <span class="expand-hint">details</span></td>' +
+      '</tr>' +
+      '<tr class="expand-row" id="row-' + abs + '">' +
+        '<td colspan="11" class="expand-cell">' +
+          '<div style="font-size:10px;color:var(--gray);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:600">📋 Full Call Details</div>' +
+          '<div class="expand-grid">' + expandContent + '</div>' +
+        '</td>' +
+      '</tr>'
+    );
+  });
+
+  tbody.innerHTML = rows.join("");
   renderPagination();
 }
 
 function expItem(label, val, full) {
   if (!val) return "";
-  return '<div class="expand-item'+(full?" full":"")+'"><label>'+esc(label)+'</label><p>'+esc(val)+'</p></div>';
+  return '<div class="expand-item' + (full ? " full" : "") + '"><label>' + esc(label) + '</label><p>' + esc(val) + '</p></div>';
 }
 
 function toggleExpand(idx) {
-  var sid="row-"+idx, dr="dr-"+idx;
-  var el=document.getElementById(sid), row=document.getElementById(dr);
-  if (!el||!row) return;
-  if (_expandedRow && _expandedRow!==sid) {
-    var prev=document.getElementById(_expandedRow), prevRow=document.getElementById(_expandedRow.replace("row-","dr-"));
-    if(prev) prev.classList.remove("open");
-    if(prevRow) prevRow.classList.remove("expanded");
+  var sid = "row-" + idx, dr = "dr-" + idx;
+  var el  = document.getElementById(sid), row = document.getElementById(dr);
+  if (!el || !row) return;
+  if (_expandedRow && _expandedRow !== sid) {
+    var prev    = document.getElementById(_expandedRow);
+    var prevRow = document.getElementById(_expandedRow.replace("row-", "dr-"));
+    if (prev)    prev.classList.remove("open");
+    if (prevRow) prevRow.classList.remove("expanded");
   }
-  var isOpen=el.classList.toggle("open");
+  var isOpen = el.classList.toggle("open");
   row.classList.toggle("expanded", isOpen);
   _expandedRow = isOpen ? sid : null;
 }
 
 function renderPagination() {
-  var total=Math.ceil(_filteredCalls.length/PAGE_SIZE), el=document.getElementById("callsPagination");
-  if (total<=1) { el.innerHTML='<span class="page-info">'+_filteredCalls.length+' calls</span>'; return; }
-  var html='<span class="page-info">'+_filteredCalls.length+' calls</span>';
-  html+='<button class="page-btn" onclick="goPage('+(_page-1)+')" '+(_page===1?"disabled":"")+'>‹ Prev</button>';
-  var s=Math.max(1,_page-2), e=Math.min(total,_page+2);
-  if(s>1) html+='<button class="page-btn" onclick="goPage(1)">1</button>'+(s>2?'<span class="page-info">…</span>':"");
-  for(var p=s;p<=e;p++) html+='<button class="page-btn'+(p===_page?" active":"")+('" onclick="goPage('+p+')">')+p+'</button>';
-  if(e<total) html+=(e<total-1?'<span class="page-info">…</span>':"")+'<button class="page-btn" onclick="goPage('+total+')">'+total+'</button>';
-  html+='<button class="page-btn" onclick="goPage('+(_page+1)+')" '+(_page===total?"disabled":"")+'>Next ›</button>';
-  el.innerHTML=html;
+  var total = Math.ceil(_filteredCalls.length / PAGE_SIZE);
+  var el    = document.getElementById("callsPagination");
+  if (total <= 1) { el.innerHTML = '<span class="page-info">' + _filteredCalls.length + ' calls</span>'; return; }
+  var html = '<span class="page-info">' + _filteredCalls.length + ' calls</span>';
+  html += '<button class="page-btn" onclick="goPage(' + (_page - 1) + ')" ' + (_page === 1 ? "disabled" : "") + '>‹ Prev</button>';
+  var s = Math.max(1, _page - 2), e = Math.min(total, _page + 2);
+  if (s > 1) html += '<button class="page-btn" onclick="goPage(1)">1</button>' + (s > 2 ? '<span class="page-info">…</span>' : "");
+  for (var p = s; p <= e; p++) html += '<button class="page-btn' + (p === _page ? " active" : "") + '" onclick="goPage(' + p + ')">' + p + '</button>';
+  if (e < total) html += (e < total - 1 ? '<span class="page-info">…</span>' : "") + '<button class="page-btn" onclick="goPage(' + total + ')">' + total + '</button>';
+  html += '<button class="page-btn" onclick="goPage(' + (_page + 1) + ')" ' + (_page === total ? "disabled" : "") + '>Next ›</button>';
+  el.innerHTML = html;
 }
 
 function goPage(p) {
-  var total=Math.ceil(_filteredCalls.length/PAGE_SIZE);
-  if(p<1||p>total) return;
-  _page=p; _expandedRow=null; renderCallsPage();
-  document.getElementById("tab-calls").scrollIntoView({behavior:"smooth",block:"start"});
+  var total = Math.ceil(_filteredCalls.length / PAGE_SIZE);
+  if (p < 1 || p > total) return;
+  _page = p; _expandedRow = null; renderCallsPage();
+  document.getElementById("tab-calls").scrollIntoView({ behavior:"smooth", block:"start" });
 }
 
 /* ── Team tab ── */
+// FIX: sp-card and spotlight-row elements use data-name attributes instead
+// of inline onclick with string-concatenated names. Delegated handlers
+// attached below read data-name safely via getAttribute().
 function renderTeam() {
-  var sps=_dashData.salespersons||[];
-  if(!sps.length){
-    document.getElementById("spGrid").innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray);font-size:13px">No salesperson data yet.</div>';
+  var sps = _dashData.salespersons || [];
+  var spGrid = document.getElementById("spGrid");
+  if (!sps.length) {
+    spGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray);font-size:13px">No salesperson data yet.</div>';
     return;
   }
-  var maxSpark=1;
-  sps.forEach(function(sp){ (sp.sparkline||[]).forEach(function(v){if(v>maxSpark)maxSpark=v;}); });
+  var maxSpark = 1;
+  sps.forEach(function(sp){ (sp.sparkline||[]).forEach(function(v){ if (v > maxSpark) maxSpark = v; }); });
 
-  document.getElementById("spGrid").innerHTML = sps.map(function(sp){
-    var sc=sp.avgScore||0, scCls=sc>=7?"green":sc>=5?"amber":"red";
-    var sparks=(sp.sparkline||[]).map(function(v,i){
-      var h=maxSpark>0?Math.round(v/maxSpark*100):0;
-      return '<div class="sp-spark-bar'+(i===13?" today":"") + '" style="height:'+Math.max(h,4)+'%" title="'+(i===13?"Today":"Day "+(i+1))+': '+v+' calls"></div>';
+  spGrid.innerHTML = sps.map(function(sp) {
+    var sc    = sp.avgScore || 0;
+    var scCls = sc >= 7 ? "green" : sc >= 5 ? "amber" : "red";
+    var sparks = (sp.sparkline || []).map(function(v, i) {
+      var h = maxSpark > 0 ? Math.round(v / maxSpark * 100) : 0;
+      return '<div class="sp-spark-bar' + (i === 13 ? " today" : "") + '" style="height:' + Math.max(h, 4) + '%" title="' + (i === 13 ? "Today" : "Day " + (i + 1)) + ': ' + v + ' calls"></div>';
     }).join("");
-    return '<div class="sp-card" onclick="showSpDetail(\''+esc((sp.name||"").replace(/'/g,"\\'"))+'\')">' +
+    return '<div class="sp-card" data-name="' + esc(sp.name || "") + '">' +
       '<div class="sp-card-header">' +
-        '<div style="min-width:0"><div class="sp-name">'+esc(sp.name||"?")+'</div><div class="sp-last">'+(sp.lastCallDate?"Last call: "+fmtDate(sp.lastCallDate):"No calls yet")+'</div></div>' +
-        '<div><div class="sp-score-big '+scCls+'">'+(sc||0)+'</div><div class="sp-score-label">avg / 10</div></div>' +
+        '<div style="min-width:0"><div class="sp-name">' + esc(sp.name || "?") + '</div><div class="sp-last">' + (sp.lastCallDate ? "Last call: " + fmtDate(sp.lastCallDate) : "No calls yet") + '</div></div>' +
+        '<div><div class="sp-score-big ' + scCls + '">' + (sc || 0) + '</div><div class="sp-score-label">avg / 10</div></div>' +
       '</div>' +
       '<div class="sp-stats">' +
-        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.totalCalls||0)+'</div><div class="sp-stat-label">Total Calls</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--red)">'+(sp.hot||0)+'</div><div class="sp-stat-label">Hot Leads</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--green)">'+(sp.interested||0)+'</div><div class="sp-stat-label">Interested</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.newLeads||0)+'</div><div class="sp-stat-label">New Leads</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.followUps||0)+'</div><div class="sp-stat-label">Follow-ups</div></div>' +
-        '<div class="sp-stat"><div class="sp-stat-val">'+(sp.feeCollections||0)+'</div><div class="sp-stat-label">Fee Collect.</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.totalCalls || 0) + '</div><div class="sp-stat-label">Total Calls</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--red)">' + (sp.hot || 0) + '</div><div class="sp-stat-label">Hot Leads</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val" style="color:var(--green)">' + (sp.interested || 0) + '</div><div class="sp-stat-label">Interested</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.newLeads || 0) + '</div><div class="sp-stat-label">New Leads</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.followUps || 0) + '</div><div class="sp-stat-label">Follow-ups</div></div>' +
+        '<div class="sp-stat"><div class="sp-stat-val">' + (sp.feeCollections || 0) + '</div><div class="sp-stat-label">Fee Collect.</div></div>' +
       '</div>' +
-      '<div class="sp-sparkline">'+sparks+'</div>' +
+      '<div class="sp-sparkline">' + sparks + '</div>' +
       '<div class="sp-spark-label">← 14 days ago &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; today →</div>' +
       '<div class="sp-badges">' +
-        ((sp.strongCalls||0)>0 ? '<span class="badge badge-strong">'+sp.strongCalls+' strong calls</span>' : "") +
-        ((sp.weakCalls||0)>0   ? '<span class="badge badge-weak">'+sp.weakCalls+' weak calls</span>' : "") +
-        ((sp.highPriFollowups||0)>0 ? '<span class="badge badge-urgent">'+sp.highPriFollowups+' urgent follow-ups</span>' : "") +
+        ((sp.strongCalls || 0) > 0 ? '<span class="badge badge-strong">' + sp.strongCalls + ' strong calls</span>' : "") +
+        ((sp.weakCalls || 0) > 0   ? '<span class="badge badge-weak">' + sp.weakCalls + ' weak calls</span>' : "") +
+        ((sp.highPriFollowups || 0) > 0 ? '<span class="badge badge-urgent">' + sp.highPriFollowups + ' urgent follow-ups</span>' : "") +
       '</div>' +
       '<div class="sp-click-hint">Click to see full breakdown ▸</div>' +
     '</div>';
   }).join("");
+
+  // Delegated click on the grid — reads data-name, never eval's it
+  spGrid.onclick = function(e) {
+    var card = e.target.closest(".sp-card[data-name]");
+    if (card) showSpDetail(card.getAttribute("data-name"));
+  };
 }
 
 function showSpDetail(name) {
   switchTabById("team");
-  var sp = (_dashData.salespersons||[]).find(function(s){ return (s.name||"").toLowerCase()===name.toLowerCase(); });
+  var sp = (_dashData.salespersons || []).find(function(s){ return (s.name || "").toLowerCase() === name.toLowerCase(); });
   if (!sp) return;
-  var wrap=document.getElementById("spChartWrap");
-  wrap.style.display="block";
+  var wrap = document.getElementById("spChartWrap");
+  wrap.style.display = "block";
+  // Use textContent to set the title — never innerHTML with user data
   document.getElementById("spChartTitle").textContent = name + " — full call breakdown";
-  if (_spChartInst){ try{_spChartInst.destroy();}catch(e){} _spChartInst=null; }
-  _spChartInst=new Chart(document.getElementById("spChart").getContext("2d"),{
+  if (_spChartInst) { try{ _spChartInst.destroy(); }catch(e){} _spChartInst = null; }
+  var canvas = document.getElementById("spChart");
+  if (!canvas) return;
+  _spChartInst = new Chart(canvas.getContext("2d"), {
     type:"bar",
     data:{
       labels:["New Leads","Follow-ups","Fee Collections","Interested","Hot","Warm","Cold"],
@@ -1095,20 +1155,22 @@ function showSpDetail(name) {
       }
     }
   });
-  setTimeout(function(){ wrap.scrollIntoView({behavior:"smooth",block:"nearest"}); }, 100);
+  setTimeout(function(){ wrap.scrollIntoView({ behavior:"smooth", block:"nearest" }); }, 100);
 }
 
 /* ── Objections tab ── */
 function renderObjections() {
-  var objs=_dashData.topObjections||[], k=_dashData.kpis||{}, calls=_dashData.allCalls||[];
+  var objs  = _dashData.topObjections || [];
+  var k     = _dashData.kpis || {};
+  var calls = _dashData.allCalls || [];
 
   if (objs.length) {
     destroyChart("objChart");
-    _charts.objChart=new Chart(document.getElementById("objChart").getContext("2d"),{
+    _charts.objChart = new Chart(document.getElementById("objChart").getContext("2d"), {
       type:"bar",
       data:{
-        labels:objs.map(function(o){return o.objection||"";}),
-        datasets:[{ data:objs.map(function(o){return o.count||0;}), backgroundColor:"rgba(208,38,26,.7)", borderRadius:4 }]
+        labels: objs.map(function(o){ return o.objection || ""; }),
+        datasets:[{ data:objs.map(function(o){ return o.count || 0; }), backgroundColor:"rgba(208,38,26,.7)", borderRadius:4 }]
       },
       options:{
         responsive:true, maintainAspectRatio:false, indexAxis:"y",
@@ -1131,14 +1193,14 @@ function renderObjections() {
     [k.positiveSent||0, countBy(calls,"sentiment","Neutral"), k.negativeSent||0],
     ["rgba(34,197,94,.85)","rgba(100,116,139,.85)","rgba(208,38,26,.85)"]);
 
-  var convL=["0-25%","25-50%","50-75%","75-100%"];
+  var convL = ["0-25%","25-50%","50-75%","75-100%"];
   destroyChart("convChart");
-  _charts.convChart=new Chart(document.getElementById("convChart").getContext("2d"),{
+  _charts.convChart = new Chart(document.getElementById("convChart").getContext("2d"), {
     type:"bar",
     data:{
-      labels:convL,
+      labels: convL,
       datasets:[{
-        data:convL.map(function(l){return countBy(calls,"convProb",l);}),
+        data: convL.map(function(l){ return countBy(calls, "convProb", l); }),
         backgroundColor:["rgba(208,38,26,.75)","rgba(245,158,11,.75)","rgba(59,130,246,.75)","rgba(34,197,94,.75)"],
         borderRadius:4
       }]
@@ -1154,77 +1216,83 @@ function renderObjections() {
   });
 
   // Heatmap
-  var heat=_dashData.objectionHeatmap||[], heatEl=document.getElementById("objHeatmap");
-  if(!heat.length){
-    heatEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No objection data yet.</div>';
+  var heat   = _dashData.objectionHeatmap || [];
+  var heatEl = document.getElementById("objHeatmap");
+  if (!heat.length) {
+    heatEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No objection data yet.</div>';
     return;
   }
-  var spNames=uniq(heat.map(function(h){return h.salesperson||"";})).filter(Boolean).sort();
-  var maxCount=Math.max.apply(null,heat.map(function(h){return h.count||0;}).concat([1]));
-  var byObj={};
-  heat.forEach(function(h){
-    var obj=h.objection||"Other";
-    if(!byObj[obj]) byObj[obj]={};
-    byObj[obj][h.salesperson]=(byObj[obj][h.salesperson]||0)+(h.count||0);
+  var spNames  = uniq(heat.map(function(h){ return h.salesperson || ""; })).filter(Boolean).sort();
+  var maxCount = Math.max.apply(null, heat.map(function(h){ return h.count || 0; }).concat([1]));
+  var byObj    = {};
+  heat.forEach(function(h) {
+    var obj = h.objection || "Other";
+    if (!byObj[obj]) byObj[obj] = {};
+    byObj[obj][h.salesperson] = (byObj[obj][h.salesperson] || 0) + (h.count || 0);
   });
-  var html='<table class="obj-heat-table"><thead><tr><th>Objection</th>';
-  spNames.forEach(function(sp){ html+='<th>'+esc(sp)+'</th>'; });
-  html+='</tr></thead><tbody>';
-  Object.keys(byObj).sort().forEach(function(obj){
-    var rowTotal=spNames.reduce(function(s,sp){return s+(byObj[obj][sp]||0);},0);
-    html+='<tr><td>'+esc(obj)+' <span style="color:var(--gray);font-weight:400;font-size:10px">(total: '+rowTotal+')</span></td>';
-    spNames.forEach(function(sp){
-      var cnt=byObj[obj][sp]||0, intensity=cnt>0?Math.max(0.08,cnt/maxCount):0;
-      var bg=cnt>0?'rgba(208,38,26,'+intensity.toFixed(2)+')':'var(--off)';
-      var fc=intensity>0.45?'#fff':(cnt>0?'var(--red-dk)':'var(--gray)');
-      html+='<td style="background:'+bg+';color:'+fc+'">'+(cnt>0?cnt:'')+'</td>';
+  var html = '<table class="obj-heat-table"><thead><tr><th>Objection</th>';
+  spNames.forEach(function(sp){ html += '<th>' + esc(sp) + '</th>'; });
+  html += '</tr></thead><tbody>';
+  Object.keys(byObj).sort().forEach(function(obj) {
+    var rowTotal = spNames.reduce(function(s, sp){ return s + (byObj[obj][sp] || 0); }, 0);
+    html += '<tr><td>' + esc(obj) + ' <span style="color:var(--gray);font-weight:400;font-size:10px">(total: ' + rowTotal + ')</span></td>';
+    spNames.forEach(function(sp) {
+      var cnt       = byObj[obj][sp] || 0;
+      var intensity = cnt > 0 ? Math.max(0.08, cnt / maxCount) : 0;
+      var bg        = cnt > 0 ? 'rgba(208,38,26,' + intensity.toFixed(2) + ')' : 'var(--off)';
+      var fc        = intensity > 0.45 ? '#fff' : (cnt > 0 ? 'var(--red-dk)' : 'var(--gray)');
+      html += '<td style="background:' + bg + ';color:' + fc + '">' + (cnt > 0 ? cnt : '') + '</td>';
     });
-    html+='</tr>';
+    html += '</tr>';
   });
-  html+='</tbody></table>';
-  heatEl.innerHTML=html;
+  html += '</tbody></table>';
+  heatEl.innerHTML = html;
 }
 
 /* ── Analytics tab ── */
 function renderAnalytics() {
-  var k=_dashData.kpis||{}, sps=_dashData.salespersons||[], calls=_dashData.allCalls||[];
+  var k    = _dashData.kpis || {};
+  var sps  = _dashData.salespersons || [];
+  var calls = _dashData.allCalls || [];
 
   document.getElementById("analyticsKPI").innerHTML =
-    akpiCard("Hot Lead Rate",    (k.hotRate||0)+"%",  (k.hotRate||0)>=30?"good":(k.hotRate||0)>=15?"warn":"bad",  (k.hotLeads||0)+" hot out of "+(k.totalCalls||0)+" calls") +
-    akpiCard("Interest Rate",   (k.convRate||0)+"%",  (k.convRate||0)>=20?"good":(k.convRate||0)>=10?"warn":"bad", (k.interested||0)+" students expressed interest") +
-    akpiCard("Avg Call Score",  (k.avgScore||0)+"/10",(k.avgScore||0)>=7?"good":(k.avgScore||0)>=5?"warn":"bad",   (k.strongCount||0)+" strong calls recorded") +
-    akpiCard("Urgent Follow-ups", k.urgentCount||0,   (k.urgentCount||0)>0?"warn":"good", "need same-day action");
+    akpiCard("Hot Lead Rate",     (k.hotRate  || 0) + "%", (k.hotRate  || 0) >= 30 ? "good" : (k.hotRate  || 0) >= 15 ? "warn" : "bad", (k.hotLeads || 0) + " hot out of " + (k.totalCalls || 0) + " calls") +
+    akpiCard("Interest Rate",     (k.convRate || 0) + "%", (k.convRate || 0) >= 20 ? "good" : (k.convRate || 0) >= 10 ? "warn" : "bad", (k.interested || 0) + " students expressed interest") +
+    akpiCard("Avg Call Score",    (k.avgScore || 0) + "/10", (k.avgScore || 0) >= 7 ? "good" : (k.avgScore || 0) >= 5 ? "warn" : "bad", (k.strongCount || 0) + " strong calls recorded") +
+    akpiCard("Urgent Follow-ups", k.urgentCount || 0, (k.urgentCount || 0) > 0 ? "warn" : "good", "need same-day action");
 
   document.getElementById("alertSummary").innerHTML =
-    alertSCard("Urgent Follow-ups",  k.urgentCount||0,    "danger", "Calls needing same-day action") +
-    alertSCard("Students At Risk",   k.retentionCount||0, "warn",   "Showing signs of dropping out") +
-    alertSCard("Strong Calls",       k.strongCount||0,    "ok",     "High quality calls this period");
+    alertSCard("Urgent Follow-ups", k.urgentCount   || 0, "danger", "Calls needing same-day action") +
+    alertSCard("Students At Risk",  k.retentionCount|| 0, "warn",   "Showing signs of dropping out") +
+    alertSCard("Strong Calls",      k.strongCount   || 0, "ok",     "High quality calls this period");
 
-  // Monthly trend — uses allCalls (capped at 500, enough for trends)
-  var monthMap={};
-  calls.forEach(function(c){
-    if(!c.dateIso) return;
-    var mk=c.dateIso.slice(0,7);
-    if(!monthMap[mk]) monthMap[mk]={hot:0,total:0,scoreSum:0,scoreCnt:0,avgScore:0};
+  // Monthly trend
+  var monthMap = {};
+  calls.forEach(function(c) {
+    if (!c.dateIso) return;
+    var mk = c.dateIso.slice(0, 7);
+    if (!monthMap[mk]) monthMap[mk] = { hot:0, total:0, scoreSum:0, scoreCnt:0, avgScore:0 };
     monthMap[mk].total++;
-    if((c.leadIntent||"")==="Hot") monthMap[mk].hot++;
-    if((c.spScore||0)>0){ monthMap[mk].scoreSum+=c.spScore; monthMap[mk].scoreCnt++; }
-    monthMap[mk].avgScore=monthMap[mk].scoreCnt ? parseFloat((monthMap[mk].scoreSum/monthMap[mk].scoreCnt).toFixed(1)) : 0;
+    if ((c.leadIntent || "") === "Hot") monthMap[mk].hot++;
+    if ((c.spScore || 0) > 0) { monthMap[mk].scoreSum += c.spScore; monthMap[mk].scoreCnt++; }
+    monthMap[mk].avgScore = monthMap[mk].scoreCnt ? parseFloat((monthMap[mk].scoreSum / monthMap[mk].scoreCnt).toFixed(1)) : 0;
   });
-  var mKeys=Object.keys(monthMap).sort();
-  var mNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  var mLabels=mKeys.map(function(k2){ var p=k2.split("-"); return mNames[parseInt(p[1],10)-1]+" "+p[0].slice(2); });
-  document.getElementById("trendAnalyticsSub").textContent = mLabels.length>=2 ? "Total calls (bars) vs avg score (line) · "+mLabels[0]+" – "+mLabels[mLabels.length-1] : "Total calls (bars) vs average score (line)";
+  var mKeys   = Object.keys(monthMap).sort();
+  var mNames  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var mLabels = mKeys.map(function(k2){ var p = k2.split("-"); return mNames[parseInt(p[1], 10) - 1] + " " + p[0].slice(2); });
+  document.getElementById("trendAnalyticsSub").textContent = mLabels.length >= 2
+    ? "Total calls (bars) vs avg score (line) · " + mLabels[0] + " – " + mLabels[mLabels.length - 1]
+    : "Total calls (bars) vs average score (line)";
 
-  if(mKeys.length){
+  if (mKeys.length) {
     destroyChart("analyticsMonthChart");
-    _charts.analyticsMonthChart=new Chart(document.getElementById("analyticsMonthChart").getContext("2d"),{
+    _charts.analyticsMonthChart = new Chart(document.getElementById("analyticsMonthChart").getContext("2d"), {
       type:"line",
       data:{
-        labels:mLabels,
+        labels: mLabels,
         datasets:[
-          { label:"Calls",     data:mKeys.map(function(k2){return monthMap[k2].total;}),    backgroundColor:"rgba(208,38,26,.08)", borderColor:"#D0261A", borderWidth:2, fill:true, tension:.35, yAxisID:"y" },
-          { label:"Avg Score", data:mKeys.map(function(k2){return monthMap[k2].avgScore;}), borderColor:"rgba(34,197,94,.9)", borderWidth:2, fill:false, tension:.35, pointRadius:3, yAxisID:"y2" }
+          { label:"Calls",     data:mKeys.map(function(k2){ return monthMap[k2].total; }),    backgroundColor:"rgba(208,38,26,.08)", borderColor:"#D0261A", borderWidth:2, fill:true, tension:.35, yAxisID:"y" },
+          { label:"Avg Score", data:mKeys.map(function(k2){ return monthMap[k2].avgScore; }), borderColor:"rgba(34,197,94,.9)", borderWidth:2, fill:false, tension:.35, pointRadius:3, yAxisID:"y2" }
         ]
       },
       options:{
@@ -1240,90 +1308,102 @@ function renderAnalytics() {
   }
 
   // Day of Week
-  var dowMap={0:{sum:0,cnt:0},1:{sum:0,cnt:0},2:{sum:0,cnt:0},3:{sum:0,cnt:0},4:{sum:0,cnt:0},5:{sum:0,cnt:0},6:{sum:0,cnt:0}};
-  calls.forEach(function(c){
-    if(!c.dateIso||!(c.spScore>0)) return;
-    try{ var d=new Date(c.dateIso+"T12:00:00"); dowMap[d.getDay()].sum+=c.spScore; dowMap[d.getDay()].cnt++; }catch(e){}
+  var dowMap = {0:{sum:0,cnt:0},1:{sum:0,cnt:0},2:{sum:0,cnt:0},3:{sum:0,cnt:0},4:{sum:0,cnt:0},5:{sum:0,cnt:0},6:{sum:0,cnt:0}};
+  calls.forEach(function(c) {
+    if (!c.dateIso || !(c.spScore > 0)) return;
+    try { var d = new Date(c.dateIso + "T12:00:00"); dowMap[d.getDay()].sum += c.spScore; dowMap[d.getDay()].cnt++; } catch(e) {}
   });
-  var dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], maxAvg=0;
-  for(var d=0;d<7;d++){ if(dowMap[d].cnt>0){ var a=dowMap[d].sum/dowMap[d].cnt; if(a>maxAvg)maxAvg=a; } }
-  var dowHtml="";
-  for(var d2=0;d2<7;d2++){
-    var avg2=dowMap[d2].cnt>0 ? parseFloat((dowMap[d2].sum/dowMap[d2].cnt).toFixed(1)) : 0;
-    var bw=dowMap[d2].cnt>0 ? Math.round(avg2/(maxAvg||10)*100) : 0;
-    var col=avg2>=7?"#22c55e":avg2>=5?"#f59e0b":avg2>0?"#D0261A":"#e8e4e0";
-    dowHtml+='<div class="dow-row"><div class="dow-label">'+dayNames[d2]+'</div><div class="dow-bar-bg"><div class="dow-bar-fill" style="width:'+bw+'%;background:'+col+'"></div></div><div class="dow-pct">'+(dowMap[d2].cnt>0?avg2+"/10":"—")+'</div></div>';
+  var dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], maxAvg = 0;
+  for (var d = 0; d < 7; d++) { if (dowMap[d].cnt > 0) { var a = dowMap[d].sum / dowMap[d].cnt; if (a > maxAvg) maxAvg = a; } }
+  var dowHtml = "";
+  for (var d2 = 0; d2 < 7; d2++) {
+    var avg2 = dowMap[d2].cnt > 0 ? parseFloat((dowMap[d2].sum / dowMap[d2].cnt).toFixed(1)) : 0;
+    var bw   = dowMap[d2].cnt > 0 ? Math.round(avg2 / (maxAvg || 10) * 100) : 0;
+    var col  = avg2 >= 7 ? "#22c55e" : avg2 >= 5 ? "#f59e0b" : avg2 > 0 ? "#D0261A" : "#e8e4e0";
+    dowHtml += '<div class="dow-row"><div class="dow-label">' + dayNames[d2] + '</div><div class="dow-bar-bg"><div class="dow-bar-fill" style="width:' + bw + '%;background:' + col + '"></div></div><div class="dow-pct">' + (dowMap[d2].cnt > 0 ? avg2 + "/10" : "—") + '</div></div>';
   }
-  document.getElementById("dowChart").innerHTML=dowHtml;
+  document.getElementById("dowChart").innerHTML = dowHtml;
 
-  // SP comparison — uses KPI sheet data (full, not capped)
-  var maxCalls=Math.max.apply(null, sps.map(function(s){return s.totalCalls||0;}).concat([1]));
-  document.getElementById("spCompareChart").innerHTML = sps.map(function(sp){
-    var bw=Math.round((sp.totalCalls||0)/maxCalls*100), sc=sp.avgScore||0, cls=sc>=7?"good":sc>=5?"warn":"bad";
+  // SP comparison
+  var maxCalls = Math.max.apply(null, sps.map(function(s){ return s.totalCalls || 0; }).concat([1]));
+  document.getElementById("spCompareChart").innerHTML = sps.map(function(sp) {
+    var bw  = Math.round((sp.totalCalls || 0) / maxCalls * 100);
+    var sc  = sp.avgScore || 0;
+    var cls = sc >= 7 ? "good" : sc >= 5 ? "warn" : "bad";
     return '<div class="batch-compare-row">' +
-      '<div class="batch-compare-label" title="'+esc(sp.name||"")+'">'+esc(sp.name||"?")+'</div>' +
-      '<div class="batch-compare-bar-bg"><div class="batch-compare-bar-fill" style="width:'+bw+'%;background:'+(sc>=7?"#22c55e":sc>=5?"#f59e0b":"#D0261A")+'"></div></div>' +
-      '<div class="batch-compare-pct '+cls+'">'+sc+'</div>' +
-      '<div class="batch-compare-cnt">'+(sp.totalCalls||0)+' calls</div>' +
+      '<div class="batch-compare-label" title="' + esc(sp.name || "") + '">' + esc(sp.name || "?") + '</div>' +
+      '<div class="batch-compare-bar-bg"><div class="batch-compare-bar-fill" style="width:' + bw + '%;background:' + (sc >= 7 ? "#22c55e" : sc >= 5 ? "#f59e0b" : "#D0261A") + '"></div></div>' +
+      '<div class="batch-compare-pct ' + cls + '">' + sc + '</div>' +
+      '<div class="batch-compare-cnt">' + (sp.totalCalls || 0) + ' calls</div>' +
     '</div>';
   }).join("") || '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">No data yet</div>';
 
-  // Score distribution donut — uses allCalls (capped but good enough)
-  var scoreRanges=[{label:"8–10 Excellent",lo:8,hi:11},{label:"6–7 Good",lo:6,hi:8},{label:"4–5 Average",lo:4,hi:6},{label:"1–3 Poor",lo:1,hi:4}];
-  var scoreCounts=scoreRanges.map(function(r){ return calls.filter(function(c){ return (c.spScore||0)>=r.lo&&(c.spScore||0)<r.hi; }).length; });
-  mkDoughnut("scoreDistChart", scoreRanges.map(function(r){return r.label;}), scoreCounts, ["rgba(34,197,94,.85)","rgba(59,130,246,.85)","rgba(245,158,11,.85)","rgba(208,38,26,.85)"]);
-  var scoreColors=["#22c55e","#3b82f6","#f59e0b","#D0261A"];
-  document.getElementById("scoreDistLegend").innerHTML=scoreRanges.map(function(r,i){
-    return '<div class="donut-legend-item"><div class="donut-legend-dot" style="background:'+scoreColors[i]+'"></div><span class="donut-legend-label">'+esc(r.label)+'</span><span class="donut-legend-val">'+scoreCounts[i]+'</span></div>';
+  // Score distribution donut
+  var scoreRanges = [{label:"8–10 Excellent",lo:8,hi:11},{label:"6–7 Good",lo:6,hi:8},{label:"4–5 Average",lo:4,hi:6},{label:"1–3 Poor",lo:1,hi:4}];
+  var scoreCounts = scoreRanges.map(function(r){ return calls.filter(function(c){ return (c.spScore || 0) >= r.lo && (c.spScore || 0) < r.hi; }).length; });
+  mkDoughnut("scoreDistChart", scoreRanges.map(function(r){ return r.label; }), scoreCounts, ["rgba(34,197,94,.85)","rgba(59,130,246,.85)","rgba(245,158,11,.85)","rgba(208,38,26,.85)"]);
+  var scoreColors = ["#22c55e","#3b82f6","#f59e0b","#D0261A"];
+  document.getElementById("scoreDistLegend").innerHTML = scoreRanges.map(function(r, i) {
+    return '<div class="donut-legend-item"><div class="donut-legend-dot" style="background:' + scoreColors[i] + '"></div><span class="donut-legend-label">' + esc(r.label) + '</span><span class="donut-legend-val">' + scoreCounts[i] + '</span></div>';
   }).join("");
 
-  // Spotlights — use KPI sheet data (full totals)
-  var eligible=sps.filter(function(s){ return (s.totalCalls||0)>=3; });
-  var byHot=eligible.slice().sort(function(a,b){ return ((b.hot||0)/Math.max(b.totalCalls||1,1))-((a.hot||0)/Math.max(a.totalCalls||1,1)); }).slice(0,8);
-  var byCoach=eligible.slice().sort(function(a,b){ return (a.avgScore||0)-(b.avgScore||0); }).slice(0,8);
-  document.getElementById("topBadge").textContent=eligible.length+" salespeople";
-  document.getElementById("coachBadge").textContent=byCoach.length+" to coach";
-  renderSpotlight("topList",   byHot,   function(s){ return parseFloat(((s.hot||0)/Math.max(s.totalCalls||1,1)*100).toFixed(1))+"%"; });
-  renderSpotlight("coachList", byCoach, function(s){ return (s.avgScore||0)+"/10"; });
+  // Spotlights
+  var eligible = sps.filter(function(s){ return (s.totalCalls || 0) >= 3; });
+  var byHot    = eligible.slice().sort(function(a, b){ return ((b.hot || 0) / Math.max(b.totalCalls || 1, 1)) - ((a.hot || 0) / Math.max(a.totalCalls || 1, 1)); }).slice(0, 8);
+  var byCoach  = eligible.slice().sort(function(a, b){ return (a.avgScore || 0) - (b.avgScore || 0); }).slice(0, 8);
+  document.getElementById("topBadge").textContent   = eligible.length + " salespeople";
+  document.getElementById("coachBadge").textContent = byCoach.length + " to coach";
+  renderSpotlight("topList",   byHot,   function(s){ return parseFloat(((s.hot || 0) / Math.max(s.totalCalls || 1, 1) * 100).toFixed(1)) + "%"; });
+  renderSpotlight("coachList", byCoach, function(s){ return (s.avgScore || 0) + "/10"; });
 }
 
+// FIX: spotlight rows use data-name attribute; delegated handler below.
 function renderSpotlight(elId, data, valFn) {
-  var el=document.getElementById(elId);
-  if(!data.length){ el.innerHTML='<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px">No data yet (need ≥3 calls per person)</div>'; return; }
-  el.innerHTML=data.map(function(sp,i){
-    var val=valFn(sp), num=parseFloat(val), cls=num>=70||num>=7?"good":num>=40||num>=5?"warn":"bad";
-    return '<div class="spotlight-row" onclick="showSpDetail(\''+esc((sp.name||"").replace(/'/g,"\\'"))+'\')">' +
-      '<div class="spotlight-rank">'+(i+1)+'</div>' +
-      '<div style="flex:1;min-width:0"><div class="spotlight-name">'+esc(sp.name||"?")+'</div><div class="spotlight-meta">'+(sp.totalCalls||0)+' total calls</div></div>' +
-      '<div class="spotlight-bar"><div class="spotlight-bar-fill '+cls+'" style="width:'+Math.min(num,100)+'%"></div></div>' +
-      '<div class="spotlight-pct '+cls+'">'+val+'</div>' +
+  var el = document.getElementById(elId);
+  if (!data.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray);font-size:13px">No data yet (need ≥3 calls per person)</div>';
+    el.onclick = null;
+    return;
+  }
+  el.innerHTML = data.map(function(sp, i) {
+    var val = valFn(sp), num = parseFloat(val);
+    var cls = num >= 70 || num >= 7 ? "good" : num >= 40 || num >= 5 ? "warn" : "bad";
+    return '<div class="spotlight-row" data-name="' + esc(sp.name || "") + '">' +
+      '<div class="spotlight-rank">' + (i + 1) + '</div>' +
+      '<div style="flex:1;min-width:0"><div class="spotlight-name">' + esc(sp.name || "?") + '</div><div class="spotlight-meta">' + (sp.totalCalls || 0) + ' total calls</div></div>' +
+      '<div class="spotlight-bar"><div class="spotlight-bar-fill ' + cls + '" style="width:' + Math.min(num, 100) + '%"></div></div>' +
+      '<div class="spotlight-pct ' + cls + '">' + val + '</div>' +
     '</div>';
   }).join("");
+  el.onclick = function(e) {
+    var row = e.target.closest(".spotlight-row[data-name]");
+    if (row) showSpDetail(row.getAttribute("data-name"));
+  };
 }
 
 /* ═══════════════════════════════════════════════════════
    TAB SWITCHING
 ═══════════════════════════════════════════════════════ */
 function switchTabById(id) {
-  var btn=null;
-  document.querySelectorAll(".tab-btn").forEach(function(b){
-    if(b.getAttribute("onclick")&&b.getAttribute("onclick").indexOf("'"+id+"'")!==-1) btn=b;
+  var btn = null;
+  document.querySelectorAll(".tab-btn").forEach(function(b) {
+    if (b.getAttribute("onclick") && b.getAttribute("onclick").indexOf("'" + id + "'") !== -1) btn = b;
   });
   switchTab(id, btn);
 }
 
 function switchTab(id, btn) {
-  document.querySelectorAll(".tab-panel").forEach(function(p){ p.className="tab-panel"; });
+  document.querySelectorAll(".tab-panel").forEach(function(p){ p.className = "tab-panel"; });
   document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("active"); });
-  var panel=document.getElementById("tab-"+id);
-  if(panel) panel.className="tab-panel active";
-  if(btn) btn.classList.add("active");
-  else document.querySelectorAll(".tab-btn").forEach(function(b){
-    if(b.getAttribute("onclick")&&b.getAttribute("onclick").indexOf("'"+id+"'")!==-1) b.classList.add("active");
+  var panel = document.getElementById("tab-" + id);
+  if (panel) panel.className = "tab-panel active";
+  if (btn) btn.classList.add("active");
+  else document.querySelectorAll(".tab-btn").forEach(function(b) {
+    if (b.getAttribute("onclick") && b.getAttribute("onclick").indexOf("'" + id + "'") !== -1) b.classList.add("active");
   });
-  setTimeout(function(){
-    Object.values(_charts).forEach(function(c){ try{c.resize();}catch(e){} });
-    if(_spChartInst) try{_spChartInst.resize();}catch(e){}
+  setTimeout(function() {
+    Object.values(_charts).forEach(function(c){ try{ c.resize(); }catch(e){} });
+    if (_spChartInst) try{ _spChartInst.resize(); }catch(e){}
   }, 50);
 }
 
@@ -1343,12 +1423,12 @@ function barOpts(stacked) {
 
 function mkDoughnut(id, labels, data, colors) {
   destroyChart(id);
-  var el=document.getElementById(id);
-  if(!el) return;
-  var f={labels:[],data:[],colors:[]};
-  labels.forEach(function(l,i){ if(data[i]>0){ f.labels.push(l); f.data.push(data[i]); f.colors.push(colors[i]); } });
-  if(!f.data.length) f={labels:labels,data:data,colors:colors};
-  _charts[id]=new Chart(el.getContext("2d"),{
+  var el = document.getElementById(id);
+  if (!el) return;
+  var f = { labels:[], data:[], colors:[] };
+  labels.forEach(function(l, i){ if (data[i] > 0) { f.labels.push(l); f.data.push(data[i]); f.colors.push(colors[i]); } });
+  if (!f.data.length) f = { labels:labels, data:data, colors:colors };
+  _charts[id] = new Chart(el.getContext("2d"), {
     type:"doughnut",
     data:{ labels:f.labels, datasets:[{ data:f.data, backgroundColor:f.colors, borderWidth:2, borderColor:"#ffffff", hoverOffset:5 }] },
     options:{ responsive:true, maintainAspectRatio:false, cutout:"65%",
@@ -1358,72 +1438,96 @@ function mkDoughnut(id, labels, data, colors) {
 }
 
 function destroyChart(id) {
-  if(_charts[id]){ try{_charts[id].destroy();}catch(e){} delete _charts[id]; }
+  if (_charts[id]) { try{ _charts[id].destroy(); }catch(e){} delete _charts[id]; }
 }
 
 function akpiCard(label, val, cls, sub) {
-  return '<div class="akpi-card"><div class="akpi-label">'+esc(label)+'</div><div class="akpi-val'+(cls?' '+cls:'')+'">'+esc(String(val||0))+'</div><div class="akpi-sub">'+esc(sub||"")+'</div></div>';
+  return '<div class="akpi-card"><div class="akpi-label">' + esc(label) + '</div><div class="akpi-val' + (cls ? ' ' + cls : '') + '">' + esc(String(val || 0)) + '</div><div class="akpi-sub">' + esc(sub || "") + '</div></div>';
 }
 function alertSCard(label, val, type, sub) {
-  return '<div class="alert-sum-card '+type+'"><div class="alert-sum-num">'+val+'</div><div class="alert-sum-label">'+esc(label)+'</div><div class="alert-sum-sub">'+esc(sub||"")+'</div></div>';
+  return '<div class="alert-sum-card ' + type + '"><div class="alert-sum-num">' + val + '</div><div class="alert-sum-label">' + esc(label) + '</div><div class="alert-sum-sub">' + esc(sub || "") + '</div></div>';
 }
 
 /* ═══════════════════════════════════════════════════════
    BADGE HELPERS
 ═══════════════════════════════════════════════════════ */
 function typeBadge(v) {
-  var m={"New Lead":"new","Follow-up":"follow","Fee Collection":"fee","Batch Info":"batch"};
-  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
+  var m = {"New Lead":"new","Follow-up":"follow","Fee Collection":"fee","Batch Info":"batch"};
+  return v ? '<span class="badge badge-' + (m[v] || "std") + '">' + esc(v) + '</span>' : '<span class="badge badge-std">—</span>';
 }
 function intentBadge(v) {
-  var m={"Hot":"hot","Warm":"warm","Cold":"cold"};
-  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
+  var m = {"Hot":"hot","Warm":"warm","Cold":"cold"};
+  return v ? '<span class="badge badge-' + (m[v] || "std") + '">' + esc(v) + '</span>' : '<span class="badge badge-std">—</span>';
 }
 function outcomeBadge(v) {
-  var m={"Interested":"int","Needs Follow-up":"nfu","Not Interested":"nint","Call Disconnected":"disc","Information Only":"std"};
-  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
+  var m = {"Interested":"int","Needs Follow-up":"nfu","Not Interested":"nint","Call Disconnected":"disc","Information Only":"std"};
+  return v ? '<span class="badge badge-' + (m[v] || "std") + '">' + esc(v) + '</span>' : '<span class="badge badge-std">—</span>';
 }
 function priBadge(v) {
-  var m={"High":"urgent","Medium":"nfu","Low":"disc"};
-  return v ? '<span class="badge badge-'+(m[v]||"std")+'">'+esc(v)+'</span>' : '<span class="badge badge-std">—</span>';
+  var m = {"High":"urgent","Medium":"nfu","Low":"disc"};
+  return v ? '<span class="badge badge-' + (m[v] || "std") + '">' + esc(v) + '</span>' : '<span class="badge badge-std">—</span>';
 }
 function flagBadge(v) {
-  if(!v||v==="STANDARD") return '<span class="badge badge-std">Standard</span>';
-  var mc={URGENT_FOLLOWUP:"urgent",RETENTION_RISK:"ret",STRONG_CALL:"strong",WEAK_CALL:"weak"};
-  var ml={URGENT_FOLLOWUP:"Urgent",RETENTION_RISK:"At Risk",STRONG_CALL:"Strong",WEAK_CALL:"Weak"};
-  return '<span class="badge badge-'+(mc[v]||"std")+'">'+(ml[v]||"Standard")+'</span>';
+  if (!v || v === "STANDARD") return '<span class="badge badge-std">Standard</span>';
+  var mc = {URGENT_FOLLOWUP:"urgent",RETENTION_RISK:"ret",STRONG_CALL:"strong",WEAK_CALL:"weak"};
+  var ml = {URGENT_FOLLOWUP:"Urgent",RETENTION_RISK:"At Risk",STRONG_CALL:"Strong",WEAK_CALL:"Weak"};
+  return '<span class="badge badge-' + (mc[v] || "std") + '">' + (ml[v] || "Standard") + '</span>';
 }
 function scorePill(s) {
-  var n=parseFloat(s)||0;
-  if(n<=0) return '<span class="score-pill score-na">—</span>';
-  var cls=n>=7?"score-hi":n>=5?"score-mid":"score-lo";
-  return '<span class="score-pill '+cls+'">'+n+'</span>';
+  var n = parseFloat(s) || 0;
+  if (n <= 0) return '<span class="score-pill score-na">—</span>';
+  var cls = n >= 7 ? "score-hi" : n >= 5 ? "score-mid" : "score-lo";
+  return '<span class="score-pill ' + cls + '">' + n + '</span>';
 }
 function fmtDate(iso) {
-  if(!iso) return "—";
-  try{ var d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("en-IN",{day:"numeric",month:"short"}); }catch(e){ return iso; }
+  if (!iso) return "—";
+  try { var d = new Date(iso + "T12:00:00"); return d.toLocaleDateString("en-IN", {day:"numeric", month:"short"}); } catch(e) { return iso; }
 }
-function countBy(arr,key,val){ return (arr||[]).filter(function(c){ return (c[key]||"")===(val||""); }).length; }
-function uniq(arr){ var s={}; return (arr||[]).filter(function(v){ if(s[v]) return false; s[v]=true; return true; }); }
-function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function countBy(arr, key, val) { return (arr || []).filter(function(c){ return (c[key] || "") === (val || ""); }).length; }
+function uniq(arr) { var s = {}; return (arr || []).filter(function(v){ if (s[v]) return false; s[v] = true; return true; }); }
+function esc(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 /* ═══════════════════════════════════════════════════════
    JSONP — 30s timeout with fired guard
+   FIX: Uses a sequential counter (_jsonpSeq) instead of
+   Date.now()+random() to guarantee unique callback names
+   even when two requests fire within the same millisecond.
 ═══════════════════════════════════════════════════════ */
 function jsonp(url, cb) {
-  var id="cb_"+Date.now()+"_"+Math.floor(Math.random()*99999), t=null, fired=false;
-  function cleanup(){
-    if(t){clearTimeout(t);t=null;}
-    var s=document.getElementById(id);
-    if(s){ try{document.body.removeChild(s);}catch(e){} }
-    try{delete window[id];}catch(e){window[id]=undefined;}
+  var id    = "cb_" + (++_jsonpSeq);
+  var t     = null;
+  var fired = false;
+
+  function cleanup() {
+    if (t) { clearTimeout(t); t = null; }
+    var s = document.getElementById(id);
+    if (s) { try { document.body.removeChild(s); } catch(e) {} }
+    try { delete window[id]; } catch(e) { window[id] = undefined; }
   }
-  window[id]=function(data){ if(fired)return; fired=true; cleanup(); cb(data); };
-  t=setTimeout(function(){ if(fired)return; fired=true; cleanup(); cb(null); }, 30000);
-  var s=document.createElement("script");
-  s.id=id;
-  s.src=url+"&callback="+id;
-  s.onerror=function(){ if(fired)return; fired=true; cleanup(); cb(null); };
+
+  window[id] = function(data) {
+    if (fired) return;
+    fired = true;
+    cleanup();
+    cb(data);
+  };
+
+  t = setTimeout(function() {
+    if (fired) return;
+    fired = true;
+    cleanup();
+    cb(null);
+  }, 30000);
+
+  var s  = document.createElement("script");
+  s.id   = id;
+  s.src  = url + "&callback=" + id;
+  s.onerror = function() {
+    if (fired) return;
+    fired = true;
+    cleanup();
+    cb(null);
+  };
   document.body.appendChild(s);
 }
 </script>
