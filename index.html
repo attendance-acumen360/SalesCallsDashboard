@@ -202,22 +202,6 @@ input,select{font-family:inherit;outline:none}
 .s-lo{background:rgba(208,38,26,.1);color:var(--red-dk)}
 .s-na{background:var(--off);color:var(--gray)}
 
-/* ── FOLLOW-UPS ── */
-.fu-today-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.fu-today-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;box-shadow:var(--card-sh)}
-.fu-today-val{font-family:var(--ff-head);font-size:38px;line-height:1;margin-bottom:4px;color:var(--black)}
-.fu-today-lbl{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray)}
-.fu-row{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
-.fu-row:last-child{border-bottom:none}
-.fu-row:hover{background:var(--off)}
-.fu-pri{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
-.fu-pri.h{background:var(--red)}.fu-pri.m{background:var(--amber)}.fu-pri.l{background:var(--gray)}
-.fu-main{flex:1;min-width:0}
-.fu-sp{font-size:13px;font-weight:600;margin-bottom:2px}
-.fu-action{font-size:12px;color:var(--gray);line-height:1.5;margin-bottom:5px}
-.fu-tags{display:flex;gap:5px;flex-wrap:wrap}
-.fu-meta{font-size:10px;color:var(--gray);white-space:nowrap;flex-shrink:0;font-family:var(--ff-mono);text-align:right;line-height:1.8}
-
 /* ── TEAM CARDS ── */
 .sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:16px}
 .sp-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:18px;cursor:pointer;transition:border-color .2s,transform .15s;box-shadow:var(--card-sh);position:relative;overflow:hidden}
@@ -303,8 +287,8 @@ input,select{font-family:inherit;outline:none}
 
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){.g3{grid-template-columns:1fr 1fr}.g12{grid-template-columns:1fr}}
-@media(max-width:900px){.kpi-strip{grid-template-columns:repeat(3,1fr)}.g2,.g3{grid-template-columns:1fr}.akpi-row{grid-template-columns:repeat(2,1fr)}.fu-today-strip{grid-template-columns:repeat(2,1fr)}.tb-ts{display:none}}
-@media(max-width:640px){.kpi-strip,.akpi-row,.fu-today-strip{grid-template-columns:repeat(2,1fr)}.page{padding:12px 12px 60px}.tab-btn{font-size:10px;padding:7px 10px}.topbar{padding:0 12px;gap:8px}.tb-sub{display:none}}
+@media(max-width:900px){.kpi-strip{grid-template-columns:repeat(3,1fr)}.g2,.g3{grid-template-columns:1fr}.akpi-row{grid-template-columns:repeat(2,1fr)}.tb-ts{display:none}}
+@media(max-width:640px){.kpi-strip,.akpi-row{grid-template-columns:repeat(2,1fr)}.page{padding:12px 12px 60px}.tab-btn{font-size:10px;padding:7px 10px}.topbar{padding:0 12px;gap:8px}.tb-sub{display:none}}
 </style>
 </head>
 <body>
@@ -363,30 +347,15 @@ input,select{font-family:inherit;outline:none}
   <div class="kpi-strip" id="kpiStrip"></div>
 
   <nav class="tab-nav">
-    <button class="tab-btn on" data-tab="followups"  onclick="switchTab('followups',this)"><span class="tab-icon">⚡</span> Follow-ups</button>
-    <button class="tab-btn"    data-tab="overview"   onclick="switchTab('overview',this)"><span class="tab-icon">📊</span> Overview</button>
+    <button class="tab-btn on" data-tab="overview"   onclick="switchTab('overview',this)"><span class="tab-icon">📊</span> Overview</button>
     <button class="tab-btn"    data-tab="calls"      onclick="switchTab('calls',this)"><span class="tab-icon">📞</span> All Calls</button>
     <button class="tab-btn"    data-tab="team"       onclick="switchTab('team',this)"><span class="tab-icon">👥</span> Team</button>
     <button class="tab-btn"    data-tab="objections" onclick="switchTab('objections',this)"><span class="tab-icon">🔍</span> Objections</button>
     <button class="tab-btn"    data-tab="analytics"  onclick="switchTab('analytics',this)"><span class="tab-icon">📈</span> Analytics</button>
   </nav>
 
-  <!-- FOLLOW-UPS -->
-  <div class="panel on" id="panel-followups">
-    <div class="sec-head">
-      <span class="sec-head-title">⚡ Today's Action List</span>
-      <span class="sec-head-sub" id="fuDate"></span>
-    </div>
-    <div class="fu-today-strip" id="fuStrip"></div>
-    <div class="card gfull">
-      <div class="card-title">High Priority Follow-ups</div>
-      <div class="card-sub">Sorted by most recent — act on these today. Click any row to expand.</div>
-      <div id="fuList"><div style="text-align:center;padding:40px;color:var(--gray)">Loading follow-ups…</div></div>
-    </div>
-  </div>
-
   <!-- OVERVIEW -->
-  <div class="panel" id="panel-overview">
+  <div class="panel on" id="panel-overview">
     <div class="sec-head"><span class="sec-head-title">📊 Overview</span></div>
     <div class="g3">
       <div class="card">
@@ -601,7 +570,7 @@ var API = "https://script.google.com/macros/s/AKfycbxwvkFnVpv7EdzJ05XOSoh1EtKSlR
 
 // ── STATE ────────────────────────────────────────────────────
 var _tok="", _dash=null, _calls=[], _callMeta={}, _callPage=1;
-var _charts={}, _spChart=null, _busy=false, _seq=0, _xRow=null, _fuExpanded=null;
+var _charts={}, _spChart=null, _busy=false, _seq=0, _xRow=null;
 var _callsLoaded=false;
 
 // ── INIT ─────────────────────────────────────────────────────
@@ -665,17 +634,6 @@ function fetchDashboard(){
     if(d.expired||!d.ok){expiredLogout(d.error);return;}
     _dash=d.data;
     try { renderAll(); } catch(e){ console.error("renderAll error:",e); toast("Render error: "+e.message,"err"); }
-    setTimeout(function(){ fetchFollowups(); }, 200);
-  });
-}
-
-function fetchFollowups(){
-  api("followups",{token:_tok},function(d){
-    if(!d||!d.ok){
-      document.getElementById("fuList").innerHTML='<div style="text-align:center;padding:40px;color:var(--gray)">Could not load follow-ups.</div>';
-      return;
-    }
-    try { renderFollowups(d); } catch(e){ console.error("renderFollowups error:",e); }
   });
 }
 
@@ -691,7 +649,6 @@ function doRefresh(){
     _dash=d.data;
     destroyCharts();
     try { renderAll(); } catch(e){ toast("Render error: "+e.message,"err"); }
-    setTimeout(function(){ fetchFollowups(); }, 200);
     toast("Dashboard refreshed","ok");
   });
 }
@@ -738,63 +695,6 @@ function renderKPIs(){
 function kpiCard(v,lbl,cls,sub){
   return '<div class="kpi"><div class="kpi-val'+(cls?' '+cls:'')+'">'+esc(String(v))+'</div>'+
     '<div class="kpi-label">'+esc(lbl)+'</div><div class="kpi-sub">'+esc(sub)+'</div></div>';
-}
-
-// ── FOLLOW-UPS ───────────────────────────────────────────────
-function renderFollowups(d){
-  if(!d) return;
-  var fuDateEl=document.getElementById("fuDate");
-  if(fuDateEl) fuDateEl.textContent=fmtDate(d.date)||"";
-  var fuStripEl=document.getElementById("fuStrip");
-  if(fuStripEl) fuStripEl.innerHTML=[
-    fuCard(d.todayCount||0,"Calls Today",""),
-    fuCard(d.todayHot||0,"Hot Today",(d.todayHot||0)>0?"var(--red)":""),
-    fuCard((d.urgentList||[]).length,"High Priority",(d.urgentList||[]).length>0?"var(--red)":""),
-    fuCard(_dash?(_dash.kpis.interested||0):0,"Interested (All)","var(--green)")
-  ].join("");
-  var list=d.urgentList||[];
-  var fuListEl=document.getElementById("fuList");
-  if(!fuListEl) return;
-  if(!list.length){
-    fuListEl.innerHTML='<div style="text-align:center;padding:40px;color:var(--gray)">✓ No high-priority follow-ups right now.</div>';
-    return;
-  }
-  fuListEl.innerHTML=list.map(function(c,i){
-    var priCls=c.followUpPri==="High"?"h":c.followUpPri==="Medium"?"m":"l";
-    return '<div class="fu-row" onclick="toggleFUExpand(this,'+i+')" data-i="'+i+'">'+
-      '<div class="fu-pri '+priCls+'"></div>'+
-      '<div class="fu-main">'+
-        '<div class="fu-sp">'+esc(c.salesperson||"?")+' · <span style="font-weight:400;color:var(--gray)">'+esc(c.callType||"")+'</span></div>'+
-        '<div class="fu-action">'+esc(c.followUpAct||c.summary||"No action noted")+'</div>'+
-        '<div class="fu-tags">'+intentBadge(c.leadIntent)+' '+outcomeBadge(c.callOutcome)+
-          (c.qualityFlag&&c.qualityFlag!=="STANDARD"?' '+flagBadge(c.qualityFlag):"")+'</div>'+
-        '<div id="fuexp-'+i+'" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">'+
-          '<div style="font-size:11px;color:var(--gray);line-height:1.6">'+esc(c.summary||"")+'</div>'+
-          (c.spFeedback?'<div style="margin-top:8px;font-size:11px;color:var(--red-dk);font-style:italic;background:rgba(208,38,26,.05);padding:8px 12px;border-left:3px solid var(--red)">'+esc(c.spFeedback)+'</div>':"")+
-        '</div>'+
-      '</div>'+
-      '<div class="fu-meta">'+esc(c.dateDisp||"")+
-        '<br><span>'+esc(c.convProb||"—")+'</span>'+
-        '<br>'+scorePill(c.spScore)+
-      '</div>'+
-    '</div>';
-  }).join("");
-}
-
-function fuCard(v,lbl,col){
-  return '<div class="fu-today-card"><div class="fu-today-val" style="'+(col?'color:'+col:'')+'">'+esc(String(v))+'</div><div class="fu-today-lbl">'+esc(lbl)+'</div></div>';
-}
-
-function toggleFUExpand(row,i){
-  var el=document.getElementById("fuexp-"+i);
-  if(!el)return;
-  if(_fuExpanded!==null&&_fuExpanded!==i){
-    var prev=document.getElementById("fuexp-"+_fuExpanded);
-    if(prev)prev.style.display="none";
-  }
-  var open=el.style.display!=="none";
-  el.style.display=open?"none":"block";
-  _fuExpanded=open?null:i;
 }
 
 // ── OVERVIEW ─────────────────────────────────────────────────
@@ -1126,7 +1026,6 @@ function renderObjectionCharts(){
       scales:{x:{ticks:{color:"var(--gray)",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},
         y:{ticks:{color:"var(--gray)",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}}}}
   });
-  // Heatmap
   var heat=_dash.objectionHeatmap||[];
   var hEl=document.getElementById("heatmap");
   if(!heat.length){hEl.innerHTML='<div style="padding:24px;text-align:center;color:var(--gray)">No objection data yet.</div>';return;}
