@@ -121,6 +121,10 @@ input,select{font-family:inherit;outline:none}
 .g3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px}
 .g12{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:12px}
 .gfull{margin-bottom:12px}
+/* New layout: big weekly chart + leaderboard side by side */
+.g-ov-main{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:12px}
+/* Monthly trend full width in overview */
+.g-ov-month{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
 
 /* ── CARD ── */
 .card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--card-sh)}
@@ -215,7 +219,11 @@ input,select{font-family:inherit;outline:none}
 .sp-score-lbl{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;text-align:right;margin-top:2px}
 .sp-delta{font-size:11px;font-weight:600;text-align:right}
 .sp-delta.up{color:var(--green)}.sp-delta.dn{color:var(--red)}.sp-delta.eq{color:var(--gray)}
-.sp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0}
+/* Today's calls badge on card */
+.sp-today-badge{display:inline-flex;align-items:center;gap:4px;background:var(--off);border:1px solid var(--border);border-radius:var(--r-xs);padding:4px 9px;font-size:11px;font-weight:600;margin-bottom:10px}
+.sp-today-badge .tc-num{font-family:var(--ff-head);font-size:18px;line-height:1;color:var(--red)}
+.sp-today-badge .tc-lbl{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;line-height:1.3}
+.sp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
 .sp-stat{background:var(--off);border-radius:var(--r-xs);padding:8px}
 .sp-stat-v{font-family:var(--ff-head);font-size:20px;line-height:1}
 .sp-stat-l{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;margin-top:2px}
@@ -239,7 +247,7 @@ input,select{font-family:inherit;outline:none}
 /* ── SP DETAIL ── */
 .sp-detail-wrap{display:none;margin-top:12px}
 .sp-detail-wrap.open{display:block}
-.sp-detail-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sp-detail-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
 .sp-detail-name{font-family:var(--ff-head);font-size:28px;letter-spacing:.02em}
 .sp-close{font-size:11px;color:var(--gray);background:var(--off);border:1px solid var(--border);border-radius:var(--r-xs);padding:4px 10px;transition:all .15s}
 .sp-close:hover{color:var(--black);border-color:var(--black)}
@@ -249,6 +257,15 @@ input,select{font-family:inherit;outline:none}
 .week-table tr:last-child td{border-bottom:none}
 .delta-up{color:var(--green);font-weight:600}.delta-dn{color:var(--red);font-weight:600}.delta-eq{color:var(--gray)}
 
+/* ── OBJECTION LIST in SP detail ── */
+.obj-list{display:flex;flex-direction:column;gap:5px}
+.obj-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--off);border-radius:var(--r-xs);border:1px solid var(--border)}
+.obj-rank-num{font-family:var(--ff-head);font-size:15px;width:18px;text-align:center;color:var(--gray);flex-shrink:0}
+.obj-text{flex:1;font-size:12px;font-weight:500;color:var(--black);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.obj-count-pill{font-family:var(--ff-head);font-size:14px;color:var(--red);flex-shrink:0}
+.obj-bar-bg{width:50px;height:3px;background:var(--border);border-radius:3px;overflow:hidden;flex-shrink:0}
+.obj-bar-fill{height:100%;background:var(--red);border-radius:3px}
+
 /* ── ANALYTICS KPIS ── */
 .akpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 .akpi{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px;box-shadow:var(--card-sh)}
@@ -257,12 +274,7 @@ input,select{font-family:inherit;outline:none}
 .akpi-val.g{color:var(--green)}.akpi-val.a{color:var(--amber)}.akpi-val.r{color:var(--red)}
 .akpi-sub{font-size:11px;color:var(--gray)}
 
-/* ── DOW / COMPARE ── */
-.dow-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.dow-lbl{font-size:11px;font-weight:600;width:32px;flex-shrink:0;color:var(--black)}
-.dow-track{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden}
-.dow-fill{height:100%;border-radius:4px;transition:width .4s ease}
-.dow-val{font-size:11px;font-family:var(--ff-mono);width:44px;text-align:right;flex-shrink:0;color:var(--gray)}
+/* ── CMP ── */
 .cmp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .cmp-lbl{font-size:11px;font-weight:600;width:88px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--black)}
 .cmp-track{flex:1;height:9px;background:var(--border);border-radius:5px;overflow:hidden}
@@ -286,8 +298,8 @@ input,select{font-family:inherit;outline:none}
 .dleg-val{font-family:var(--ff-head);font-size:16px;color:var(--black)}
 
 /* ── RESPONSIVE ── */
-@media(max-width:1024px){.g3{grid-template-columns:1fr 1fr}.g12{grid-template-columns:1fr}}
-@media(max-width:900px){.kpi-strip{grid-template-columns:repeat(3,1fr)}.g2,.g3{grid-template-columns:1fr}.akpi-row{grid-template-columns:repeat(2,1fr)}.tb-ts{display:none}}
+@media(max-width:1024px){.g-ov-main{grid-template-columns:1fr}.g12{grid-template-columns:1fr}}
+@media(max-width:900px){.kpi-strip{grid-template-columns:repeat(3,1fr)}.g2,.g3,.g-ov-main{grid-template-columns:1fr}.akpi-row{grid-template-columns:repeat(2,1fr)}.tb-ts{display:none}}
 @media(max-width:640px){.kpi-strip,.akpi-row{grid-template-columns:repeat(2,1fr)}.page{padding:12px 12px 60px}.tab-btn{font-size:10px;padding:7px 10px}.topbar{padding:0 12px;gap:8px}.tb-sub{display:none}}
 </style>
 </head>
@@ -354,31 +366,22 @@ input,select{font-family:inherit;outline:none}
     <button class="tab-btn"    data-tab="analytics"  onclick="switchTab('analytics',this)"><span class="tab-icon">📈</span> Analytics</button>
   </nav>
 
-  <!-- OVERVIEW -->
+  <!-- ═══════════════════════════════════════════════════════════
+       OVERVIEW TAB
+       Removed: trendChart (stacked bars), typeChart (call type donut),
+                intentChart (lead intent donut)
+       Kept: weeklyChart (calls + score line), leaderboard
+       Added: Monthly trend promoted to Overview for visibility
+  ════════════════════════════════════════════════════════════ -->
   <div class="panel on" id="panel-overview">
     <div class="sec-head"><span class="sec-head-title">📊 Overview</span></div>
-    <div class="g3">
+
+    <!-- Weekly volume + score / leaderboard -->
+    <div class="g-ov-main">
       <div class="card">
-        <div class="card-title">Weekly Call Volume</div>
-        <div class="card-sub">Last 8 weeks — calls vs hot leads</div>
-        <div style="position:relative;height:210px"><canvas id="trendChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Call Type Mix</div>
-        <div class="card-sub">Distribution across all calls</div>
-        <div style="position:relative;height:180px"><canvas id="typeChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Lead Intent</div>
-        <div class="card-sub">Hot · Warm · Cold breakdown</div>
-        <div style="position:relative;height:180px"><canvas id="intentChart"></canvas></div>
-      </div>
-    </div>
-    <div class="g2">
-      <div class="card">
-        <div class="card-title">Weekly Volume & Score</div>
-        <div class="card-sub">Bars = calls · Line = avg quality score</div>
-        <div style="position:relative;height:190px"><canvas id="weeklyChart"></canvas></div>
+        <div class="card-title">Weekly Volume &amp; Score</div>
+        <div class="card-sub">Bars = total calls · Line = avg quality score · Last 8 weeks</div>
+        <div style="position:relative;height:240px"><canvas id="weeklyChart"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">🏆 This Week — Leaderboard</div>
@@ -386,9 +389,20 @@ input,select{font-family:inherit;outline:none}
         <div class="lb-list" id="lbList"></div>
       </div>
     </div>
+
+    <!-- Monthly trend — promoted from Analytics to Overview -->
+    <div class="g-ov-month">
+      <div class="card">
+        <div class="card-title">Monthly Trend</div>
+        <div class="card-sub" id="monthSubOv">Total calls vs avg quality score over time</div>
+        <div style="position:relative;height:200px"><canvas id="monthChartOv"></canvas></div>
+      </div>
+    </div>
   </div>
 
-  <!-- ALL CALLS -->
+  <!-- ═══════════════════════════════════════════════════════════
+       ALL CALLS TAB — unchanged
+  ════════════════════════════════════════════════════════════ -->
   <div class="panel" id="panel-calls">
     <div class="sec-head"><span class="sec-head-title">📞 All Calls</span></div>
     <div class="fbar">
@@ -459,7 +473,12 @@ input,select{font-family:inherit;outline:none}
     <div class="pag" id="callsPag"></div>
   </div>
 
-  <!-- TEAM -->
+  <!-- ═══════════════════════════════════════════════════════════
+       TEAM TAB
+       Added: Today's call count badge on each card (prominent)
+       Added: Per-salesperson top objections section in detail panel
+              (front-and-centre above recent calls)
+  ════════════════════════════════════════════════════════════ -->
   <div class="panel" id="panel-team">
     <div class="sec-head">
       <span class="sec-head-title">👥 Team Performance</span>
@@ -471,6 +490,14 @@ input,select{font-family:inherit;outline:none}
         <div class="sp-detail-name" id="spDetailName"></div>
         <button class="sp-close" onclick="closeSpDetail()">✕ Close</button>
       </div>
+
+      <!-- Objections: front-and-centre as per expert recommendation -->
+      <div style="margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:4px">⚠️ Top Objections Faced</div>
+        <div class="card-sub" style="margin-bottom:10px">Most frequent objections for this salesperson — primary coaching focus</div>
+        <div class="obj-list" id="spObjList"></div>
+      </div>
+
       <div class="g2">
         <div>
           <div class="card-title" style="margin-bottom:10px">Weekly Score Trend</div>
@@ -481,6 +508,7 @@ input,select{font-family:inherit;outline:none}
           <table class="week-table" id="spWeekTable"></table>
         </div>
       </div>
+
       <div style="margin-top:14px">
         <div class="card-title" style="margin-bottom:10px">Recent Calls</div>
         <div class="tbl-wrap" style="margin-bottom:0">
@@ -496,9 +524,15 @@ input,select{font-family:inherit;outline:none}
     </div>
   </div>
 
-  <!-- OBJECTIONS -->
+  <!-- ═══════════════════════════════════════════════════════════
+       OBJECTIONS TAB
+       Removed: sentChart (Sentiment — unreliable on mixed-lang short calls)
+                convChart (Conv Probability distribution — redundant with table)
+       Kept:    objChart (top objections bar), outcomeChart (donut),
+                heatmap (most strategically valuable)
+  ════════════════════════════════════════════════════════════ -->
   <div class="panel" id="panel-objections">
-    <div class="sec-head"><span class="sec-head-title">🔍 Objections & Outcomes</span></div>
+    <div class="sec-head"><span class="sec-head-title">🔍 Objections &amp; Outcomes</span></div>
     <div class="g2">
       <div class="card">
         <div class="card-title">Top Objections</div>
@@ -507,57 +541,40 @@ input,select{font-family:inherit;outline:none}
       </div>
       <div class="card">
         <div class="card-title">Call Outcomes</div>
-        <div class="card-sub">How calls resolved</div>
+        <div class="card-sub">How calls resolved across all records</div>
         <div style="position:relative;height:180px"><canvas id="outcomeChart"></canvas></div>
         <div id="outcomeLeg" style="margin-top:10px"></div>
       </div>
     </div>
-    <div class="g2">
-      <div class="card">
-        <div class="card-title">Sentiment</div>
-        <div class="card-sub">Student mood across all calls</div>
-        <div style="position:relative;height:160px"><canvas id="sentChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Conversion Probability</div>
-        <div class="card-sub">AI-estimated enrolment likelihood</div>
-        <div style="position:relative;height:160px"><canvas id="convChart"></canvas></div>
-      </div>
-    </div>
     <div class="card gfull">
       <div class="card-title">Objection Heatmap — by Salesperson</div>
-      <div class="card-sub">Darker = encountered more often</div>
+      <div class="card-sub">Darker = encountered more often · Use this to identify individual coaching opportunities</div>
       <div id="heatmap" style="overflow-x:auto;padding-top:8px"></div>
     </div>
   </div>
 
-  <!-- ANALYTICS -->
+  <!-- ═══════════════════════════════════════════════════════════
+       ANALYTICS TAB
+       Removed: dowStats / Best Day of Week (not actionable for small team)
+                scoreDistChart (Score Distribution donut — no click-through)
+       Kept:    akpi summary row, Monthly Trend (also in Overview),
+                Salesperson Comparison bars
+  ════════════════════════════════════════════════════════════ -->
   <div class="panel" id="panel-analytics">
     <div class="sec-head"><span class="sec-head-title">📈 Deep Analytics</span></div>
     <div class="akpi-row" id="akpiRow"></div>
-    <div class="g2">
+    <div class="gfull">
       <div class="card">
         <div class="card-title">Monthly Trend</div>
-        <div class="card-sub" id="monthSub">Total calls vs avg score</div>
-        <div style="position:relative;height:200px"><canvas id="monthChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Best Day of Week</div>
-        <div class="card-sub">Avg call quality score by weekday</div>
-        <div id="dowChart" style="padding-top:4px"></div>
+        <div class="card-sub" id="monthSub">Total calls vs avg score over time</div>
+        <div style="position:relative;height:220px"><canvas id="monthChart"></canvas></div>
       </div>
     </div>
-    <div class="g12">
+    <div class="gfull">
       <div class="card">
         <div class="card-title">Salesperson Comparison</div>
         <div class="card-sub">Bar = call volume · Colour = score quality · Number = avg score</div>
         <div id="spCompare" style="padding-top:4px"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Score Distribution</div>
-        <div class="card-sub">How many calls in each score range</div>
-        <div style="position:relative;height:180px"><canvas id="scoreDistChart"></canvas></div>
-        <div id="scoreDistLeg" style="margin-top:10px"></div>
       </div>
     </div>
   </div>
@@ -698,21 +715,15 @@ function kpiCard(v,lbl,cls,sub){
 }
 
 // ── OVERVIEW ─────────────────────────────────────────────────
+// Renders: weeklyChart (calls+score line) and leaderboard side-by-side,
+// plus monthlyTrend chart promoted to Overview.
+// Removed: trendChart, typeChart, intentChart
 function renderOverviewCharts(){
   if(!_dash)return;
-  var k=_dash.kpis||{}, wv=_dash.weeklyVolume||[], ctb=_dash.callTypeBreakdown||[], lb=_dash.weeklyLeaderboard||[];
+  var wv=_dash.weeklyVolume||[], lb=_dash.weeklyLeaderboard||[], mt=_dash.monthlyTrend||[];
+
+  // Weekly volume + score (the more informative chart — calls as bars, score as line)
   if(wv.length){
-    safeChart("trendChart",{
-      type:"bar",
-      data:{
-        labels:wv.map(function(w){return fmtDate(w.week);}),
-        datasets:[
-          {label:"Calls",data:wv.map(function(w){return w.calls;}),backgroundColor:"rgba(208,38,26,.7)",borderRadius:3},
-          {label:"Hot",data:wv.map(function(w){return w.hot;}),backgroundColor:"rgba(245,158,11,.5)",borderRadius:3}
-        ]
-      },
-      options:barOpts(true)
-    });
     safeChart("weeklyChart",{
       type:"bar",
       data:{
@@ -733,19 +744,27 @@ function renderOverviewCharts(){
       }
     });
   }
-  var ctbFiltered=ctb.filter(function(c){return c.count>0;});
-  if(ctbFiltered.length){
-    mkDonut("typeChart",
-      ctbFiltered.map(function(c){return c.type;}),
-      ctbFiltered.map(function(c){return c.count;}),
-      ["rgba(208,38,26,.85)","rgba(59,130,246,.85)","rgba(34,197,94,.85)","rgba(6,182,212,.85)"]);
-  } else {
-    mkDonut("typeChart",["All Calls"],[k.totalCalls||0],["rgba(208,38,26,.85)"]);
+
+  // Monthly trend — promoted to Overview so it's prominent and not buried
+  var mNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var mLbls=mt.map(function(m){var p=m.month.split("-");return mNames[parseInt(p[1],10)-1]+" "+p[0].slice(2);});
+  if(mLbls.length>=2) document.getElementById("monthSubOv").textContent="Total calls vs avg score · "+mLbls[0]+" – "+mLbls[mLbls.length-1];
+  if(mt.length){
+    safeChart("monthChartOv",{
+      type:"line",
+      data:{labels:mLbls,datasets:[
+        {label:"Calls",data:mt.map(function(m){return m.total;}),backgroundColor:"rgba(208,38,26,.06)",borderColor:"var(--red)",borderWidth:2,fill:true,tension:.35,yAxisID:"y"},
+        {label:"Avg Score",data:mt.map(function(m){return m.avgScore;}),borderColor:"var(--green)",borderWidth:2,fill:false,tension:.35,pointRadius:3,yAxisID:"y2"}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:"var(--gray)",font:{size:11}}}},
+        scales:{y:{ticks:{color:"var(--gray)",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}},
+          y2:{position:"right",min:0,max:10,ticks:{color:"var(--green)",font:{size:10}},grid:{drawOnChartArea:false}},
+          x:{ticks:{color:"var(--gray)",font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8},grid:{display:false}}}}
+    });
   }
-  mkDonut("intentChart",
-    ["Hot","Warm","Cold"],
-    [k.hot||0,k.warm||0,k.cold||0],
-    ["rgba(208,38,26,.85)","rgba(245,158,11,.85)","rgba(153,148,144,.7)"]);
+
+  // Leaderboard
   var ranks=["g","s","b"];
   var lbEl=document.getElementById("lbList");
   if(!lb.length){
@@ -906,6 +925,7 @@ function exportCSV(){
 }
 
 // ── TEAM ─────────────────────────────────────────────────────
+// Added: today's call count badge (sparkline[13]) prominently displayed
 function renderTeamCards(){
   if(!_dash)return;
   var sps=_dash.salespersons||[];
@@ -918,6 +938,8 @@ function renderTeamCards(){
     var scCls=sc>=7?"var(--green)":sc>=5?"var(--amber)":"var(--red)";
     var delta=sp.scoreDelta||0,dSign=delta>0?"+":"";
     var dCls=delta>0?"up":delta<0?"dn":"eq";
+    // Today's call count is the last element (index 13) in the 14-day sparkline
+    var todayCalls=(sp.sparkline&&sp.sparkline.length===14)?sp.sparkline[13]:0;
     var sparks=(sp.sparkline||[]).map(function(v,i){
       var h=maxSpark>0?Math.round(v/maxSpark*100):0;
       return '<div class="sp-bar'+(i===13?" today":"")+'" style="height:'+Math.max(h,4)+'%" title="'+(i===13?"Today":"Day "+(i+1))+': '+v+' calls"></div>';
@@ -927,6 +949,11 @@ function renderTeamCards(){
         '<div><div class="sp-name">'+esc(sp.name||"?")+'</div><div class="sp-last">'+(sp.lastCallDate?"Last: "+fmtDate(sp.lastCallDate):"No calls yet")+'</div></div>'+
         '<div><div class="sp-score" style="color:'+scCls+'">'+sc+'</div><div class="sp-score-lbl">avg / 10</div>'+
         '<div class="sp-delta '+dCls+'">'+(sp.weekScore?dSign+delta+" vs last wk":"—")+'</div></div>'+
+      '</div>'+
+      // TODAY badge — prominent, as recommended by the expert
+      '<div class="sp-today-badge">'+
+        '<div><div class="tc-num">'+todayCalls+'</div></div>'+
+        '<div class="tc-lbl">calls<br>today</div>'+
       '</div>'+
       '<div class="sp-stats">'+
         '<div class="sp-stat"><div class="sp-stat-v">'+sp.totalCalls+'</div><div class="sp-stat-l">Calls</div></div>'+
@@ -942,14 +969,38 @@ function renderTeamCards(){
   }).join("");
 }
 
+// Opens salesperson detail panel and populates all sections.
+// Objections are now front-and-centre (rendered first, above charts).
 function openSpDetail(name){
   switchTabByName("team");
   var wrap=document.getElementById("spDetail");
   wrap.classList.add("open");
   document.getElementById("spDetailName").textContent=name;
+  // Clear objections while loading
+  document.getElementById("spObjList").innerHTML='<div style="padding:12px;text-align:center;color:var(--gray);font-size:12px">Loading…</div>';
   api("salesperson",{token:_tok,name:name},function(d){
     if(!d||!d.ok){toast("Could not load "+name,"err");return;}
     if(_spChart){try{_spChart.destroy();}catch(e){}_spChart=null;}
+
+    // ── TOP OBJECTIONS — front-and-centre ──────────────────────
+    var topObj=d.topObjections||[];
+    var objEl=document.getElementById("spObjList");
+    if(!topObj.length){
+      objEl.innerHTML='<div style="padding:12px;color:var(--gray);font-size:12px;font-style:italic">No objections recorded for this salesperson yet.</div>';
+    } else {
+      var maxObjCount=topObj[0].count||1;
+      objEl.innerHTML=topObj.map(function(o,i){
+        var pct=Math.round(o.count/maxObjCount*100);
+        return '<div class="obj-item">'+
+          '<div class="obj-rank-num">'+(i+1)+'</div>'+
+          '<div class="obj-text" title="'+esc(o.objection)+'">'+esc(o.objection)+'</div>'+
+          '<div class="obj-bar-bg"><div class="obj-bar-fill" style="width:'+pct+'%"></div></div>'+
+          '<div class="obj-count-pill">'+o.count+'</div>'+
+        '</div>';
+      }).join("");
+    }
+
+    // ── SCORE TREND CHART ──────────────────────────────────────
     var st=d.scoreTrend||[];
     if(st.length){
       var ctx=document.getElementById("spTrendChart");
@@ -966,6 +1017,8 @@ function openSpDetail(name){
         });
       }
     }
+
+    // ── WEEK-BY-WEEK TABLE ──────────────────────────────────────
     var weeks=d.weeks||[];
     document.getElementById("spWeekTable").innerHTML=
       '<thead><tr><th>Week</th><th>Calls</th><th>Hot</th><th>Avg Score</th><th>vs prev</th></tr></thead><tbody>'+
@@ -976,8 +1029,10 @@ function openSpDetail(name){
         var ds=delta===null?"—":(delta>0?"+":"")+delta;
         return '<tr><td style="font-family:var(--ff-mono);font-size:11px">'+esc(w.weekStart)+'</td>'+
           '<td>'+w.calls+'</td><td style="color:var(--red)">'+w.hot+'</td>'+
-          '<td>'+( w.avgScore||"—")+'</td><td class="'+dc+'">'+ds+'</td></tr>';
+          '<td>'+(w.avgScore||"—")+'</td><td class="'+dc+'">'+ds+'</td></tr>';
       }).join("")+'</tbody>';
+
+    // ── RECENT CALLS TABLE ──────────────────────────────────────
     var rc=d.recentCalls||[];
     document.getElementById("spRecentBody").innerHTML=rc.map(function(c){
       return '<tr><td class="td-dim">'+esc(c.dateDisp||"—")+'</td>'+
@@ -987,6 +1042,7 @@ function openSpDetail(name){
         '<td class="td-dim" style="font-family:var(--ff-mono);font-size:11px">'+esc(c.convProb||"—")+'</td>'+
         '<td class="td-dim" style="font-size:11px">'+esc(c.feeQuoted&&c.feeQuoted!=="Not mentioned"?c.feeQuoted:"—")+'</td></tr>';
     }).join("");
+
     setTimeout(function(){wrap.scrollIntoView({behavior:"smooth",block:"nearest"});},80);
   });
 }
@@ -994,9 +1050,11 @@ function openSpDetail(name){
 function closeSpDetail(){document.getElementById("spDetail").classList.remove("open");}
 
 // ── OBJECTIONS ───────────────────────────────────────────────
+// Removed: sentChart, convChart
+// Kept:    objChart, outcomeChart, heatmap (heatmap made full-width)
 function renderObjectionCharts(){
   if(!_dash)return;
-  var objs=_dash.topObjections||[],k=_dash.kpis||{},cd=_dash.convDistribution||[];
+  var objs=_dash.topObjections||[],k=_dash.kpis||{};
   if(objs.length){
     safeChart("objChart",{
       type:"bar",
@@ -1015,17 +1073,8 @@ function renderObjectionCharts(){
     return '<div class="dleg"><div class="dleg-dot" style="background:'+oColors[i]+'"></div>'+
       '<span class="dleg-lbl">'+esc(l)+'</span><span class="dleg-val">'+oVals[i]+'</span></div>';
   }).join("");
-  mkDonut("sentChart",["Positive","Neutral","Negative"],[k.positive||0,k.neutral||0,k.negative||0],
-    ["rgba(34,197,94,.85)","rgba(153,148,144,.7)","rgba(208,38,26,.85)"]);
-  var cLabels=["0-25%","25-50%","50-75%","75-100%"];
-  var cVals=cLabels.map(function(l){var f=cd.find(function(x){return x.range===l;});return f?f.count:0;});
-  safeChart("convChart",{
-    type:"bar",
-    data:{labels:cLabels,datasets:[{data:cVals,backgroundColor:["rgba(208,38,26,.7)","rgba(245,158,11,.7)","rgba(59,130,246,.7)","rgba(34,197,94,.7)"],borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:"var(--gray)",font:{size:11}},grid:{color:"rgba(0,0,0,.04)"}},
-        y:{ticks:{color:"var(--gray)",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}}}}
-  });
+
+  // Heatmap — kept, remains most strategically valuable element
   var heat=_dash.objectionHeatmap||[];
   var hEl=document.getElementById("heatmap");
   if(!heat.length){hEl.innerHTML='<div style="padding:24px;text-align:center;color:var(--gray)">No objection data yet.</div>';return;}
@@ -1056,15 +1105,21 @@ function renderObjectionCharts(){
 }
 
 // ── ANALYTICS ────────────────────────────────────────────────
+// Removed: dowChart (Best Day of Week), scoreDistChart (Score Distribution donut)
+// Kept:    akpi row, monthlyTrend (secondary instance), spCompare
 function renderAnalyticsCharts(){
   if(!_dash)return;
-  var k=_dash.kpis||{},sps=_dash.salespersons||[],mt=_dash.monthlyTrend||[],dow=_dash.dowStats||[],sd=_dash.scoreDistribution||[];
+  var k=_dash.kpis||{},sps=_dash.salespersons||[],mt=_dash.monthlyTrend||[];
+
+  // Analytics KPI row
   document.getElementById("akpiRow").innerHTML=[
     akpi("Hot Lead Rate",(k.hotRate||0)+"%",scoreColStr(k.hotRate||0,30,15),k.hot+" hot of "+k.totalCalls),
     akpi("Interest Rate",(k.intRate||0)+"%",scoreColStr(k.intRate||0,20,10),k.interested+" expressed interest"),
     akpi("Avg Call Score",(k.avgScore||0)+"/10",scoreColStr(k.avgScore||0,7,5),k.strong+" strong calls"),
     akpi("Urgent Follow-ups",k.urgent||0,(k.urgent||0)>0?"a":"g","need same-day action")
   ].join("");
+
+  // Monthly trend — secondary instance in Analytics (shares same data, different canvas)
   var mNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var mLbls=mt.map(function(m){var p=m.month.split("-");return mNames[parseInt(p[1],10)-1]+" "+p[0].slice(2);});
   if(mLbls.length>=2) document.getElementById("monthSub").textContent="Total calls vs avg score · "+mLbls[0]+" – "+mLbls[mLbls.length-1];
@@ -1082,15 +1137,8 @@ function renderAnalyticsCharts(){
           x:{ticks:{color:"var(--gray)",font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:8},grid:{display:false}}}}
     });
   }
-  var dayN=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  var maxAvg=Math.max.apply(null,dow.map(function(d){return d.avgScore;}));
-  document.getElementById("dowChart").innerHTML=dow.map(function(d){
-    var w=d.cnt>0?Math.round(d.avgScore/(maxAvg||10)*100):0;
-    var col=d.avgScore>=7?"var(--green)":d.avgScore>=5?"var(--amber)":d.avgScore>0?"var(--red)":"var(--border)";
-    return '<div class="dow-row"><div class="dow-lbl">'+esc(dayN[d.day])+'</div>'+
-      '<div class="dow-track"><div class="dow-fill" style="width:'+w+'%;background:'+col+'"></div></div>'+
-      '<div class="dow-val">'+(d.cnt>0?d.avgScore+"/10":"—")+'</div></div>';
-  }).join("");
+
+  // Salesperson comparison bars
   var maxC=Math.max.apply(null,sps.map(function(s){return s.totalCalls||0;}).concat([1]));
   document.getElementById("spCompare").innerHTML=sps.map(function(sp){
     var bw=Math.round((sp.totalCalls||0)/maxC*100);
@@ -1101,12 +1149,6 @@ function renderAnalyticsCharts(){
       '<div class="cmp-track"><div class="cmp-fill" style="width:'+bw+'%;background:'+col+'"></div></div>'+
       '<div class="cmp-score '+cls+'">'+sc+'</div><div class="cmp-cnt">'+sp.totalCalls+' calls</div></div>';
   }).join("")||'<div style="text-align:center;padding:24px;color:var(--gray)">No data yet</div>';
-  var sdC=["rgba(34,197,94,.85)","rgba(59,130,246,.85)","rgba(245,158,11,.85)","rgba(208,38,26,.85)"];
-  mkDonut("scoreDistChart",sd.map(function(r){return r.range+" "+r.label;}),sd.map(function(r){return r.count;}),sdC);
-  document.getElementById("scoreDistLeg").innerHTML=sd.map(function(r,i){
-    return '<div class="dleg"><div class="dleg-dot" style="background:'+sdC[i]+'"></div>'+
-      '<span class="dleg-lbl">'+esc(r.range+" "+r.label)+'</span><span class="dleg-val">'+r.count+'</span></div>';
-  }).join("");
 }
 
 // ── TAB SWITCHING ────────────────────────────────────────────
@@ -1142,20 +1184,16 @@ function destroyCharts(){
   if(_spChart){try{_spChart.destroy();}catch(e){}_spChart=null;}
 }
 
-function barOpts(stacked){
-  return{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:"var(--gray)",boxWidth:10,font:{size:11}}}},
-    scales:{x:{stacked:!!stacked,ticks:{color:"var(--gray)",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}},
-      y:{stacked:!!stacked,ticks:{color:"var(--gray)",font:{size:10}},grid:{color:"rgba(0,0,0,.04)"}}}};
-}
-
+// Donut helper — borderWidth:0 removes the white ring between segments
 function mkDonut(id,labels,data,colors){
   var f={labels:[],data:[],colors:[]};
   labels.forEach(function(l,i){if((data[i]||0)>0){f.labels.push(l);f.data.push(data[i]);f.colors.push(colors[i]);}});
   if(!f.data.length){f={labels:labels,data:data,colors:colors};}
   safeChart(id,{
     type:"doughnut",
-    data:{labels:f.labels,datasets:[{data:f.data,backgroundColor:f.colors,borderWidth:2,borderColor:"var(--white)",hoverOffset:5}]},
+    data:{labels:f.labels,datasets:[{data:f.data,backgroundColor:f.colors,
+      borderWidth:0,  // ← removed the black/white border the user disliked
+      hoverOffset:5}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:"65%",
       plugins:{legend:{position:"right",labels:{color:"var(--gray)",boxWidth:9,font:{size:11}}}}}
   });
