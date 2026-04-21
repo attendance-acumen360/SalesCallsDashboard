@@ -121,9 +121,7 @@ input,select{font-family:inherit;outline:none}
 .g3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px}
 .g12{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:12px}
 .gfull{margin-bottom:12px}
-/* New layout: big weekly chart + leaderboard side by side */
 .g-ov-main{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:12px}
-/* Monthly trend full width in overview */
 .g-ov-month{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
 
 /* ── CARD ── */
@@ -219,7 +217,6 @@ input,select{font-family:inherit;outline:none}
 .sp-score-lbl{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;text-align:right;margin-top:2px}
 .sp-delta{font-size:11px;font-weight:600;text-align:right}
 .sp-delta.up{color:var(--green)}.sp-delta.dn{color:var(--red)}.sp-delta.eq{color:var(--gray)}
-/* Today's calls badge on card */
 .sp-today-badge{display:inline-flex;align-items:center;gap:4px;background:var(--off);border:1px solid var(--border);border-radius:var(--r-xs);padding:4px 9px;font-size:11px;font-weight:600;margin-bottom:10px}
 .sp-today-badge .tc-num{font-family:var(--ff-head);font-size:18px;line-height:1;color:var(--red)}
 .sp-today-badge .tc-lbl{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;line-height:1.3}
@@ -297,10 +294,90 @@ input,select{font-family:inherit;outline:none}
 .dleg-lbl{color:var(--gray);flex:1}
 .dleg-val{font-family:var(--ff-head);font-size:16px;color:var(--black)}
 
+/* ════════════════════════════════════════════════
+   STUDENT JOURNEY TAB
+════════════════════════════════════════════════ */
+
+/* Search bar */
+.jrn-search-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:16px;box-shadow:var(--card-sh)}
+.jrn-search-title{font-family:var(--ff-head);font-size:18px;letter-spacing:.04em;margin-bottom:4px}
+.jrn-search-hint{font-size:11px;color:var(--gray);margin-bottom:14px;line-height:1.5}
+.jrn-input-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.jrn-input{flex:1;min-width:200px;max-width:340px;padding:11px 16px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:15px;font-weight:500;font-family:var(--ff-mono);color:var(--black);background:var(--off);transition:border-color .2s,box-shadow .2s;letter-spacing:.05em}
+.jrn-input:focus{border-color:var(--red);background:var(--white);box-shadow:0 0 0 4px rgba(208,38,26,.07)}
+.jrn-input::placeholder{font-family:var(--ff-body);letter-spacing:0;color:var(--gray);font-weight:400}
+.jrn-search-btn{padding:11px 22px;background:var(--black);color:var(--white);border-radius:var(--r-sm);font-family:var(--ff-head);font-size:15px;letter-spacing:.08em;position:relative;overflow:hidden;transition:transform .1s}
+.jrn-search-btn::before{content:'';position:absolute;inset:0;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .28s cubic-bezier(.22,1,.36,1);z-index:0}
+.jrn-search-btn:hover::before{transform:scaleX(1)}
+.jrn-search-btn:active{transform:scale(.97)}
+.jrn-search-btn span{position:relative;z-index:1}
+.jrn-search-btn:disabled{opacity:.4;cursor:not-allowed}
+.jrn-clear-btn{font-size:11px;color:var(--gray);background:var(--off);border:1px solid var(--border);border-radius:var(--r-xs);padding:7px 12px;transition:all .15s}
+.jrn-clear-btn:hover{color:var(--black);border-color:var(--black)}
+.jrn-err{font-size:12px;color:var(--red-dk);background:rgba(208,38,26,.05);border:1px solid rgba(208,38,26,.18);border-left:3px solid var(--red);border-radius:7px;padding:9px 12px;margin-top:10px;display:none;line-height:1.5}
+.jrn-err.show{display:block}
+
+/* Journey header / status card */
+.jrn-header{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:16px;box-shadow:var(--card-sh);display:none}
+.jrn-header.show{display:block}
+.jrn-hdr-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.jrn-phone{font-family:var(--ff-mono);font-size:22px;font-weight:700;letter-spacing:.06em;color:var(--black)}
+.jrn-status-badge{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.jrn-st-enrolled{background:rgba(34,197,94,.1);color:#15803d;border:1px solid rgba(34,197,94,.3)}
+.jrn-st-hot{background:rgba(208,38,26,.08);color:var(--red-dk);border:1px solid rgba(208,38,26,.2)}
+.jrn-st-progress{background:rgba(245,158,11,.08);color:#92400e;border:1px solid rgba(245,158,11,.22)}
+.jrn-st-lost{background:rgba(153,148,144,.1);color:var(--gray);border:1px solid var(--border)}
+.jrn-st-unreachable{background:rgba(153,148,144,.1);color:var(--gray);border:1px solid var(--border)}
+.jrn-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.jrn-kpi{background:var(--off);border-radius:var(--r-sm);padding:10px 12px}
+.jrn-kpi-val{font-family:var(--ff-head);font-size:22px;line-height:1;margin-bottom:3px}
+.jrn-kpi-lbl{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gray)}
+
+/* Not found state */
+.jrn-notfound{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:40px 24px;text-align:center;margin-bottom:16px;box-shadow:var(--card-sh);display:none}
+.jrn-notfound.show{display:block}
+.jrn-notfound-icon{font-size:36px;margin-bottom:10px}
+.jrn-notfound-title{font-family:var(--ff-head);font-size:20px;margin-bottom:6px;letter-spacing:.03em}
+.jrn-notfound-sub{font-size:12px;color:var(--gray);line-height:1.6;max-width:400px;margin:0 auto}
+
+/* Timeline */
+.jrn-timeline{display:none}
+.jrn-timeline.show{display:block}
+.jrn-tl-title{font-family:var(--ff-head);font-size:16px;letter-spacing:.04em;margin-bottom:12px;color:var(--black)}
+.jrn-tl-wrap{position:relative;padding-left:28px}
+/* vertical line */
+.jrn-tl-wrap::before{content:'';position:absolute;left:10px;top:8px;bottom:8px;width:2px;background:var(--border);border-radius:2px}
+/* each call card */
+.jrn-call-card{position:relative;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;box-shadow:var(--card-sh);transition:border-color .15s}
+.jrn-call-card:hover{border-color:rgba(208,38,26,.3)}
+/* dot on the timeline line */
+.jrn-call-card::before{content:'';position:absolute;left:-22px;top:18px;width:10px;height:10px;border-radius:50%;background:var(--border);border:2px solid var(--white);box-shadow:0 0 0 2px var(--border)}
+.jrn-call-card.jrn-hot::before{background:var(--red);box-shadow:0 0 0 2px rgba(208,38,26,.25)}
+.jrn-call-card.jrn-warm::before{background:var(--amber);box-shadow:0 0 0 2px rgba(245,158,11,.25)}
+.jrn-call-card.jrn-enrolled::before{background:var(--green);box-shadow:0 0 0 2px rgba(34,197,94,.25)}
+/* call number badge */
+.jrn-call-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--black);color:var(--white);font-family:var(--ff-head);font-size:12px;flex-shrink:0}
+.jrn-call-row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.jrn-call-date{font-size:11px;color:var(--gray);font-family:var(--ff-mono)}
+.jrn-call-sp{font-size:12px;font-weight:600;color:var(--black)}
+.jrn-badges-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+/* Summary + details */
+.jrn-summary{font-size:12px;color:var(--black);line-height:1.6;margin-bottom:8px}
+.jrn-details-toggle{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);background:none;padding:0;opacity:.7;transition:opacity .15s;display:inline-flex;align-items:center;gap:4px}
+.jrn-details-toggle:hover{opacity:1}
+.jrn-details-toggle .jchev{display:inline-block;transition:transform .18s;font-size:9px}
+.jrn-details-toggle.open .jchev{transform:rotate(90deg)}
+.jrn-details{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.jrn-details.open{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 18px}
+.jdi label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:2px}
+.jdi p{font-size:12px;color:var(--black);line-height:1.55}
+.jdi.jfull{grid-column:1/-1}
+.jdi.jfb p{color:var(--red-dk);font-style:italic;background:rgba(208,38,26,.04);border-left:3px solid var(--red);padding:7px 11px;border-radius:0 var(--r-xs) var(--r-xs) 0}
+
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){.g-ov-main{grid-template-columns:1fr}.g12{grid-template-columns:1fr}}
 @media(max-width:900px){.kpi-strip{grid-template-columns:repeat(3,1fr)}.g2,.g3,.g-ov-main{grid-template-columns:1fr}.akpi-row{grid-template-columns:repeat(2,1fr)}.tb-ts{display:none}}
-@media(max-width:640px){.kpi-strip,.akpi-row{grid-template-columns:repeat(2,1fr)}.page{padding:12px 12px 60px}.tab-btn{font-size:10px;padding:7px 10px}.topbar{padding:0 12px;gap:8px}.tb-sub{display:none}}
+@media(max-width:640px){.kpi-strip,.akpi-row{grid-template-columns:repeat(2,1fr)}.page{padding:12px 12px 60px}.tab-btn{font-size:10px;padding:7px 10px}.topbar{padding:0 12px;gap:8px}.tb-sub{display:none}.jrn-kpis{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -364,19 +441,12 @@ input,select{font-family:inherit;outline:none}
     <button class="tab-btn"    data-tab="team"       onclick="switchTab('team',this)"><span class="tab-icon">👥</span> Team</button>
     <button class="tab-btn"    data-tab="objections" onclick="switchTab('objections',this)"><span class="tab-icon">🔍</span> Objections</button>
     <button class="tab-btn"    data-tab="analytics"  onclick="switchTab('analytics',this)"><span class="tab-icon">📈</span> Analytics</button>
+    <button class="tab-btn"    data-tab="journey"    onclick="switchTab('journey',this)"><span class="tab-icon">🗺️</span> Student Journey</button>
   </nav>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       OVERVIEW TAB
-       Removed: trendChart (stacked bars), typeChart (call type donut),
-                intentChart (lead intent donut)
-       Kept: weeklyChart (calls + score line), leaderboard
-       Added: Monthly trend promoted to Overview for visibility
-  ════════════════════════════════════════════════════════════ -->
+  <!-- ══════════════════════ OVERVIEW ══════════════════════ -->
   <div class="panel on" id="panel-overview">
     <div class="sec-head"><span class="sec-head-title">📊 Overview</span></div>
-
-    <!-- Weekly volume + score / leaderboard -->
     <div class="g-ov-main">
       <div class="card">
         <div class="card-title">Weekly Volume &amp; Score</div>
@@ -389,8 +459,6 @@ input,select{font-family:inherit;outline:none}
         <div class="lb-list" id="lbList"></div>
       </div>
     </div>
-
-    <!-- Monthly trend — promoted from Analytics to Overview -->
     <div class="g-ov-month">
       <div class="card">
         <div class="card-title">Monthly Trend</div>
@@ -400,9 +468,7 @@ input,select{font-family:inherit;outline:none}
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       ALL CALLS TAB — unchanged
-  ════════════════════════════════════════════════════════════ -->
+  <!-- ══════════════════════ ALL CALLS ══════════════════════ -->
   <div class="panel" id="panel-calls">
     <div class="sec-head"><span class="sec-head-title">📞 All Calls</span></div>
     <div class="fbar">
@@ -473,12 +539,7 @@ input,select{font-family:inherit;outline:none}
     <div class="pag" id="callsPag"></div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       TEAM TAB
-       Added: Today's call count badge on each card (prominent)
-       Added: Per-salesperson top objections section in detail panel
-              (front-and-centre above recent calls)
-  ════════════════════════════════════════════════════════════ -->
+  <!-- ══════════════════════ TEAM ══════════════════════ -->
   <div class="panel" id="panel-team">
     <div class="sec-head">
       <span class="sec-head-title">👥 Team Performance</span>
@@ -490,14 +551,11 @@ input,select{font-family:inherit;outline:none}
         <div class="sp-detail-name" id="spDetailName"></div>
         <button class="sp-close" onclick="closeSpDetail()">✕ Close</button>
       </div>
-
-      <!-- Objections: front-and-centre as per expert recommendation -->
       <div style="margin-bottom:16px">
         <div class="card-title" style="margin-bottom:4px">⚠️ Top Objections Faced</div>
         <div class="card-sub" style="margin-bottom:10px">Most frequent objections for this salesperson — primary coaching focus</div>
         <div class="obj-list" id="spObjList"></div>
       </div>
-
       <div class="g2">
         <div>
           <div class="card-title" style="margin-bottom:10px">Weekly Score Trend</div>
@@ -508,7 +566,6 @@ input,select{font-family:inherit;outline:none}
           <table class="week-table" id="spWeekTable"></table>
         </div>
       </div>
-
       <div style="margin-top:14px">
         <div class="card-title" style="margin-bottom:10px">Recent Calls</div>
         <div class="tbl-wrap" style="margin-bottom:0">
@@ -524,13 +581,7 @@ input,select{font-family:inherit;outline:none}
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       OBJECTIONS TAB
-       Removed: sentChart (Sentiment — unreliable on mixed-lang short calls)
-                convChart (Conv Probability distribution — redundant with table)
-       Kept:    objChart (top objections bar), outcomeChart (donut),
-                heatmap (most strategically valuable)
-  ════════════════════════════════════════════════════════════ -->
+  <!-- ══════════════════════ OBJECTIONS ══════════════════════ -->
   <div class="panel" id="panel-objections">
     <div class="sec-head"><span class="sec-head-title">🔍 Objections &amp; Outcomes</span></div>
     <div class="g2">
@@ -553,13 +604,7 @@ input,select{font-family:inherit;outline:none}
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       ANALYTICS TAB
-       Removed: dowStats / Best Day of Week (not actionable for small team)
-                scoreDistChart (Score Distribution donut — no click-through)
-       Kept:    akpi summary row, Monthly Trend (also in Overview),
-                Salesperson Comparison bars
-  ════════════════════════════════════════════════════════════ -->
+  <!-- ══════════════════════ ANALYTICS ══════════════════════ -->
   <div class="panel" id="panel-analytics">
     <div class="sec-head"><span class="sec-head-title">📈 Deep Analytics</span></div>
     <div class="akpi-row" id="akpiRow"></div>
@@ -576,6 +621,59 @@ input,select{font-family:inherit;outline:none}
         <div class="card-sub">Bar = call volume · Colour = score quality · Number = avg score</div>
         <div id="spCompare" style="padding-top:4px"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ STUDENT JOURNEY ══════════════════════ -->
+  <div class="panel" id="panel-journey">
+    <div class="sec-head">
+      <span class="sec-head-title">🗺️ Student Journey</span>
+      <span class="sec-head-sub">Tracks all calls made to a single student · New-format files only</span>
+    </div>
+
+    <!-- Search -->
+    <div class="jrn-search-wrap">
+      <div class="jrn-search-title">Look Up Student</div>
+      <div class="jrn-search-hint">Enter the student's 10-digit mobile number to see every call made to them in chronological order.</div>
+      <div class="jrn-input-row">
+        <input type="text" class="jrn-input" id="jrnPhone"
+          placeholder="e.g. 9876543210"
+          maxlength="10"
+          oninput="jrnOnInput()"
+          onkeydown="if(event.key==='Enter')jrnSearch()">
+        <button class="jrn-search-btn" id="jrnSearchBtn" onclick="jrnSearch()"><span>Search</span></button>
+        <button class="jrn-clear-btn" id="jrnClearBtn" onclick="jrnClear()" style="display:none">✕ Clear</button>
+      </div>
+      <div class="jrn-err" id="jrnErr"></div>
+    </div>
+
+    <!-- Not found -->
+    <div class="jrn-notfound" id="jrnNotFound">
+      <div class="jrn-notfound-icon">🔍</div>
+      <div class="jrn-notfound-title">No Journey Found</div>
+      <div class="jrn-notfound-sub" id="jrnNotFoundSub">
+        No calls were found for this number. Only calls recorded using the new filename format
+        (<strong>n_XXXXXXXXXX_c1.m4a</strong>) are tracked here. Older recordings are not included.
+      </div>
+    </div>
+
+    <!-- Journey header -->
+    <div class="jrn-header" id="jrnHeader">
+      <div class="jrn-hdr-top">
+        <div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-bottom:4px">Student Phone</div>
+          <div class="jrn-phone" id="jrnHdrPhone"></div>
+          <div style="font-size:11px;color:var(--gray);margin-top:4px" id="jrnHdrSP"></div>
+        </div>
+        <div id="jrnHdrStatusBadge"></div>
+      </div>
+      <div class="jrn-kpis" id="jrnKpis"></div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="jrn-timeline" id="jrnTimeline">
+      <div class="jrn-tl-title">Call Timeline</div>
+      <div class="jrn-tl-wrap" id="jrnTlWrap"></div>
     </div>
   </div>
 
@@ -715,14 +813,10 @@ function kpiCard(v,lbl,cls,sub){
 }
 
 // ── OVERVIEW ─────────────────────────────────────────────────
-// Renders: weeklyChart (calls+score line) and leaderboard side-by-side,
-// plus monthlyTrend chart promoted to Overview.
-// Removed: trendChart, typeChart, intentChart
 function renderOverviewCharts(){
   if(!_dash)return;
   var wv=_dash.weeklyVolume||[], lb=_dash.weeklyLeaderboard||[], mt=_dash.monthlyTrend||[];
 
-  // Weekly volume + score (the more informative chart — calls as bars, score as line)
   if(wv.length){
     safeChart("weeklyChart",{
       type:"bar",
@@ -745,7 +839,6 @@ function renderOverviewCharts(){
     });
   }
 
-  // Monthly trend — promoted to Overview so it's prominent and not buried
   var mNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var mLbls=mt.map(function(m){var p=m.month.split("-");return mNames[parseInt(p[1],10)-1]+" "+p[0].slice(2);});
   if(mLbls.length>=2) document.getElementById("monthSubOv").textContent="Total calls vs avg score · "+mLbls[0]+" – "+mLbls[mLbls.length-1];
@@ -764,7 +857,6 @@ function renderOverviewCharts(){
     });
   }
 
-  // Leaderboard
   var ranks=["g","s","b"];
   var lbEl=document.getElementById("lbList");
   if(!lb.length){
@@ -925,7 +1017,6 @@ function exportCSV(){
 }
 
 // ── TEAM ─────────────────────────────────────────────────────
-// Added: today's call count badge (sparkline[13]) prominently displayed
 function renderTeamCards(){
   if(!_dash)return;
   var sps=_dash.salespersons||[];
@@ -938,7 +1029,6 @@ function renderTeamCards(){
     var scCls=sc>=7?"var(--green)":sc>=5?"var(--amber)":"var(--red)";
     var delta=sp.scoreDelta||0,dSign=delta>0?"+":"";
     var dCls=delta>0?"up":delta<0?"dn":"eq";
-    // Today's call count is the last element (index 13) in the 14-day sparkline
     var todayCalls=(sp.sparkline&&sp.sparkline.length===14)?sp.sparkline[13]:0;
     var sparks=(sp.sparkline||[]).map(function(v,i){
       var h=maxSpark>0?Math.round(v/maxSpark*100):0;
@@ -950,7 +1040,6 @@ function renderTeamCards(){
         '<div><div class="sp-score" style="color:'+scCls+'">'+sc+'</div><div class="sp-score-lbl">avg / 10</div>'+
         '<div class="sp-delta '+dCls+'">'+(sp.weekScore?dSign+delta+" vs last wk":"—")+'</div></div>'+
       '</div>'+
-      // TODAY badge — prominent, as recommended by the expert
       '<div class="sp-today-badge">'+
         '<div><div class="tc-num">'+todayCalls+'</div></div>'+
         '<div class="tc-lbl">calls<br>today</div>'+
@@ -969,20 +1058,16 @@ function renderTeamCards(){
   }).join("");
 }
 
-// Opens salesperson detail panel and populates all sections.
-// Objections are now front-and-centre (rendered first, above charts).
 function openSpDetail(name){
   switchTabByName("team");
   var wrap=document.getElementById("spDetail");
   wrap.classList.add("open");
   document.getElementById("spDetailName").textContent=name;
-  // Clear objections while loading
   document.getElementById("spObjList").innerHTML='<div style="padding:12px;text-align:center;color:var(--gray);font-size:12px">Loading…</div>';
   api("salesperson",{token:_tok,name:name},function(d){
     if(!d||!d.ok){toast("Could not load "+name,"err");return;}
     if(_spChart){try{_spChart.destroy();}catch(e){}_spChart=null;}
 
-    // ── TOP OBJECTIONS — front-and-centre ──────────────────────
     var topObj=d.topObjections||[];
     var objEl=document.getElementById("spObjList");
     if(!topObj.length){
@@ -1000,7 +1085,6 @@ function openSpDetail(name){
       }).join("");
     }
 
-    // ── SCORE TREND CHART ──────────────────────────────────────
     var st=d.scoreTrend||[];
     if(st.length){
       var ctx=document.getElementById("spTrendChart");
@@ -1018,7 +1102,6 @@ function openSpDetail(name){
       }
     }
 
-    // ── WEEK-BY-WEEK TABLE ──────────────────────────────────────
     var weeks=d.weeks||[];
     document.getElementById("spWeekTable").innerHTML=
       '<thead><tr><th>Week</th><th>Calls</th><th>Hot</th><th>Avg Score</th><th>vs prev</th></tr></thead><tbody>'+
@@ -1032,7 +1115,6 @@ function openSpDetail(name){
           '<td>'+(w.avgScore||"—")+'</td><td class="'+dc+'">'+ds+'</td></tr>';
       }).join("")+'</tbody>';
 
-    // ── RECENT CALLS TABLE ──────────────────────────────────────
     var rc=d.recentCalls||[];
     document.getElementById("spRecentBody").innerHTML=rc.map(function(c){
       return '<tr><td class="td-dim">'+esc(c.dateDisp||"—")+'</td>'+
@@ -1050,8 +1132,6 @@ function openSpDetail(name){
 function closeSpDetail(){document.getElementById("spDetail").classList.remove("open");}
 
 // ── OBJECTIONS ───────────────────────────────────────────────
-// Removed: sentChart, convChart
-// Kept:    objChart, outcomeChart, heatmap (heatmap made full-width)
 function renderObjectionCharts(){
   if(!_dash)return;
   var objs=_dash.topObjections||[],k=_dash.kpis||{};
@@ -1074,7 +1154,6 @@ function renderObjectionCharts(){
       '<span class="dleg-lbl">'+esc(l)+'</span><span class="dleg-val">'+oVals[i]+'</span></div>';
   }).join("");
 
-  // Heatmap — kept, remains most strategically valuable element
   var heat=_dash.objectionHeatmap||[];
   var hEl=document.getElementById("heatmap");
   if(!heat.length){hEl.innerHTML='<div style="padding:24px;text-align:center;color:var(--gray)">No objection data yet.</div>';return;}
@@ -1105,13 +1184,10 @@ function renderObjectionCharts(){
 }
 
 // ── ANALYTICS ────────────────────────────────────────────────
-// Removed: dowChart (Best Day of Week), scoreDistChart (Score Distribution donut)
-// Kept:    akpi row, monthlyTrend (secondary instance), spCompare
 function renderAnalyticsCharts(){
   if(!_dash)return;
   var k=_dash.kpis||{},sps=_dash.salespersons||[],mt=_dash.monthlyTrend||[];
 
-  // Analytics KPI row
   document.getElementById("akpiRow").innerHTML=[
     akpi("Hot Lead Rate",(k.hotRate||0)+"%",scoreColStr(k.hotRate||0,30,15),k.hot+" hot of "+k.totalCalls),
     akpi("Interest Rate",(k.intRate||0)+"%",scoreColStr(k.intRate||0,20,10),k.interested+" expressed interest"),
@@ -1119,7 +1195,6 @@ function renderAnalyticsCharts(){
     akpi("Urgent Follow-ups",k.urgent||0,(k.urgent||0)>0?"a":"g","need same-day action")
   ].join("");
 
-  // Monthly trend — secondary instance in Analytics (shares same data, different canvas)
   var mNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var mLbls=mt.map(function(m){var p=m.month.split("-");return mNames[parseInt(p[1],10)-1]+" "+p[0].slice(2);});
   if(mLbls.length>=2) document.getElementById("monthSub").textContent="Total calls vs avg score · "+mLbls[0]+" – "+mLbls[mLbls.length-1];
@@ -1138,7 +1213,6 @@ function renderAnalyticsCharts(){
     });
   }
 
-  // Salesperson comparison bars
   var maxC=Math.max.apply(null,sps.map(function(s){return s.totalCalls||0;}).concat([1]));
   document.getElementById("spCompare").innerHTML=sps.map(function(sp){
     var bw=Math.round((sp.totalCalls||0)/maxC*100);
@@ -1149,6 +1223,181 @@ function renderAnalyticsCharts(){
       '<div class="cmp-track"><div class="cmp-fill" style="width:'+bw+'%;background:'+col+'"></div></div>'+
       '<div class="cmp-score '+cls+'">'+sc+'</div><div class="cmp-cnt">'+sp.totalCalls+' calls</div></div>';
   }).join("")||'<div style="text-align:center;padding:24px;color:var(--gray)">No data yet</div>';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  STUDENT JOURNEY TAB
+// ══════════════════════════════════════════════════════════════
+
+function jrnOnInput(){
+  // Strip non-digits while typing; hide error
+  var el=document.getElementById("jrnPhone");
+  el.value=el.value.replace(/\D/g,"");
+  document.getElementById("jrnErr").classList.remove("show");
+}
+
+function jrnSearch(){
+  var phone=document.getElementById("jrnPhone").value.replace(/\D/g,"").trim();
+  var errEl=document.getElementById("jrnErr");
+  errEl.classList.remove("show");
+
+  if(phone.length!==10){
+    errEl.textContent="Please enter a valid 10-digit mobile number.";
+    errEl.classList.add("show");
+    return;
+  }
+
+  // Hide previous results while loading
+  jrnHideResults();
+
+  var btn=document.getElementById("jrnSearchBtn");
+  btn.disabled=true;
+  btn.querySelector("span").textContent="Searching…";
+
+  api("journey",{token:_tok,phone:phone},function(d){
+    btn.disabled=false;
+    btn.querySelector("span").textContent="Search";
+
+    if(!d){toast("Connection error","err");return;}
+    if(d.expired){expiredLogout();return;}
+    if(!d.ok){
+      errEl.textContent=d.error||"Search failed.";
+      errEl.classList.add("show");
+      return;
+    }
+
+    // Show clear button
+    document.getElementById("jrnClearBtn").style.display="";
+
+    if(!d.found){
+      document.getElementById("jrnNotFound").classList.add("show");
+      return;
+    }
+
+    jrnRenderHeader(d.header);
+    jrnRenderTimeline(d.calls);
+  });
+}
+
+function jrnClear(){
+  document.getElementById("jrnPhone").value="";
+  document.getElementById("jrnErr").classList.remove("show");
+  document.getElementById("jrnClearBtn").style.display="none";
+  jrnHideResults();
+}
+
+function jrnHideResults(){
+  document.getElementById("jrnHeader").classList.remove("show");
+  document.getElementById("jrnNotFound").classList.remove("show");
+  document.getElementById("jrnTimeline").classList.remove("show");
+}
+
+function jrnRenderHeader(h){
+  if(!h)return;
+
+  document.getElementById("jrnHdrPhone").textContent=h.phone||"—";
+  document.getElementById("jrnHdrSP").textContent="Handled by: "+esc(h.salespersons||"—");
+
+  // Status badge
+  var statusMap={
+    "Enrolled":           "jrn-st-enrolled",
+    "Hot — Ready to Enrol":"jrn-st-hot",
+    "In Progress":         "jrn-st-progress",
+    "Closed — Lost":       "jrn-st-lost",
+    "Unreachable":         "jrn-st-unreachable"
+  };
+  var badgeCls=statusMap[h.status]||"jrn-st-progress";
+  document.getElementById("jrnHdrStatusBadge").innerHTML=
+    '<div class="jrn-status-badge '+badgeCls+'">'+esc(h.status||"—")+'</div>';
+
+  // KPIs
+  var scCol=h.avgScore>=7?"var(--green)":h.avgScore>=5?"var(--amber)":"var(--red)";
+  var latestIntentColor=h.latestIntent==="Hot"?"var(--red)":h.latestIntent==="Warm"?"var(--amber)":"var(--gray)";
+  document.getElementById("jrnKpis").innerHTML=
+    jrnKpi(h.totalCalls,"Total Calls","")+
+    jrnKpi(h.firstCallDate||"—","First Contact","")+
+    jrnKpi(h.lastCallDate||"—","Last Contact","")+
+    jrnKpi(h.latestOutcome||"—","Latest Outcome","")+
+    jrnKpi(h.latestIntent||"—","Current Intent",latestIntentColor)+
+    jrnKpi((h.avgScore||0)+"/10","Avg Score",scCol);
+
+  document.getElementById("jrnHeader").classList.add("show");
+}
+
+function jrnKpi(val,lbl,color){
+  return '<div class="jrn-kpi">'+
+    '<div class="jrn-kpi-val"'+(color?' style="color:'+color+'"':'')+'>'+esc(String(val))+'</div>'+
+    '<div class="jrn-kpi-lbl">'+esc(lbl)+'</div>'+
+  '</div>';
+}
+
+function jrnRenderTimeline(calls){
+  if(!calls||!calls.length)return;
+
+  var wrap=document.getElementById("jrnTlWrap");
+
+  // Determine the dot colour class per card based on call outcome / intent
+  function cardClass(c){
+    if(c.callType==="Fee Collection")return"jrn-enrolled";
+    if(c.leadIntent==="Hot"||c.callOutcome==="Interested")return"jrn-hot";
+    if(c.leadIntent==="Warm"||c.callOutcome==="Needs Follow-up")return"jrn-warm";
+    return"";
+  }
+
+  wrap.innerHTML=calls.map(function(c,i){
+    var fee=(c.feeQuoted&&c.feeQuoted!=="Not mentioned")?c.feeQuoted:null;
+    var numLabel=c.callNum>0?"Call "+c.callNum:"Call "+(i+1);
+    var detId="jdt-"+i;
+
+    // Build expanded detail items
+    var details=
+      jdi("Primary Objection",c.primaryObj)+
+      (c.secondaryObj&&c.secondaryObj!=="Not mentioned"?jdi("Secondary Objection",c.secondaryObj):"")+
+      (c.studentGoal&&c.studentGoal!=="Not mentioned"?jdi("Student Goal",c.studentGoal):"")+
+      (c.coursePref&&c.coursePref!=="Not mentioned"?jdi("Course Preference",c.coursePref):"")+
+      (fee?jdi("Fee Quoted",fee):"")+
+      jdi("Follow-up Action",c.followUpAct)+
+      jdi("Key Points",c.keyPoints,true)+
+      (c.spFeedback?'<div class="jdi jfull jfb"><label>💬 Coaching Feedback</label><p>'+esc(c.spFeedback)+'</p></div>':"");
+
+    return '<div class="jrn-call-card '+cardClass(c)+'">'+
+      '<div class="jrn-call-row1">'+
+        '<div class="jrn-call-num">'+esc(String(c.callNum>0?c.callNum:(i+1)))+'</div>'+
+        '<span class="jrn-call-sp">'+esc(c.salesperson||"?")+'</span>'+
+        '<span class="jrn-call-date">'+esc(c.dateDisp||"—")+'</span>'+
+      '</div>'+
+      '<div class="jrn-badges-row">'+
+        typeBadge(c.callType)+
+        intentBadge(c.leadIntent)+
+        outcomeBadge(c.callOutcome)+
+        priBadge(c.followUpPri)+
+        scorePill(c.spScore)+
+        flagBadge(c.qualityFlag)+
+      '</div>'+
+      (c.summary?'<div class="jrn-summary">'+esc(c.summary)+'</div>':"")+
+      (details?
+        '<button class="jrn-details-toggle" id="jtoggle-'+i+'" onclick="jrnToggleDetails('+i+')">'+
+          '<span class="jchev">▸</span> Details'+
+        '</button>'+
+        '<div class="jrn-details" id="'+detId+'">'+details+'</div>'
+      :"")+
+    '</div>';
+  }).join("");
+
+  document.getElementById("jrnTimeline").classList.add("show");
+}
+
+function jrnToggleDetails(i){
+  var det=document.getElementById("jdt-"+i);
+  var tog=document.getElementById("jtoggle-"+i);
+  if(!det||!tog)return;
+  var open=det.classList.toggle("open");
+  tog.classList.toggle("open",open);
+}
+
+function jdi(label,val,full){
+  if(!val||val==="Not mentioned")return"";
+  return '<div class="jdi'+(full?" jfull":"")+'"><label>'+esc(label)+'</label><p>'+esc(val)+'</p></div>';
 }
 
 // ── TAB SWITCHING ────────────────────────────────────────────
@@ -1184,7 +1433,6 @@ function destroyCharts(){
   if(_spChart){try{_spChart.destroy();}catch(e){}_spChart=null;}
 }
 
-// Donut helper — borderWidth:0 removes the white ring between segments
 function mkDonut(id,labels,data,colors){
   var f={labels:[],data:[],colors:[]};
   labels.forEach(function(l,i){if((data[i]||0)>0){f.labels.push(l);f.data.push(data[i]);f.colors.push(colors[i]);}});
@@ -1192,8 +1440,7 @@ function mkDonut(id,labels,data,colors){
   safeChart(id,{
     type:"doughnut",
     data:{labels:f.labels,datasets:[{data:f.data,backgroundColor:f.colors,
-      borderWidth:0,  // ← removed the black/white border the user disliked
-      hoverOffset:5}]},
+      borderWidth:0,hoverOffset:5}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:"65%",
       plugins:{legend:{position:"right",labels:{color:"var(--gray)",boxWidth:9,font:{size:11}}}}}
   });
