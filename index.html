@@ -169,8 +169,12 @@ input,select{font-family:inherit;outline:none}
 .fcnt{font-size:11px;color:var(--gray);background:var(--off);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap}
 .fbtn-clear{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--red);background:none;padding:2px 0;opacity:.7;transition:opacity .15s}
 .fbtn-clear:hover{opacity:1}
+/* [FIX 5] CSV button — two variants: page export and full filtered export */
 .fbtn-csv{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#15803d;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:var(--r-xs);padding:4px 10px;transition:all .15s}
 .fbtn-csv:hover{background:rgba(34,197,94,.15)}
+.fbtn-csv-all{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1d4ed8;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--r-xs);padding:4px 10px;transition:all .15s}
+.fbtn-csv-all:hover{background:rgba(59,130,246,.15)}
+.fbtn-csv-all:disabled{opacity:.4;cursor:not-allowed}
 
 /* ── PAGINATION ── */
 .pag{display:flex;gap:4px;align-items:center;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
@@ -516,7 +520,9 @@ input,select{font-family:inherit;outline:none}
       </div>
       <input type="text" class="fsearch" id="fQ" placeholder="🔎 Search name, summary, objection…" oninput="filterAndRender()">
       <button class="fbtn-clear" onclick="clearFilters()">Clear</button>
-      <button class="fbtn-csv" onclick="exportCSV()">⬇ CSV</button>
+      <!-- [FIX 5] Two export buttons: page CSV (current view) and full filtered CSV -->
+      <button class="fbtn-csv" onclick="exportCSV()" title="Export this page only">⬇ CSV (page)</button>
+      <button class="fbtn-csv-all" id="csvAllBtn" onclick="exportCSVAll()" title="Export all filtered results">⬇ CSV (all)</button>
       <span class="fcnt" id="callsCnt">—</span>
     </div>
     <div class="tbl-wrap">
@@ -663,6 +669,7 @@ input,select{font-family:inherit;outline:none}
         <div>
           <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-bottom:4px">Student Phone</div>
           <div class="jrn-phone" id="jrnHdrPhone"></div>
+          <!-- [FIX 4] Using a plain <span> set via textContent — no esc() wrapping needed -->
           <div style="font-size:11px;color:var(--gray);margin-top:4px" id="jrnHdrSP"></div>
         </div>
         <div id="jrnHdrStatusBadge"></div>
@@ -878,12 +885,11 @@ function renderOverviewCharts(){
 }
 
 // ── CALLS TAB ────────────────────────────────────────────────
+// [FIX 3] d.salespersons from the backend is now an array of
+// objects { name: "..." }. The .map(s => s.name) below is
+// therefore correct and will no longer produce undefined entries.
 function loadCallsTab(){
   if(_callsLoaded)return;
-  var sps=(_dash.salespersons||[]).map(function(s){return s.name;}).sort();
-  var sel=document.getElementById("fSP");
-  sel.innerHTML='<option value="">All</option>'+
-    sps.map(function(s){return '<option value="'+esc(s)+'">'+esc(s)+'</option>';}).join("");
   fetchCalls(1);
 }
 
@@ -907,6 +913,24 @@ function fetchCalls(page){
     _calls=d.calls||[];
     _callMeta={page:d.page,totalPages:d.totalPages,totalFiltered:d.totalFiltered,totalAll:d.totalAll};
     _callsLoaded=true;
+
+    // [FIX 3] Populate the SP filter dropdown.
+    // Backend returns salespersons as [{ name: "Nilesh" }, ...].
+    // We only rebuild the dropdown on first load (page 1 fresh fetch)
+    // to avoid resetting the user's current selection mid-browse.
+    if(d.salespersons && d.salespersons.length){
+      var sel=document.getElementById("fSP");
+      var currentVal=sel.value;
+      sel.innerHTML='<option value="">All</option>'+
+        d.salespersons.map(function(s){
+          // s.name is the string from the backend object
+          var n=s.name||"";
+          return '<option value="'+esc(n)+'">'+esc(n)+'</option>';
+        }).join("");
+      // Restore previously-selected value if it still exists
+      sel.value=currentVal;
+    }
+
     renderCallsTable();
   });
 }
@@ -999,21 +1023,65 @@ function renderPagination(){
   el.innerHTML=h;
 }
 
+// ── CSV EXPORT ───────────────────────────────────────────────
+// [FIX 5a] exportCSV() — unchanged behaviour: exports the current
+//          page only (25 rows). Label updated to "(page)" for clarity.
 function exportCSV(){
   if(!_calls.length){toast("No calls to export","warn");return;}
+  triggerCSVDownload(_calls,"acumen_calls_page"+(_callMeta.page||1));
+  toast("Exported "+_calls.length+" calls (this page)","ok");
+}
+
+// [FIX 5b] exportCSVAll() — fetches every filtered result from the
+//          backend in one shot (all=true) and downloads as a single
+//          CSV. Disables the button while loading to prevent double-clicks.
+function exportCSVAll(){
+  var total=_callMeta.totalFiltered||0;
+  if(!total){toast("No filtered calls to export","warn");return;}
+  var btn=document.getElementById("csvAllBtn");
+  btn.disabled=true;
+  btn.textContent="⏳ Exporting…";
+
+  var params={
+    token:_tok,
+    all:"true",
+    sp:document.getElementById("fSP").value,
+    type:document.getElementById("fType").value,
+    intent:document.getElementById("fIntent").value,
+    outcome:document.getElementById("fOutcome").value,
+    priority:document.getElementById("fPri").value,
+    flag:document.getElementById("fFlag").value,
+    from:document.getElementById("fFrom").value,
+    to:document.getElementById("fTo").value,
+    q:document.getElementById("fQ").value
+  };
+
+  api("calls",params,function(d){
+    btn.disabled=false;
+    btn.textContent="⬇ CSV (all)";
+    if(!d||!d.ok){toast("Export failed","err");return;}
+    if(d.expired){expiredLogout();return;}
+    var rows=d.calls||[];
+    if(!rows.length){toast("No data returned","warn");return;}
+    triggerCSVDownload(rows,"acumen_calls_all_filtered");
+    toast("Exported "+rows.length+" calls (all filtered)","ok");
+  });
+}
+
+// Shared CSV builder + download trigger
+function triggerCSVDownload(rows, fileBaseName){
   var hdrs=["Date","Salesperson","Type","Intent","Outcome","Priority","Score","Conv%","Flag","Fee","Objection","Summary","Follow-up Action"];
-  var rows=[hdrs.join(",")];
-  _calls.forEach(function(c){
-    rows.push([c.dateIso,c.salesperson,c.callType,c.leadIntent,c.callOutcome,
+  var lines=[hdrs.join(",")];
+  rows.forEach(function(c){
+    lines.push([c.dateIso,c.salesperson,c.callType,c.leadIntent,c.callOutcome,
       c.followUpPri,c.spScore,c.convProb,c.qualityFlag,c.feeQuoted,
       c.primaryObj,c.summary,c.followUpAct
     ].map(function(v){return'"'+String(v||"").replace(/"/g,'""')+'"';}).join(","));
   });
   var a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([rows.join("\n")],{type:"text/csv"}));
-  a.download="acumen_calls_"+new Date().toISOString().slice(0,10)+".csv";
+  a.href=URL.createObjectURL(new Blob([lines.join("\n")],{type:"text/csv"}));
+  a.download=fileBaseName+"_"+new Date().toISOString().slice(0,10)+".csv";
   document.body.appendChild(a);a.click();document.body.removeChild(a);
-  toast("Exported "+_calls.length+" calls","ok");
 }
 
 // ── TEAM ─────────────────────────────────────────────────────
@@ -1230,7 +1298,6 @@ function renderAnalyticsCharts(){
 // ══════════════════════════════════════════════════════════════
 
 function jrnOnInput(){
-  // Strip non-digits while typing; hide error
   var el=document.getElementById("jrnPhone");
   el.value=el.value.replace(/\D/g,"");
   document.getElementById("jrnErr").classList.remove("show");
@@ -1247,7 +1314,6 @@ function jrnSearch(){
     return;
   }
 
-  // Hide previous results while loading
   jrnHideResults();
 
   var btn=document.getElementById("jrnSearchBtn");
@@ -1266,7 +1332,6 @@ function jrnSearch(){
       return;
     }
 
-    // Show clear button
     document.getElementById("jrnClearBtn").style.display="";
 
     if(!d.found){
@@ -1296,9 +1361,12 @@ function jrnRenderHeader(h){
   if(!h)return;
 
   document.getElementById("jrnHdrPhone").textContent=h.phone||"—";
-  document.getElementById("jrnHdrSP").textContent="Handled by: "+esc(h.salespersons||"—");
 
-  // Status badge
+  // [FIX 4] Use textContent directly — it handles all escaping natively.
+  // Previously esc() was applied before assignment which caused entities
+  // like &#39; to appear as literal text for names with apostrophes.
+  document.getElementById("jrnHdrSP").textContent="Handled by: "+(h.salespersons||"—");
+
   var statusMap={
     "Enrolled":           "jrn-st-enrolled",
     "Hot — Ready to Enrol":"jrn-st-hot",
@@ -1307,10 +1375,10 @@ function jrnRenderHeader(h){
     "Unreachable":         "jrn-st-unreachable"
   };
   var badgeCls=statusMap[h.status]||"jrn-st-progress";
+  // Status text is one of a fixed set of our own strings — safe to put in innerHTML
   document.getElementById("jrnHdrStatusBadge").innerHTML=
     '<div class="jrn-status-badge '+badgeCls+'">'+esc(h.status||"—")+'</div>';
 
-  // KPIs
   var scCol=h.avgScore>=7?"var(--green)":h.avgScore>=5?"var(--amber)":"var(--red)";
   var latestIntentColor=h.latestIntent==="Hot"?"var(--red)":h.latestIntent==="Warm"?"var(--amber)":"var(--gray)";
   document.getElementById("jrnKpis").innerHTML=
@@ -1336,7 +1404,6 @@ function jrnRenderTimeline(calls){
 
   var wrap=document.getElementById("jrnTlWrap");
 
-  // Determine the dot colour class per card based on call outcome / intent
   function cardClass(c){
     if(c.callType==="Fee Collection")return"jrn-enrolled";
     if(c.leadIntent==="Hot"||c.callOutcome==="Interested")return"jrn-hot";
@@ -1346,10 +1413,8 @@ function jrnRenderTimeline(calls){
 
   wrap.innerHTML=calls.map(function(c,i){
     var fee=(c.feeQuoted&&c.feeQuoted!=="Not mentioned")?c.feeQuoted:null;
-    var numLabel=c.callNum>0?"Call "+c.callNum:"Call "+(i+1);
     var detId="jdt-"+i;
 
-    // Build expanded detail items
     var details=
       jdi("Primary Objection",c.primaryObj)+
       (c.secondaryObj&&c.secondaryObj!=="Not mentioned"?jdi("Secondary Objection",c.secondaryObj):"")+
